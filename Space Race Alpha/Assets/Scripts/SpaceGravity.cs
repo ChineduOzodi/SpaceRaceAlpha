@@ -6,6 +6,7 @@ public class SpaceGravity : MonoBehaviour {
     private GameObject[] objs;
     internal int simCount = 1000;
     public float simScale = 1f;
+    internal float G =1000000f;
 
     float M1 = 0;
     int M1PosInd = 0;
@@ -49,9 +50,10 @@ public class SpaceGravity : MonoBehaviour {
                 Vector2 m2Vel = objs[M1PosInd].GetComponent<Rigidbody2D>().velocity;
                 Vector3 m2r = m2Pos - objs[b].transform.position;
                 float CM = M1;
-                Vector3 CMP = objs[M1PosInd].transform.position * M1;
+                Vector3 CMP = m2r * M1;
 
                 Vector3 force = univGrav(m1, m2, m2r) * Time.deltaTime;
+                //Vector3 vel = CentripicalForceVel(m1, m2r.magnitude, force.magnitude) * Tangent(force.normalized);
 
                 for (int c = 0; c < objs.Length; c++)
                 {
@@ -67,7 +69,11 @@ public class SpaceGravity : MonoBehaviour {
                             m2r = m2Pos - objs[b].transform.position;
                             CM += m2;
                             CMP += m2 * m2r;
-                            force += univGrav(m1, m2, m2r) * Time.deltaTime;
+                            Vector3 m2force = univGrav(m1, m2, m2r) * Time.deltaTime;
+
+                            //vel += CentripicalForceVel(m1, m2r.magnitude, m2force.magnitude) * Tangent(m2force.normalized);
+
+                            force += m2force;
                         }
                     }
 
@@ -169,15 +175,14 @@ public class SpaceGravity : MonoBehaviour {
         return rSOI;
     }
 
-    public Vector3 univGrav(float m1, float m2, Vector3 distance)
+    public Vector3 univGrav(float m1, float m2, Vector3 r)
     {
-        if (distance == Vector3.zero)
+        if (r == Vector3.zero)
             return Vector3.zero;
-        float G = 10f;//.0000000000667f;
 
-        float r3 = Mathf.Pow(distance.sqrMagnitude, 1.5f);
+        float r3 = Mathf.Pow(r.sqrMagnitude, 1.5F);
 
-        Vector3 force = (G * m1 * m2 * distance) / r3;
+        Vector3 force = (G * m1 * m2 * r) / r3;
         //print("Force Added: " + force);
         return force;
     }

@@ -1,1 +1,4 @@
-sceneSetups: []
+sceneSetups:
+- path: Assets/_scenes/trajectorytest.unity
+  isLoaded: 1
+  isActive: 1

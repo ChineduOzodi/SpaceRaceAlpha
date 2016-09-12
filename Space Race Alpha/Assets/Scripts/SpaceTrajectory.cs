@@ -2,52 +2,57 @@
 using System.Collections;
 using System;
 
-public class SpaceTrajectory : MonoBehaviour {
+public class SpaceTrajectory : MonoBehaviour
+{
 
     public Color c1 = Color.red;
     public Color c2 = Color.yellow;
-    public int vertsCount = 20;
+    public float width = 1;
+    public int vertsCount = 200;
     internal float SOI;
     internal Vector3[] verts;
     internal Vector3 distance;
     internal Vector3 m2Pos;
     internal Vector3 m2Vel;
     internal float m2;
-    public float G = .2f; //Same as G in Space Gravity
+    internal float G; //Same as G in Space Gravity
 
     // Use this for initialization
-    void Start () {
+    void Start()
+    {
 
         verts = new Vector3[vertsCount];
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
+        G = Camera.main.GetComponent<SpaceGravityReal>().G / 100 * 2;
+
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
         verts = new Vector3[vertsCount];
         if (distance.magnitude != 0)
         {
             DrawTraject(m2Pos);
         }
-        
+
 
     }
 
     public void DrawTraject(Vector3 m2Pos)
     {
-        float increment = 2 * Mathf.PI/(vertsCount-1);
+        float increment = 2 * Mathf.PI / (vertsCount - 1);
 
         Vector2 relVel = GetComponent<Rigidbody2D>().velocity - new Vector2(m2Vel.x, m2Vel.y);
 
-        float angleY = Mathf.Deg2Rad * Vector2.Angle( relVel, distance);
+        float angleY = Mathf.Deg2Rad * Vector2.Angle(relVel, distance);
 
         Vector2 perApo = PerApo(distance.magnitude, relVel.magnitude, m2 * G, angleY);
-        //print(perApo);
+        //print("radius: " + distance.magnitude + " " + perApo);
         float a = SemiMajorAxis(relVel, distance, m2 * G);
         float e = Eccentricity(relVel.magnitude, distance.magnitude, m2 * G, angleY);
         Vector3 eVect = Eccentricity(relVel, distance, m2 * G);
 
-        //print("Es: " + e + ", " + eVect.magnitude);
+        //print("radius: " + distance.magnitude + " Es: " + eVect.magnitude);
         //print("Radial start: " + CartToAngle(distance));
 
         for (int i = 0; i < vertsCount; i++)
@@ -59,7 +64,7 @@ public class SpaceTrajectory : MonoBehaviour {
 
         var line = gameObject.GetComponent<LineRenderer>();
         line.SetVertexCount(vertsCount);
-        line.SetWidth(.2f, .2f);
+        line.SetWidth(width * m2/500, width * m2/ 500);
         line.SetColors(c1, c2);
 
         line.SetPositions(verts);
@@ -75,22 +80,22 @@ public class SpaceTrajectory : MonoBehaviour {
     }
 
     public Vector2 CartesianToPolar(Vector3 point)
- {
-     Vector2 polar;
- 
-     //calc longitude
-     polar.y = Mathf.Atan2(point.x,point.z);
- 
-     //this is easier to write and read than sqrt(pow(x,2), pow(y,2))!
-     var xzLen = new Vector2(point.x, point.z).magnitude;
-    //atan2 does the magic
-    polar.x = Mathf.Atan2(-point.y,xzLen);
- 
-     //convert to deg
-     polar *= Mathf.Rad2Deg;
- 
-     return polar;
- }
+    {
+        Vector2 polar;
+
+        //calc longitude
+        polar.y = Mathf.Atan2(point.x, point.z);
+
+        //this is easier to write and read than sqrt(pow(x,2), pow(y,2))!
+        var xzLen = new Vector2(point.x, point.z).magnitude;
+        //atan2 does the magic
+        polar.x = Mathf.Atan2(-point.y, xzLen);
+
+        //convert to deg
+        polar *= Mathf.Rad2Deg;
+
+        return polar;
+    }
     public float CartToAngle(Vector3 point)
     {
         float angle = Mathf.Atan(point.y / point.x);
@@ -103,7 +108,8 @@ public class SpaceTrajectory : MonoBehaviour {
         {
             angle += Mathf.PI;
         }
-        else {
+        else
+        {
 
             angle += Mathf.PI;
         }
@@ -133,10 +139,10 @@ public class SpaceTrajectory : MonoBehaviour {
 
         float C = (2 * GM) / (r * v * v);
 
-        perApo.x = (-C + Mathf.Sqrt((C * C) - (4 * (1 - C) * (-Mathf.Pow(Mathf.Sin(angleY), 2)))))/ ( 2 * (1 - C));
+        perApo.x = (-C + Mathf.Sqrt((C * C) - (4 * (1 - C) * (-Mathf.Pow(Mathf.Sin(angleY), 2))))) / (2 * (1 - C));
         perApo.y = (-C - Mathf.Sqrt(C * C - 4 * (1 - C) * (-Mathf.Pow(Mathf.Sin(angleY), 2)))) / (2 * (1 - C));
 
-        perApo =  (perApo.x < perApo.y) ? perApo * r: new Vector2(perApo.y, perApo.x) * r;
+        perApo = (perApo.x < perApo.y) ? perApo * r : new Vector2(perApo.y, perApo.x) * r;
 
         return perApo;
     }

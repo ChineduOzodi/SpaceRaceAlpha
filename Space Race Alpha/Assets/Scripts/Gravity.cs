@@ -4,8 +4,8 @@ using System.Collections;
 public class Gravity : MonoBehaviour {
 
     private GameObject[] objs;
-    internal int simCount = 1000;
-    public float simScale = 1f;
+    internal int simCount = 10;
+    public float simScale = 5f;
 
 	// Use this for initialization
 	void Start () {
@@ -32,7 +32,10 @@ public class Gravity : MonoBehaviour {
             {
                 float m1 = objs[b].GetComponent<Rigidbody2D>().mass;
 
-                objs[b].GetComponent<Trajectory>().vectPos[i] = objsPos[b];
+                if (objs[b].GetComponent<Trajectory>() != null)
+                {
+                    objs[b].GetComponent<Trajectory>().vectPos[i] = objsPos[b];
+                }
 
                 Vector3 force = Vector3.zero;
 
@@ -54,7 +57,10 @@ public class Gravity : MonoBehaviour {
                 if (i == 0)
                 {
                     objs[b].GetComponent<Rigidbody2D>().AddForce(forces[0]);
-                    objs[b].GetComponent<Trajectory>().grav = forces[0];
+                    if (objs[b].GetComponent<Trajectory>() != null)
+                    {
+                        objs[b].GetComponent<Trajectory>().grav = forces[0];
+                    }
                 }
             }
         }
