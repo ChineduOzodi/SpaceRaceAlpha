@@ -157,17 +157,17 @@ public class SpaceGravity : MonoBehaviour {
         }
     }
 
-    void OnDrawGizmos()
-    {
-        for (int b = 0; b < objs.Length; b++)
-        {
-            Gizmos.color = Color.white;
-            Gizmos.DrawWireSphere(objs[b].transform.position, objs[b].GetComponent<SpaceTrajectory>().SOI);
-        }
+    //void OnDrawGizmos()
+    //{
+    //    for (int b = 0; b < objs.Length; b++)
+    //    {
+    //        Gizmos.color = Color.white;
+    //        Gizmos.DrawWireSphere(objs[b].transform.position, objs[b].GetComponent<SpaceTrajectory>().SOI);
+    //    }
 
             
         
-    }
+    //}
 
     public float CalcSOI(float m1, float M1, float r)
     {
