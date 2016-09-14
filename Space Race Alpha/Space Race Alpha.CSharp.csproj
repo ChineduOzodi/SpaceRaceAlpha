@@ -69,6 +69,51 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\CodeControl\Example\Scripts\Behaviours\AbstractMode.cs" />
+    <Compile Include="Assets\CodeControl\Example\Scripts\Behaviours\CameraRotator.cs" />
+    <Compile Include="Assets\CodeControl\Example\Scripts\Behaviours\DeleteMode.cs" />
+    <Compile Include="Assets\CodeControl\Example\Scripts\Behaviours\ModeChanger.cs" />
+    <Compile Include="Assets\CodeControl\Example\Scripts\Behaviours\SpawnMode.cs" />
+    <Compile Include="Assets\CodeControl\Example\Scripts\Behaviours\TargetMode.cs" />
+    <Compile Include="Assets\CodeControl\Example\Scripts\Config.cs" />
+    <Compile Include="Assets\CodeControl\Example\Scripts\Controllers\GameController.cs" />
+    <Compile Include="Assets\CodeControl\Example\Scripts\Controllers\LevelController.cs" />
+    <Compile Include="Assets\CodeControl\Example\Scripts\Controllers\RocketController.cs" />
+    <Compile Include="Assets\CodeControl\Example\Scripts\Controllers\TurretController.cs" />
+    <Compile Include="Assets\CodeControl\Example\Scripts\GameManager.cs" />
+    <Compile Include="Assets\CodeControl\Example\Scripts\Messages\GameModeMessage.cs" />
+    <Compile Include="Assets\CodeControl\Example\Scripts\Messages\PlaceTurretMessage.cs" />
+    <Compile Include="Assets\CodeControl\Example\Scripts\Messages\TurretMessage.cs" />
+    <Compile Include="Assets\CodeControl\Example\Scripts\Models\GameModel.cs" />
+    <Compile Include="Assets\CodeControl\Example\Scripts\Models\LevelModel.cs" />
+    <Compile Include="Assets\CodeControl\Example\Scripts\Models\RocketModel.cs" />
+    <Compile Include="Assets\CodeControl\Example\Scripts\Models\TurretModel.cs" />
+    <Compile Include="Assets\CodeControl\Example\Scripts\Other\Colorer.cs" />
+    <Compile Include="Assets\CodeControl\Example\Scripts\Other\Grid.cs" />
+    <Compile Include="Assets\CodeControl\Example\Scripts\Other\Hoverable.cs" />
+    <Compile Include="Assets\CodeControl\Example\Scripts\Other\MathHelper.cs" />
+    <Compile Include="Assets\CodeControl\Example\Scripts\Other\MeshButton.cs" />
+    <Compile Include="Assets\CodeControl\Example\Scripts\Other\OneShotParticle.cs" />
+    <Compile Include="Assets\CodeControl\Example\Scripts\Other\TurretColors.cs" />
+    <Compile Include="Assets\CodeControl\Example\Scripts\Other\TurretCursor.cs" />
+    <Compile Include="Assets\CodeControl\Example\Scripts\Types\GameMode.cs" />
+    <Compile Include="Assets\CodeControl\Example\Scripts\Types\TurretCursorType.cs" />
+    <Compile Include="Assets\CodeControl\Example\Scripts\Views\TurretView.cs" />
+    <Compile Include="Assets\CodeControl\Scripts\Source\Controller.cs" />
+    <Compile Include="Assets\CodeControl\Scripts\Source\Coroutiner.cs" />
+    <Compile Include="Assets\CodeControl\Scripts\Source\Helpers\ListHelper.cs" />
+    <Compile Include="Assets\CodeControl\Scripts\Source\Helpers\SerializeHelper.cs" />
+    <Compile Include="Assets\CodeControl\Scripts\Source\Helpers\TypeHelper.cs" />
+    <Compile Include="Assets\CodeControl\Scripts\Source\Helpers\VectorHelper.cs" />
+    <Compile Include="Assets\CodeControl\Scripts\Source\Manifest\Manifest.cs" />
+    <Compile Include="Assets\CodeControl\Scripts\Source\Manifest\ModelBlobs.cs" />
+    <Compile Include="Assets\CodeControl\Scripts\Source\Manifest\ModelEntry.cs" />
+    <Compile Include="Assets\CodeControl\Scripts\Source\Message.cs" />
+    <Compile Include="Assets\CodeControl\Scripts\Source\Model.cs" />
+    <Compile Include="Assets\CodeControl\Scripts\Source\ModelProxy.cs" />
+    <Compile Include="Assets\CodeControl\Scripts\Source\ModelReferencing\ModelRef.cs" />
+    <Compile Include="Assets\CodeControl\Scripts\Source\ModelReferencing\ModelReferencer.cs" />
+    <Compile Include="Assets\CodeControl\Scripts\Source\ModelReferencing\ModelRefs.cs" />
     <Compile Include="Assets\SFSoftShadows\SFLight.cs" />
     <Compile Include="Assets\SFSoftShadows\SFPolygon.cs" />
     <Compile Include="Assets\SFSoftShadows\SFRenderer.cs" />
@@ -77,17 +122,12 @@
     <Compile Include="Assets\SFSoftShadows\SFSoftShadowDemos\CaveScene\ParticleSystems\Scripts\SmokeParticles.cs" />
     <Compile Include="Assets\SFSoftShadows\SFSoftShadowDemos\DemoPrefabs\Spinner.cs" />
     <Compile Include="Assets\SFSoftShadows\SFSoftShadowDemos\ForestArtwork-Kenney\FlickerLight.cs" />
-    <Compile Include="Assets\Scripts\AI.cs" />
-    <Compile Include="Assets\Scripts\BasePlayer.cs" />
+    <Compile Include="Assets\Scripts\Controllers\SunController.cs" />
     <Compile Include="Assets\Scripts\CustomImageEffect.cs" />
     <Compile Include="Assets\Scripts\DragObject2D.cs" />
-    <Compile Include="Assets\Scripts\GameManager.cs" />
     <Compile Include="Assets\Scripts\Gravity.cs" />
-    <Compile Include="Assets\Scripts\Grid.cs" />
-    <Compile Include="Assets\Scripts\Loader.cs" />
-    <Compile Include="Assets\Scripts\Node.cs" />
-    <Compile Include="Assets\Scripts\Player.cs" />
-    <Compile Include="Assets\Scripts\SimpleAI.cs" />
+    <Compile Include="Assets\Scripts\InitialSolarInitializationManager.cs" />
+    <Compile Include="Assets\Scripts\Models\SunModel.cs" />
     <Compile Include="Assets\Scripts\SpaceGravity.cs" />
     <Compile Include="Assets\Scripts\SpaceGravityReal.cs" />
     <Compile Include="Assets\Scripts\SpaceTrajectory.cs" />
@@ -95,6 +135,11 @@
     <Compile Include="Assets\Scripts\Trajectory.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\CodeControl\Example\Visuals\Shaders\VertexColor.shader" />
+    <None Include="Assets\CodeControl\Example\Visuals\Shaders\VertexColorDiffuse.shader" />
+    <None Include="Assets\CodeControl\Example\example_readme.txt" />
+    <None Include="Assets\CodeControl\changelog.txt" />
+    <None Include="Assets\CodeControl\readme.txt" />
     <None Include="Assets\SFSoftShadows\Resources\SFFogLayer.shader" />
     <None Include="Assets\SFSoftShadows\Resources\SFLightBlendLinear.shader" />
     <None Include="Assets\SFSoftShadows\Resources\SFLightBlendSoft.shader" />

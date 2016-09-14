@@ -100,6 +100,11 @@
     <Compile Include="Assets\Standard Assets\Utility\WaypointProgressTracker.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\CodeControl\Example\Visuals\Shaders\VertexColor.shader" />
+    <None Include="Assets\CodeControl\Example\Visuals\Shaders\VertexColorDiffuse.shader" />
+    <None Include="Assets\CodeControl\Example\example_readme.txt" />
+    <None Include="Assets\CodeControl\changelog.txt" />
+    <None Include="Assets\CodeControl\readme.txt" />
     <None Include="Assets\SFSoftShadows\Resources\SFFogLayer.shader" />
     <None Include="Assets\SFSoftShadows\Resources\SFLightBlendLinear.shader" />
     <None Include="Assets\SFSoftShadows\Resources\SFLightBlendSoft.shader" />
