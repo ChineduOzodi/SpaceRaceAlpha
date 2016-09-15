@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<LevelModel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Id>0446fa97-bf80-4b07-9c17-986ad9938fe6</Id>
+  <Turrets>
+    <Id>f4de030a-d5e6-41c1-aadd-28e87c418f5f</Id>
+    <Id>6ba7f1a5-4461-4c86-b0ba-16b654979b35</Id>
+    <Id>0a9f98ae-1677-4f07-8307-7ce6e679ea11</Id>
+    <Id>862ff86f-faa9-4918-8171-038f85d71ab6</Id>
+  </Turrets>
+</LevelModel>

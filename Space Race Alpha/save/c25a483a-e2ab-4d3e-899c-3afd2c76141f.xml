@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<RocketModel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Id>c25a483a-e2ab-4d3e-899c-3afd2c76141f</Id>
+  <Age>1.19371438</Age>
+  <Color>
+    <r>0.2</r>
+    <g>0.6313726</g>
+    <b>0.7882353</b>
+    <a>1</a>
+  </Color>
+  <StartPosition>
+    <x>-1</x>
+    <y>0</y>
+    <z>-1.5</z>
+  </StartPosition>
+  <TargetTurret>
+    <Id>862ff86f-faa9-4918-8171-038f85d71ab6</Id>
+  </TargetTurret>
+  <Altitude>0.418079764</Altitude>
+</RocketModel>

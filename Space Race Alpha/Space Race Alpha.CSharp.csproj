@@ -122,17 +122,21 @@
     <Compile Include="Assets\SFSoftShadows\SFSoftShadowDemos\CaveScene\ParticleSystems\Scripts\SmokeParticles.cs" />
     <Compile Include="Assets\SFSoftShadows\SFSoftShadowDemos\DemoPrefabs\Spinner.cs" />
     <Compile Include="Assets\SFSoftShadows\SFSoftShadowDemos\ForestArtwork-Kenney\FlickerLight.cs" />
+    <Compile Include="Assets\Scripts\Behaviors\SpaceGravityReal.cs" />
     <Compile Include="Assets\Scripts\Controllers\SunController.cs" />
     <Compile Include="Assets\Scripts\CustomImageEffect.cs" />
     <Compile Include="Assets\Scripts\DragObject2D.cs" />
+    <Compile Include="Assets\Scripts\Extras\Forces.cs" />
     <Compile Include="Assets\Scripts\Gravity.cs" />
     <Compile Include="Assets\Scripts\InitialSolarInitializationManager.cs" />
+    <Compile Include="Assets\Scripts\Models\PlanetModel.cs" />
     <Compile Include="Assets\Scripts\Models\SunModel.cs" />
     <Compile Include="Assets\Scripts\SpaceGravity.cs" />
-    <Compile Include="Assets\Scripts\SpaceGravityReal.cs" />
     <Compile Include="Assets\Scripts\SpaceTrajectory.cs" />
     <Compile Include="Assets\Scripts\SpriteText.cs" />
     <Compile Include="Assets\Scripts\Trajectory.cs" />
+    <Compile Include="Assets\Scripts\Types\ObjectType.cs" />
+    <Compile Include="Assets\Scripts\Types\OrbitSituation.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\CodeControl\Example\Visuals\Shaders\VertexColor.shader" />

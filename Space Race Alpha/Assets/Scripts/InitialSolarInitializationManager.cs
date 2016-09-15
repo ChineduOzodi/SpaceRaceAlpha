@@ -4,8 +4,15 @@ using CodeControl;
 
 public class InitialSolarInitializationManager : MonoBehaviour {
 
-	// Use this for initialization
-	void Awake()
+    public GameObject sunObject;
+    public GameObject planetObject;
+
+    float CM = 0;
+    Vector3 CMP = Vector3.zero;
+    Vector3 CMPos = Vector3.zero;
+
+    // Use this for initialization
+    void Awake()
     {
         //instantiate sun model
         SunModel sun = new SunModel();
@@ -14,9 +21,15 @@ public class InitialSolarInitializationManager : MonoBehaviour {
         sun.localScale = Vector3.one;
 
         //Instantiat sun controller
-        Controller.Instantiate<SunController>(sun);
+        Controller.Instantiate<SunController>(sunObject,sun);
 
-        sun.position.y = 10;
+        sun.position.y = 10f;
+        sun.localScale.x = 10f;
         sun.NotifyChange();
+    }
+
+    void Update()
+    {
+
     }
 }
