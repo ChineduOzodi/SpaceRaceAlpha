@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<TurretModel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Id>361b3673-bb83-4469-90bc-305933515dcc</Id>
+  <Color>
+    <r>0.933333337</r>
+    <g>0.933333337</g>
+    <b>0</b>
+    <a>1</a>
+  </Color>
+  <Position>
+    <x>0</x>
+    <y>0</y>
+    <z>1</z>
+  </Position>
+  <TargetTurret />
+  <TimeSinceLastShot>60.6372261</TimeSinceLastShot>
+</TurretModel>

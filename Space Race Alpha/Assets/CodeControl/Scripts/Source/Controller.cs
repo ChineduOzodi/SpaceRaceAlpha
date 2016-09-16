@@ -110,7 +110,7 @@ namespace CodeControl {
                 return null;
             }
 
-            controller.transform.parent = parent;
+            controller.transform.SetParent(parent);
             controller.transform.localPosition = Vector3.zero;
 
             controller.Initialize(model);

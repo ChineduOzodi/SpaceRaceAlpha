@@ -58,57 +58,57 @@ public class SpaceGravityReal : MonoBehaviour
 
         //Initial velocities
 
-        //for (int i = 0; i < 4; i++)
-        //{
-        //    for (int b = 0; b < objs.Length; b++)
-        //    {
-        //        float m1 = objs[b].GetComponent<Rigidbody2D>().mass;
+        for (int i = 0; i < 4; i++)
+        {
+            for (int b = 0; b < objs.Length; b++)
+            {
+                float m1 = objs[b].GetComponent<Rigidbody2D>().mass;
 
-        //        Vector3 CMr = CMPos - objs[b].transform.position;
-        //        Vector3 r1 = objs[b].transform.position;
+                Vector3 CMr = CMPos - objs[b].transform.position;
+                Vector3 r1 = objs[b].transform.position;
 
-        //        float M2 = CM - m1;
-        //        Vector3 M2r = CMPos - (CMP - (m1 * r1)) / (M2);
+                float M2 = CM - m1;
+                Vector3 M2r = CMPos - (CMP - (m1 * r1)) / (M2);
 
-        //        Vector3 vel = AngularVelocity(M2, CMr.magnitude, M2r.magnitude) * Tangent(CMr.normalized) * CMr.magnitude * .14f;
+                Vector3 vel = AngularVelocity(M2, CMr.magnitude, M2r.magnitude) * Tangent(CMr.normalized) * CMr.magnitude * .14f;
 
-        //        Vector3 m2Pos = objs[M1PosInd].transform.position;
-        //        //Vector2 m2Vel = objs[M1PosInd].GetComponent<Rigidbody2D>().velocity;
-        //        Vector3 m2r = m2Pos - objs[b].transform.position;
+                Vector3 m2Pos = objs[M1PosInd].transform.position;
+                //Vector2 m2Vel = objs[M1PosInd].GetComponent<Rigidbody2D>().velocity;
+                Vector3 m2r = m2Pos - objs[b].transform.position;
 
-        //        for (int c = 0; c < objs.Length; c++)
-        //        {
-        //            if (c != b)
-        //            {
-        //                Vector3 otherDist = objs[c].transform.position - objs[b].transform.position;
+                for (int c = 0; c < objs.Length; c++)
+                {
+                    if (c != b)
+                    {
+                        Vector3 otherDist = objs[c].transform.position - objs[b].transform.position;
 
-        //                float m2 = objs[c].GetComponent<Rigidbody2D>().mass;
+                        float m2 = objs[c].GetComponent<Rigidbody2D>().mass;
 
-        //                if (otherDist.sqrMagnitude < m2r.sqrMagnitude && (otherDist.magnitude - objs[c].GetComponent<SpaceTrajectory>().SOI) < 0 && m2 > m1)
-        //                {
-        //                    m2Pos = objs[c].transform.position;
-        //                    Vector3 m2Vel = objs[c].GetComponent<Rigidbody2D>().velocity;
-        //                    m2r = m2Pos - objs[b].transform.position;
-        //                    Vector3 CMm2r = CMPos - m2Pos;
-        //                    //CM += m2;
-        //                    //CMP += m2 * m2r;
-        //                    //Vector3 m2force = univGrav(m1, m2, m2r) * Time.deltaTime;
+                        if (otherDist.sqrMagnitude < m2r.sqrMagnitude && (otherDist.magnitude - objs[c].GetComponent<SpaceTrajectory>().SOI) < 0 && m2 > m1)
+                        {
+                            m2Pos = objs[c].transform.position;
+                            Vector3 m2Vel = objs[c].GetComponent<Rigidbody2D>().velocity;
+                            m2r = m2Pos - objs[b].transform.position;
+                            Vector3 CMm2r = CMPos - m2Pos;
+                            //CM += m2;
+                            //CMP += m2 * m2r;
+                            //Vector3 m2force = univGrav(m1, m2, m2r) * Time.deltaTime;
 
-        //                    vel = m2Vel / (CMm2r.magnitude) * CMr.magnitude + AngularVelocity(m2, m2r.magnitude, 0) * Tangent(m2r.normalized) * m2r.magnitude * .14f;
-        //                }
-        //            }
-
-
-        //        }
+                            vel = m2Vel / (CMm2r.magnitude) * CMr.magnitude + AngularVelocity(m2, m2r.magnitude, 0) * Tangent(m2r.normalized) * m2r.magnitude * .14f;
+                        }
+                    }
 
 
-        //        //Apply Velocity
-        //        //Vector3 force = univGrav(m1, m2, distance) * Time.deltaTime;
-        //        //Vector3 vel = CentripicalForceVel(m1, m2r.magnitude, force.magnitude) * Tangent(force.normalized) + new Vector3(m2Vel.x, m2Vel.y);
-        //        objs[b].GetComponent<Rigidbody2D>().velocity = vel;
+                }
 
-        //    }
-        //}
+
+                //Apply Velocity
+                //Vector3 force = univGrav(m1, m2, distance) * Time.deltaTime;
+                //Vector3 vel = CentripicalForceVel(m1, m2r.magnitude, force.magnitude) * Tangent(force.normalized) + new Vector3(m2Vel.x, m2Vel.y);
+                objs[b].GetComponent<Rigidbody2D>().velocity = vel;
+
+            }
+        }
 
 
     }
