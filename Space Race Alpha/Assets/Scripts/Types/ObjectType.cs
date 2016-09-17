@@ -14,3 +14,9 @@ public enum ObjectType {
     Rover
 
 }
+
+public enum BodyType
+{
+    SolarBody,
+    MinorSolarBody 
+}

@@ -2,7 +2,7 @@
 using System.Collections;
 using CodeControl;
 
-public class PlanetModel :  BaseModel{
+public class PlanetModel :  SolarBodyModel{
 
     
     public bool init = false;

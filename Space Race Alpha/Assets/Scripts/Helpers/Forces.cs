@@ -5,33 +5,22 @@ using CodeControl;
 public class Forces
 {
 
-    static float G = 100; //universal gravity constant
+    static float G = 10; //universal gravity constant
 
-    public static Vector3 Force(PlanetModel self, ModelRefs<SunModel> suns, ModelRefs<PlanetModel> planets)
+    public static Vector3 Force(PlanetModel self, ModelRefs<SolarBodyModel> solarBodies)
     {
         Vector3 force = Vector3.zero;
 
         float m1 = self.mass;
-        if (suns != null)
+        if (solarBodies != null)
         {
-            foreach (SunModel sun in suns)
+            foreach (SolarBodyModel body in solarBodies)
             {
-                Vector3 m2Pos = sun.position;
-                float m2 = sun.mass;
+                Vector3 m2Pos = body.position;
+                float m2 = body.mass;
 
                 Vector3 distance = m2Pos - self.position;
-                force += univGrav(m1, m2, distance) * Time.deltaTime;
-            }
-        }
-        if (planets != null)
-        {
-            foreach (PlanetModel planet in planets)
-            {
-                Vector3 m2Pos = planet.position;
-                float m2 = planet.mass;
-
-                Vector3 distance = m2Pos - self.position;
-                force += univGrav(m1, m2, distance) * Time.deltaTime;
+                force += univGrav(m1, m2, distance);
             }
         }
 

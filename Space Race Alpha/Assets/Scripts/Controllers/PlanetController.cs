@@ -10,7 +10,7 @@ public class PlanetController : Controller<PlanetModel> {
 
     private void Awake()
     {
-        Message.AddListener<AddPlanetMessage>(OnAddPlanetMessage);
+        //Message.AddListener<AddPlanetMessage>(OnAddPlanetMessage);
         Message.AddListener<ShowForceMessage>(OnShowForceMessage);
 
         rb2D = GetComponent<Rigidbody2D>();
@@ -59,7 +59,7 @@ public class PlanetController : Controller<PlanetModel> {
 
     void Update()
     {
-        Vector3 force = Forces.Force(model, model.suns, model.planets);
+        Vector3 force = Forces.Force(model, model.solarBodies);
         model.force = force;
         rb2D.AddForce(force * Time.deltaTime);
 
@@ -72,7 +72,7 @@ public class PlanetController : Controller<PlanetModel> {
 
         if(model.init && model.listsUpdated)
         {
-            Message.RemoveListener<PlanetAddedMessage>(OnPlanetAddedMessage);
+            //Message.RemoveListener<PlanetAddedMessage>(OnPlanetAddedMessage);
             model.init = false;
             model.listsUpdated = false;
         }
@@ -100,39 +100,39 @@ public class PlanetController : Controller<PlanetModel> {
         model.NotifyChange();
     }
 
-    private void OnPlanetAddedMessage(PlanetAddedMessage m)
-    {
-        AddPlanet(m.planet);
-        model.listsUpdated = true;
-    }
+    //private void OnPlanetAddedMessage(PlanetAddedMessage m)
+    //{
+    //    AddSolarBody(m.planet);
+    //    model.listsUpdated = true;
+    //}
 
-    private void OnAddPlanetMessage(AddPlanetMessage m)
-    {
-        if (m.planet != model)
-        {
-            AddPlanet(m.planet);
-            PlanetAddedMessage returnM = new PlanetAddedMessage();
+    //private void OnAddPlanetMessage(AddPlanetMessage m)
+    //{
+    //    if (m.planet != model)
+    //    {
+    //        AddSolarBody(m.planet);
+    //        PlanetAddedMessage returnM = new PlanetAddedMessage();
 
-            returnM.planet = model;
-            Message.Send(returnM);
-        }
+    //        returnM.planet = model;
+    //        Message.Send(returnM);
+    //    }
         
 
-    }
+    //}
 
     private void ListUpdate() {
         model.listsUpdated = false;
 
-        AddPlanetMessage m = new AddPlanetMessage();
-            m.planet = model;
-            Message.Send(m);
+        //AddPlanetMessage m = new AddPlanetMessage();
+        //    m.planet = model;
+        //    Message.Send(m);
 
-            Message.AddListener<PlanetAddedMessage>(OnPlanetAddedMessage);
+        //    Message.AddListener<PlanetAddedMessage>(OnPlanetAddedMessage);
     }
 
-    private void AddPlanet(PlanetModel p)
+    private void AddSolarBody(SolarBodyModel p)
     {
-        if (p.type == ObjectType.Planet)
-            model.planets.Add(p);
+        if (p.bodyType == BodyType.SolarBody)
+            model.solarBodies.Add(p);
     }
 }

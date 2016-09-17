@@ -25,27 +25,41 @@ public class TestScript : MonoBehaviour {
         //instantiate sun model
         PlanetModel sun = new PlanetModel();
         sun.position = Vector3.zero;
-        sun.position.y = 10f;
+        sun.position.x = 5f;
+        sun.rotation = Quaternion.identity;
+        sun.localScale = Vector3.one;
+        sun.type = ObjectType.Planet;
+        sun.mass = 30;
+        sun.localScale = Vector3.one * 2;
+        sun.SOI = 3;
+        objs.Add(sun);
+
+        //instantiate sun model
+        sun = new PlanetModel();
+        sun.position = Vector3.zero;
+        sun.position.y = 5f;
         sun.rotation = Quaternion.identity;
         sun.localScale = Vector3.one;
         sun.type = ObjectType.Planet;
         sun.mass = 10;
+        sun.localScale = Vector3.one ;
         sun.SOI = 3;
         objs.Add(sun);
         //Instantiat sun controller
-        Controller.Instantiate<PlanetController>(sunObject,sun);
 
         sun = new PlanetModel();
 
         sun.position = Vector3.zero;
+        sun.position.y = -5f;
         sun.rotation = Quaternion.identity;
         sun.localScale = Vector3.one;
         sun.type = ObjectType.Planet;
-        sun.mass = 20;
+        sun.mass = 10;
+        sun.localScale = Vector3.one;
         sun.SOI = 3;
         objs.Add(sun);
 
-        Controller.Instantiate<PlanetController>(sunObject, sun);
+        
 
         //Figure out "Sun Object" (largest mass)
 
@@ -123,7 +137,10 @@ public class TestScript : MonoBehaviour {
                 //Vector3 force = univGrav(m1, m2, distance) * Time.deltaTime;
                 //Vector3 vel = CentripicalForceVel(m1, m2r.magnitude, force.magnitude) * Tangent(force.normalized) + new Vector3(m2Vel.x, m2Vel.y);
                 objs[b].velocity = vel;
-                objs[b].NotifyChange();
+
+
+                if (i == 3)
+                    Controller.Instantiate<PlanetController>(sunObject, objs[b]);
 
 
             }

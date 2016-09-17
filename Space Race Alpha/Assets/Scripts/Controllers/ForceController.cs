@@ -50,7 +50,7 @@ public class ForceController : Controller<ForceArrowModel> {
     {
         model.force = model.parent.Model.force;
 
-        Vector2 polar = Forces.CartesianToPolar(model.force * -1);
+        Vector2 polar = Forces.CartesianToPolar(model.force);
         model.rotation = Quaternion.AngleAxis(polar.y * Mathf.Rad2Deg, new Vector3(0,0,1));
         model.scale.x = polar.x * .001f;
 
