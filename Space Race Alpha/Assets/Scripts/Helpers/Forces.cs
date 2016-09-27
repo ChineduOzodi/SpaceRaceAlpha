@@ -1,13 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
 using CodeControl;
+using System;
 
 public class Forces
 {
 
     static float G = 10; //universal gravity constant
 
-    public static Vector3 Force(PlanetModel self, ModelRefs<SolarBodyModel> solarBodies)
+    public static Vector3 Force(SolarBodyModel self, ModelRefs<SolarBodyModel> solarBodies)
     {
         Vector3 force = Vector3.zero;
 
@@ -16,11 +17,15 @@ public class Forces
         {
             foreach (SolarBodyModel body in solarBodies)
             {
-                Vector3 m2Pos = body.position;
-                float m2 = body.mass;
+                if (body != self)
+                {
+                    Vector3 m2Pos = body.position;
+                    float m2 = body.mass;
 
-                Vector3 distance = m2Pos - self.position;
-                force += univGrav(m1, m2, distance);
+                    Vector3 distance = m2Pos - self.position;
+                    force += univGrav(m1, m2, distance);
+                }
+                
             }
         }
 
@@ -89,4 +94,13 @@ public class Forces
         return polar;
     }
 
+    internal static Vector3 ForceToVelocity(SolarBodyModel body)
+    {
+        return body.velocity + body.force * Time.deltaTime / body.mass;
+    }
+
+    internal static Vector3 VelocityToPosition(SolarBodyModel body)
+    {
+        return body.position + body.velocity * Time.deltaTime ;
+    }
 }
