@@ -11,6 +11,9 @@ public class SolarSystemModel : Model
     //allSolarsystemMajorBodies
     public ModelRefs<SolarBodyModel> allSolarBodies;
 
+    //Crafts
+    public ModelRefs<CraftModel> allCrafts;
+
     //Debug Options
     public bool showForce = false;
 }

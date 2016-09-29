@@ -9,6 +9,6 @@ public class SolarBodyModel : BaseModel {
     public float SOI;
     public float radius;
 
-    public ModelRefs<SolarBodyModel> solarBodies = new ModelRefs<SolarBodyModel>();
-
+    //public ModelRefs<SolarBodyModel> solarBodies = new ModelRefs<SolarBodyModel>();
+    public ModelRefs<CraftModel> crafts = new ModelRefs<CraftModel>();
 }

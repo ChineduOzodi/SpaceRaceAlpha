@@ -5,10 +5,13 @@ using System;
 public class SpaceTrajectory : MonoBehaviour
 {
 
-    public Color c1 = Color.red;
+    public Color c1 = Color.red;//colors for orbit
     public Color c2 = Color.yellow;
     public float width = 1;
     public int vertsCount = 200;
+
+    internal BaseModel model;
+
     internal float SOI;
     internal Vector3[] verts;
     internal Vector3 distance;
@@ -20,22 +23,29 @@ public class SpaceTrajectory : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-
         verts = new Vector3[vertsCount];
-        G = Camera.main.GetComponent<SpaceGravityReal>().G / 100 * 2;
-
+        G = Forces.G / 100 * 2; //Camera.main.GetComponent<SpaceGravityReal>().G / 100 * 2;
     }
 
     // Update is called once per frame
     void Update()
     {
-        verts = new Vector3[vertsCount];
-        if (distance.magnitude != 0)
+        verts = new Vector3[vertsCount];//update number of vertexes
+
+        if (model != null)
         {
-            DrawTraject(m2Pos);
+            m2Pos = model.reference.Model.position; //position of reference object
+            m2Vel = model.reference.Model.velocity; //velocity of reference object
+            m2 = model.reference.Model.mass;
+            SOI = model.reference.Model.SOI;
+
+            distance = model.position - m2Pos;
+
+            if (distance.magnitude != 0)
+            {
+                DrawTraject(m2Pos);
+            }
         }
-
-
     }
 
     public void DrawTraject(Vector3 m2Pos)
@@ -59,7 +69,7 @@ public class SpaceTrajectory : MonoBehaviour
         {
             float rad = Ellipse(a, e, i * increment + CartToAngle(distance));
 
-            verts[i] = PolarToCartesian(new Vector2(rad, i * increment + CartToAngle(distance) + CartToAngle(eVect))) + m2Pos;
+            verts[i] = PolarToCartesian(new Vector2(rad, i * increment + CartToAngle(distance) + CartToAngle(eVect) + Mathf.PI)) + m2Pos;
         }
 
         var line = gameObject.GetComponent<LineRenderer>();

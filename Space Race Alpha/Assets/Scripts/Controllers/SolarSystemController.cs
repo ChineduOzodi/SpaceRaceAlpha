@@ -16,6 +16,7 @@ public class SolarSystemController : Controller<SolarSystemModel>
     {
         //Message.AddListener<AddSolarBodyMessage>();
         model.allSolarBodies = new ModelRefs<SolarBodyModel>();
+        model.allCrafts = new ModelRefs<CraftModel>();
     }
 
     public void AddSun(Vector3 position, float radius, float mass, string name = "Sun")
@@ -37,9 +38,25 @@ public class SolarSystemController : Controller<SolarSystemModel>
         Controller.Instantiate<PlanetController>("planet",body);
     }
 
+    public void AddCraft(SolarBodyModel planet, float angle, string name = "Craft")
+    {
+        var body = new CraftModel(); //basic craft info
+        body.type = ObjectType.Spacecraft;
+        body.reference = new ModelRef<SolarBodyModel>(planet);
+
+        //craft position rotation info
+        var pos = Forces.PolarToCartesian(new Vector2(planet.radius, angle + planet.rotation.eulerAngles.z * Mathf.Deg2Rad));
+        body.position = new Vector3(pos.x,pos.y);
+        body.rotation = new Quaternion();
+        body.rotation.eulerAngles = new Vector3(0,0,angle * Mathf.Rad2Deg + planet.rotation.eulerAngles.z - 90);
+
+        model.allCrafts.Add(body);
+
+        Controller.Instantiate<CraftController>("rocket", body);
+    }
+
     private void AddSolarBody(SolarBodyModel body,  Vector3 position, float radius, float mass, string name)
     {
-
 
         body.position = position; //set given info
         body.mass = mass;
@@ -96,6 +113,22 @@ public class SolarSystemController : Controller<SolarSystemModel>
             body.position = Forces.VelocityToPosition(body);
             body.NotifyChange();
             //rb2D.AddForce(force * Time.deltaTime);
+
+            if (model.showForce)
+            {
+                model.showForce = false;
+
+                ShowForceMessage m = new ShowForceMessage();
+                m.color = Color.red;
+                //m.parent = new ModelRef<PlanetModel>(model);
+                Message.Send(m);
+            }
+        }
+        foreach (CraftModel body in model.allCrafts)
+        {
+            Vector3 force = Forces.Force(body, model.allSolarBodies);
+            body.force = force;
+            //
 
             if (model.showForce)
             {

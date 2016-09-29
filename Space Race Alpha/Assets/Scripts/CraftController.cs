@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
+using CodeControl;
+using System;
 
-public class CraftController : MonoBehaviour {
+public class CraftController : Controller<CraftModel> {
 
     internal float throttle = 0;
     internal bool control = true;
@@ -14,15 +16,44 @@ public class CraftController : MonoBehaviour {
     public ParticleSystem prtF;
     public ParticleSystem prtS;
 
+    public Vector3 force;
+
     // Use this for initialization
     void Start () {
 
         rgb = GetComponent<Rigidbody2D>();
 	
 	}
-	
-	// Update is called once per frame
-	void Update () {
+
+    protected override void OnInitialize()
+    {
+        //setup initial location and rotation
+        transform.position = model.position;
+        transform.rotation = model.rotation;
+
+        //set.add to reference object list
+        model.reference.Model.crafts.Add(model);
+
+        //create trajectory ring
+        SpaceTrajectory orb = gameObject.AddComponent<SpaceTrajectory>();
+
+        orb.model = model;
+        orb.width = 10;
+
+    }
+
+    // Update is called once per frame
+    void Update () {
+
+        //Apply forces
+        rgb.AddForce(model.force * Time.deltaTime);
+        force = model.force;
+
+        //update basic info
+        model.position = transform.position;
+        model.rotation = transform.rotation;
+        model.mass = rgb.mass;
+        model.velocity = rgb.velocity;
 
         if (control)
         {
@@ -65,14 +96,18 @@ public class CraftController : MonoBehaviour {
 
 
             rgb.AddRelativeForce(new Vector2(translationH, translationV + throttle));
-            rgb.AddForce(Vector2.down * 100);
             rgb.AddTorque(rotation);
+            
 
             //transform.Translate(new Vector3(translationH, translationV, 0));
             //transform.Rotate(new Vector3(0, 0, rotation));
 
 
         }
+        //Figure out LOD for planets
+        model.referenceDistance = model.position - model.reference.Model.position;
 	
 	}
+
+    
 }

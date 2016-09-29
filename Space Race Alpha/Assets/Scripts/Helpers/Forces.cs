@@ -6,9 +6,9 @@ using System;
 public class Forces
 {
 
-    static float G = 10; //universal gravity constant
+    public static float G = 10; //universal gravity constant
 
-    public static Vector3 Force(SolarBodyModel self, ModelRefs<SolarBodyModel> solarBodies)
+    public static Vector3 Force(BaseModel self, ModelRefs<SolarBodyModel> solarBodies)
     {
         Vector3 force = Vector3.zero;
 
@@ -17,15 +17,13 @@ public class Forces
         {
             foreach (SolarBodyModel body in solarBodies)
             {
-                if (body != self)
-                {
-                    Vector3 m2Pos = body.position;
-                    float m2 = body.mass;
+                //TODO: Make more efficient so that they don't have to check force for themselves
+                Vector3 m2Pos = body.position;
+                float m2 = body.mass;
 
-                    Vector3 distance = m2Pos - self.position;
-                    force += univGrav(m1, m2, distance);
-                }
-                
+                Vector3 distance = m2Pos - self.position;
+                force += univGrav(m1, m2, distance);
+
             }
         }
 
@@ -36,8 +34,6 @@ public class Forces
 
     protected static Vector3 univGrav(float m1, float m2, Vector3 r)
     {
-
-
         if (r == Vector3.zero)
             return Vector3.zero;
 
@@ -69,7 +65,16 @@ public class Forces
     {
         return Mathf.Sqrt((G * m2) / (Mathf.Pow(R + r, 2) * r));
     }
-
+    /// <summary>
+    /// Converts Polar (r,0) to cartesian (x,y)
+    /// </summary>
+    /// <param name="point">(r,0)</param>
+    /// <returns>(x,y)</returns>
+    public static Vector2 PolarToCartesian(Vector2 point)
+    {
+        return new Vector2(point.x * Mathf.Cos(point.y), point.x * Mathf.Sin(point.y));
+    }
+    
     public static Vector2 CartesianToPolar(Vector3 point)
     {
         Vector2 polar;
@@ -94,12 +99,12 @@ public class Forces
         return polar;
     }
 
-    internal static Vector3 ForceToVelocity(SolarBodyModel body)
+    internal static Vector3 ForceToVelocity(BaseModel body)
     {
         return body.velocity + body.force * Time.deltaTime / body.mass;
     }
 
-    internal static Vector3 VelocityToPosition(SolarBodyModel body)
+    internal static Vector3 VelocityToPosition(BaseModel body)
     {
         return body.position + body.velocity * Time.deltaTime ;
     }

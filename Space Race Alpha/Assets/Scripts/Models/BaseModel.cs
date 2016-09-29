@@ -17,4 +17,7 @@ public class BaseModel : Model {
     public float mass;
     public Vector3 force = Vector3.zero;
     public Vector3 velocity = Vector3.zero;
+
+    //parent object
+    public ModelRef<SolarBodyModel> reference;
 }
