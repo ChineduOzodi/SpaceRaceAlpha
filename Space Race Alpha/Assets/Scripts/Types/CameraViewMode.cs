@@ -4,5 +4,6 @@ using System.Collections;
 public enum CameraViewMode  {
 
     Absolute,
-    Relavite
+    Relavite,
+    Reference
 }

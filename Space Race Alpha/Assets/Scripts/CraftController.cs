@@ -13,6 +13,7 @@ public class CraftController : Controller<CraftModel> {
     public float throttleSpeed = 10f;
 
     internal Rigidbody2D rgb;
+    internal CraftModel Model;
     public ParticleSystem prtF;
     public ParticleSystem prtS;
 
@@ -22,6 +23,7 @@ public class CraftController : Controller<CraftModel> {
     void Start () {
 
         rgb = GetComponent<Rigidbody2D>();
+        Model = model;
 	
 	}
 

@@ -38,7 +38,7 @@ public class SolarSystemController : Controller<SolarSystemModel>
         Controller.Instantiate<PlanetController>("planet",body);
     }
 
-    public void AddCraft(SolarBodyModel planet, float angle, string name = "Craft")
+    public CraftController AddCraft(SolarBodyModel planet, float angle, string name = "Craft")
     {
         var body = new CraftModel(); //basic craft info
         body.type = ObjectType.Spacecraft;
@@ -52,7 +52,7 @@ public class SolarSystemController : Controller<SolarSystemModel>
 
         model.allCrafts.Add(body);
 
-        Controller.Instantiate<CraftController>("rocket", body);
+        return Controller.Instantiate<CraftController>("rocket", body);
     }
 
     private void AddSolarBody(SolarBodyModel body,  Vector3 position, float radius, float mass, string name)
