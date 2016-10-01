@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System;
+using CodeControl;
 
 public class SpaceTrajectory : MonoBehaviour
 {
@@ -20,14 +21,30 @@ public class SpaceTrajectory : MonoBehaviour
     internal float m2;
     internal float G; //Same as G in Space Gravity
 
-    //testinfo
-    public Vector2 perApo = new Vector2();
+    //MapMode variables
+    bool mapMode = false;
+    Camera mainCam;
+    Camera mapCam;
 
     // Use this for initialization
     void Start()
     {
+        //Add listeners
+        Message.AddListener<ToggleMapMessage>(ToggleMapMode);
+
+        //Set Cameras
+        mainCam = Camera.main;
+        mapCam = GameObject.FindGameObjectWithTag("MapCamera").GetComponent<Camera>();
+
         verts = new Vector3[vertsCount];
         G = Forces.G / 100 * 2; //Camera.main.GetComponent<SpaceGravityReal>().G / 100 * 2;
+
+        
+    }
+
+    private void ToggleMapMode(ToggleMapMessage m)
+    {
+        mapMode = m.mapMode;
     }
 
     // Update is called once per frame
@@ -69,12 +86,12 @@ public class SpaceTrajectory : MonoBehaviour
 
         var line = gameObject.GetComponent<LineRenderer>();
         line.SetVertexCount(vertsCount);
-        if (Camera.main.orthographicSize > 1)
+        if (mapMode)
         {
-            line.SetWidth(width * Camera.main.orthographicSize * 2f, width * Camera.main.orthographicSize * 2f);
+            line.SetWidth(width * mainCam.orthographicSize * .02f, width * mainCam.orthographicSize * .02f);
         }
         else
-            line.SetWidth(0, 0);
+            line.SetWidth(width * mapCam.orthographicSize * .02f, width * mapCam.orthographicSize * .02f);
 
         line.SetColors(c1, c1);
 

@@ -110,9 +110,9 @@
     <Compile Include="Assets\Scripts\Helpers\FlightInfo.cs" />
     <Compile Include="Assets\Scripts\Helpers\Forces.cs" />
     <Compile Include="Assets\Scripts\Helpers\OrbitalInfo.cs" />
-    <Compile Include="Assets\Scripts\Messages\ChangeCameraViewMessage.cs" />
     <Compile Include="Assets\Scripts\Messages\InfoPanelMessage.cs" />
     <Compile Include="Assets\Scripts\Messages\ShowForceMessage.cs" />
+    <Compile Include="Assets\Scripts\Messages\ToggleMapMessage.cs" />
     <Compile Include="Assets\Scripts\Models\BaseModel.cs" />
     <Compile Include="Assets\Scripts\Models\CraftModel.cs" />
     <Compile Include="Assets\Scripts\Models\ForceArrowModel.cs" />

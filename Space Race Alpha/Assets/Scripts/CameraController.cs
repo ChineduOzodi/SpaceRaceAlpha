@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using CodeControl;
+using System;
 
 public class CameraController : MonoBehaviour {
 
@@ -14,19 +15,30 @@ public class CameraController : MonoBehaviour {
     Camera mainCam;
     Camera mapCam;
 
+    //Modes
+    bool mapMode = false;
+
     //Camera zoom and move modifiers
     public float camMoveSpeed = 1;
     public int zoomSpeed = 1;
     public float maxCamSize = 10000;
+    public float minMapSize = 500; //the minmum size of the map view
     public bool setup = false;
+
+    //Background
+    public GameObject stars;
 
 
     // Use this for initialization
-    void Start () {
+    void Awake () {
 
         mainCam = GetComponent<Camera>();
 
         mapCam = GameObject.FindGameObjectWithTag("MapCamera").GetComponent<Camera>();
+        mapCam.orthographicSize = Camera.main.orthographicSize * 200;
+
+        //initialize star background
+        stars = Instantiate(Resources.Load("stars")) as GameObject;
 
     }
 
@@ -40,15 +52,17 @@ public class CameraController : MonoBehaviour {
 
         //SetViewMode(viewMode);
 
-        float moveModifier = camMoveSpeed * Camera.main.orthographicSize;
-        Camera.main.orthographicSize += Input.GetAxis("Mouse ScrollWheel") * -zoomSpeed * moveModifier;
-        mapCam.orthographicSize = Camera.main.orthographicSize * 100;
+        float moveModifier = camMoveSpeed * mainCam.orthographicSize;
+        float mapMoveMod = camMoveSpeed * mapCam.orthographicSize;
+        mainCam.orthographicSize += Input.GetAxis("Mouse ScrollWheel") * -zoomSpeed * moveModifier;
 
-        //Camera scale limits
-        if (Camera.main.orthographicSize < 4)
-            Camera.main.orthographicSize = 4;
-        else if (Camera.main.orthographicSize > maxCamSize)
-            Camera.main.orthographicSize = maxCamSize;
+       
+
+        //Toggle Map Mode
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            ToggleMapMode();
+        }
 
         //camera movement
         if (!setup)
@@ -58,6 +72,44 @@ public class CameraController : MonoBehaviour {
 
             //Camera.main.transform.Translate(new Vector3(transX, transY));
         }
+
+        //MapCamera Zoom
+        if (Input.GetKey(KeyCode.Equals))
+        {
+            mapCam.orthographicSize += zoomSpeed * mapMoveMod * .1f;
+        }
+        else if (Input.GetKey(KeyCode.Minus))
+        {
+            mapCam.orthographicSize -= zoomSpeed * mapMoveMod * .1f;
+        }
+
+        
+        if (mapMode)
+        {
+            //Camera scale limits
+            if (mainCam.orthographicSize < minMapSize)
+                mainCam.orthographicSize = minMapSize;
+
+            if (mapCam.orthographicSize < 4)
+                mapCam.orthographicSize = 4;
+            else if (mapCam.orthographicSize > minMapSize)
+                mapCam.orthographicSize = minMapSize;
+        }
+        else
+        {
+            if (mainCam.orthographicSize < 4)
+                mainCam.orthographicSize = 4;
+            else if (mainCam.orthographicSize > minMapSize)
+                mainCam.orthographicSize = minMapSize;
+
+            if (mapCam.orthographicSize < minMapSize)
+                 mapCam.orthographicSize = minMapSize;
+        }
+
+        //Update Background
+        stars.transform.position = new Vector3(transform.position.x, transform.position.y);
+        stars.transform.localScale = new Vector3(mainCam.orthographicSize, mainCam.orthographicSize);
+
 
         //camera rotation
         if (viewMode == CameraViewMode.Absolute)
@@ -75,6 +127,34 @@ public class CameraController : MonoBehaviour {
         {
             SetViewMode((viewMode.GetHashCode() + 1 > 2) ? 0 : viewMode + 1);
         }
+    }
+
+    private void ToggleMapMode()
+    {
+
+        //change masks
+        var mainCM = mainCam.cullingMask;
+        mainCam.cullingMask = mapCam.cullingMask;
+        mapCam.cullingMask = mainCM;
+
+        if (mapMode)
+        {
+            mapMode = false;
+            mainCam.orthographicSize = 5;
+            mapCam.orthographicSize = 700;
+        }
+        else
+        {
+            mapMode = true;
+
+            mainCam.orthographicSize = 700;
+            mapCam.orthographicSize = 5;
+        }
+        //Send Message
+        ToggleMapMessage m = new ToggleMapMessage();
+        m.mapMode = mapMode;
+        Message.Send(m);
+
     }
 
     public void SetTarget(CraftController targetController)
