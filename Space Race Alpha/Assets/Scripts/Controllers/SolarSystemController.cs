@@ -43,6 +43,7 @@ public class SolarSystemController : Controller<SolarSystemModel>
         var body = new CraftModel(); //basic craft info
         body.type = ObjectType.Spacecraft;
         body.reference = new ModelRef<SolarBodyModel>(planet);
+        body.name = name;
 
         //craft position rotation info
         var pos = Forces.PolarToCartesian(new Vector2(planet.radius, angle + planet.rotation.eulerAngles.z * Mathf.Deg2Rad));

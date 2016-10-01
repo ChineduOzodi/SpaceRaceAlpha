@@ -4,9 +4,10 @@ using CodeControl;
 
 public class BaseModel : Model {
 
-    //name and type info
+    //name, state, and type info
     public string name;
     public ObjectType type;
+    public ObjectState state;
 
     //basic position and orientaion info
     public Vector3 position; //global position in world settings
@@ -17,6 +18,9 @@ public class BaseModel : Model {
     public float mass;
     public Vector3 force = Vector3.zero;
     public Vector3 velocity = Vector3.zero;
+
+    //orbital info
+    public OrbitalInfo orbitalInfo;
 
     //parent object
     public ModelRef<SolarBodyModel> reference;

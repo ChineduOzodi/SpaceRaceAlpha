@@ -107,10 +107,11 @@
     <Compile Include="Assets\Scripts\CustomImageEffect.cs" />
     <Compile Include="Assets\Scripts\DragObject2D.cs" />
     <Compile Include="Assets\Scripts\Gravity.cs" />
-    <Compile Include="Assets\Scripts\Helpers\Create.cs" />
+    <Compile Include="Assets\Scripts\Helpers\FlightInfo.cs" />
     <Compile Include="Assets\Scripts\Helpers\Forces.cs" />
-    <Compile Include="Assets\Scripts\Messages\AddSolarBodyMessage.cs" />
-    <Compile Include="Assets\Scripts\Messages\PlanetAddedMessage.cs" />
+    <Compile Include="Assets\Scripts\Helpers\OrbitalInfo.cs" />
+    <Compile Include="Assets\Scripts\Messages\ChangeCameraViewMessage.cs" />
+    <Compile Include="Assets\Scripts\Messages\InfoPanelMessage.cs" />
     <Compile Include="Assets\Scripts\Messages\ShowForceMessage.cs" />
     <Compile Include="Assets\Scripts\Models\BaseModel.cs" />
     <Compile Include="Assets\Scripts\Models\CraftModel.cs" />
@@ -126,8 +127,10 @@
     <Compile Include="Assets\Scripts\Trajectory.cs" />
     <Compile Include="Assets\Scripts\Types\CameraViewMode.cs" />
     <Compile Include="Assets\Scripts\Types\ControlMode.cs" />
+    <Compile Include="Assets\Scripts\Types\ObjectState.cs" />
     <Compile Include="Assets\Scripts\Types\ObjectType.cs" />
-    <Compile Include="Assets\Scripts\Types\OrbitSituation.cs" />
+    <Compile Include="Assets\Scripts\UI\AltPanel.cs" />
+    <Compile Include="Assets\Scripts\UI\InfoPanel.cs" />
     <Compile Include="Assets\Scripts\rocketTest.cs" />
   </ItemGroup>
   <ItemGroup>

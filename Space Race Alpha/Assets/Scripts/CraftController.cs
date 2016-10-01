@@ -8,6 +8,11 @@ public class CraftController : Controller<CraftModel> {
     internal float throttle = 0;
     internal bool control = true;
 
+    //Information needed for control
+    FlightInfo fInfo;
+
+    internal bool SAS = false;
+
     public float translationSpeed = 10f;
     public float rotationSpeed = 10f;
     public float throttleSpeed = 10f;
@@ -29,6 +34,11 @@ public class CraftController : Controller<CraftModel> {
 
     protected override void OnInitialize()
     {
+
+        //Add Listeners
+
+        //Message.AddListener("ToggleSASMessage", ToggleSAS);
+
         //setup initial location and rotation
         transform.position = model.position;
         transform.rotation = model.rotation;
@@ -40,8 +50,22 @@ public class CraftController : Controller<CraftModel> {
         SpaceTrajectory orb = gameObject.AddComponent<SpaceTrajectory>();
 
         orb.model = model;
-        orb.width = 10;
+        orb.width = 1;
 
+        //Initial flight info due to control being true
+        fInfo = gameObject.AddComponent<FlightInfo>();
+        fInfo.model = model;
+
+        model.flightInfo = fInfo;
+    }
+
+    private void ToggleSAS()
+    {
+        if (SAS)
+            SAS = false;
+        else
+            SAS = true;
+            
     }
 
     // Update is called once per frame
@@ -57,6 +81,9 @@ public class CraftController : Controller<CraftModel> {
         model.mass = rgb.mass;
         model.velocity = rgb.velocity;
 
+        //update Orbital info
+        model.orbitalInfo = new OrbitalInfo(model);
+
         if (control)
         {
             float translationV = Input.GetAxis("Vertical") * translationSpeed * Time.deltaTime;
@@ -70,6 +97,10 @@ public class CraftController : Controller<CraftModel> {
             else if (Input.GetKey(KeyCode.E))
             {
                 rotation = 1 * rotationSpeed * Time.deltaTime;
+            }
+            else if (SAS) //run SAS only when not manuelly controlling rotation
+            {
+                SASProgram();
             }
 
             throttle += (Input.GetKey(KeyCode.LeftShift)) ? 1 * Time.deltaTime : 0;
@@ -99,11 +130,16 @@ public class CraftController : Controller<CraftModel> {
 
             rgb.AddRelativeForce(new Vector2(translationH, translationV + throttle));
             rgb.AddTorque(rotation);
-            
+
 
             //transform.Translate(new Vector3(translationH, translationV, 0));
             //transform.Rotate(new Vector3(0, 0, rotation));
 
+            //Autopilot buttons
+            if (Input.GetKeyDown(KeyCode.T))
+            {
+                ToggleSAS();
+            }
 
         }
         //Figure out LOD for planets
@@ -111,5 +147,20 @@ public class CraftController : Controller<CraftModel> {
 	
 	}
 
-    
+    private void SASProgram()
+    {
+        float rotation = 0;
+
+        if (fInfo.RotationSpeed > 0)
+        {
+            rotation = 1 * rotationSpeed * Time.deltaTime;
+        }
+        else
+        {
+            rotation = -1 * rotationSpeed * Time.deltaTime;
+        }
+
+        rgb.AddTorque(rotation);
+
+    }
 }

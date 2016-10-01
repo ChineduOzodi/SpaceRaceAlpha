@@ -103,7 +103,7 @@ namespace CodeControl {
                 return null;
             }
 
-            GameObject gameObject = GameObject.Instantiate(resource) as GameObject;
+            GameObject gameObject = Object.Instantiate(resource) as GameObject;
             T controller = gameObject.GetComponent<T>();
             if (controller == null) {
                 Debug.LogError("Can't instantiate controller '" + typeof(T) + "' because the controller component on the given object is missing.");
