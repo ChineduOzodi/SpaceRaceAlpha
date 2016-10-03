@@ -5,6 +5,7 @@ using CodeControl;
 public class SolarBodyModel : BaseModel {
 
     public BodyType bodyType = BodyType.SolarBody;
+    //public ModelRef<SolarSystemModel> system;
 
     public float SOI;
     public float radius;

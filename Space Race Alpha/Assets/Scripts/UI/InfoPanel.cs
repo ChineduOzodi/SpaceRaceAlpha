@@ -38,7 +38,7 @@ public class InfoPanel : MonoBehaviour {
         if (model != null)
         {
             nameText.text = model.name;
-            infoText.text = OrbitalInfo.GetInfo(model);
+            infoText.text = OrbitalInfo.GetInfo(model, Forces.G);
         }
     }
 }

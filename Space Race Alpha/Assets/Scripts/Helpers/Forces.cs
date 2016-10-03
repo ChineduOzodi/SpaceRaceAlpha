@@ -6,7 +6,7 @@ using System;
 public class Forces
 {
 
-    public static float G = 10; //universal gravity constant
+    public static float G = 1f; //universal gravity constant
 
     public static Vector3 Force(BaseModel self, ModelRefs<SolarBodyModel> solarBodies)
     {
@@ -31,19 +31,48 @@ public class Forces
         return force;
     }
 
+    public static Vector3 Force(BaseModel self)
+    {
+        Vector3 force = Vector3.zero;
 
+        float m1 = self.mass;
+        if (self.reference.Model != null)
+        {
+            //TODO: Make more efficient so that they don't have to check force for themselves
+            Vector3 m2Pos = self.reference.Model.position;
+            float m2 = self.reference.Model.mass;
+
+            Vector3 distance = m2Pos - self.position;
+            force = univGrav(m1, m2, distance);
+        }
+
+
+        return force;
+    }
+
+
+    //protected static Vector3 univGrav(float m1, float m2, Vector3 r)
+    //{
+    //    if (r == Vector3.zero)
+    //        return Vector3.zero;
+
+    //    float r3 = Mathf.Pow(r.sqrMagnitude, 1.5F);
+
+    //    Vector3 force = (G * m1 * m2 * r) / r3;
+    //    //print("Force Added: " + force);
+    //    return force;
+    //}
     protected static Vector3 univGrav(float m1, float m2, Vector3 r)
     {
         if (r == Vector3.zero)
             return Vector3.zero;
 
-        float r3 = Mathf.Pow(r.sqrMagnitude, 1.5F);
+        float r2 = Mathf.Pow(r.magnitude, 2);
 
-        Vector3 force = (G * m1 * m2 * r) / r3;
+        Vector3 force = (G * m2 * m1) / r2 * r.normalized;
         //print("Force Added: " + force);
         return force;
     }
-
     public static Vector3 Tangent(Vector3 normal)
     {
         Vector3 tangent = Vector3.Cross(normal, Vector3.forward);
@@ -61,9 +90,10 @@ public class Forces
         return Mathf.Sqrt((force * r) / m1);
     }
 
-    public static float AngularVelocity(float m2, float r, float R)
+    public static float AngularVelocity(SolarBodyModel model)
     {
-        return Mathf.Sqrt((G * m2) / (Mathf.Pow(R + r, 2) * r));
+        //return Mathf.Sqrt((G * m2) / (Mathf.Pow(R + r, 2) * r));
+        return model.velocity.magnitude / (model.position - model.reference.Model.position).magnitude;
     }
     /// <summary>
     /// Converts Polar (r,0) to cartesian (x,y)
@@ -101,7 +131,12 @@ public class Forces
 
     internal static Vector3 ForceToVelocity(BaseModel body)
     {
-        return body.velocity + body.force * Time.deltaTime / body.mass;
+        return body.force / body.mass * Time.deltaTime;
+    }
+
+    internal static Vector3 ForceToVelocity(Vector3 force, float mass)
+    {
+        return force / mass * Time.deltaTime;
     }
 
     internal static Vector3 VelocityToPosition(BaseModel body)
@@ -109,6 +144,10 @@ public class Forces
         return body.position + body.velocity * Time.deltaTime ;
     }
 
+    internal static float CircleArea(float radius)
+    {
+        return Mathf.PI * radius * radius;
+    }
     
 
     

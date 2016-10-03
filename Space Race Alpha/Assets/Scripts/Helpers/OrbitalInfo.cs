@@ -43,10 +43,17 @@ public class OrbitalInfo {
     }
 
 
-    public OrbitalInfo(BaseModel model)
+    public OrbitalInfo(BaseModel model, float G)
     {
         Vector3 altitude = model.position - model.reference.Model.position;     //distance b/w object one and reference
-        float GM = Forces.G / 100 * 2 * model.reference.Model.mass;                                           //modified gravitational constant
+
+        float GM = G * model.reference.Model.mass / 50f;
+
+        if (model.type == ObjectType.Spacecraft)
+        {
+            GM = G * model.reference.Model.mass / 50f;                                           //modified gravitational constant
+        }
+
         Vector3 relVel = model.velocity - model.reference.Model.velocity;       //velocity relative to parent object
 
         float angleY = Mathf.Deg2Rad * Vector2.Angle(relVel, altitude);         //angle of trajectory with reference to the reference object
@@ -92,12 +99,12 @@ public class OrbitalInfo {
         return perApo;
     }
 
-    public static string GetInfo(BaseModel model)
+    public static string GetInfo(BaseModel model, float G)
     {
-        OrbitalInfo orbit = new OrbitalInfo(model);
+        OrbitalInfo orbit = new OrbitalInfo(model, G * 50);
 
-        return String.Format("Mass: {0} kg\nGravity: {1} m/s^2\nAlt: {2} m\nApo: {3} m\nPer: {4} m\nEcc: {5}",
-            model.mass, (model.force.magnitude / model.mass).ToString("0.00"), orbit.Alt.ToString("0"), orbit.Apo.ToString("0"), orbit.Per.ToString("0"), orbit.EccMag.ToString("0.00"));
+        return String.Format("Mass: {0} kg\nGravity: {1} m/s^2\n Velocity: {6} m/s\nAlt: {2} m\nApo: {3} m\nPer: {4} m\nEcc: {5}",
+            model.mass, (model.force.magnitude / model.mass).ToString("0.00"), orbit.Alt.ToString("0"), orbit.Apo.ToString("0"), orbit.Per.ToString("0"), orbit.EccMag.ToString("0.00"), model.velocity.magnitude.ToString("0.00"));
 
 
     }

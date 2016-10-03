@@ -16,10 +16,13 @@ public class BaseModel : Model {
 
     //basic physics info
     public float mass;
+    public float density;
     public Vector3 force = Vector3.zero;
     public Vector3 velocity = Vector3.zero;
+    public Vector3 relVel = Vector3.zero;
 
     //orbital info
+    public Vector3 altitude;
     public OrbitalInfo orbitalInfo;
 
     //parent object

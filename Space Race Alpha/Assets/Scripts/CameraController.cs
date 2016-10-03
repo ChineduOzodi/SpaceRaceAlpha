@@ -84,27 +84,27 @@ public class CameraController : MonoBehaviour {
         }
 
         
-        if (mapMode)
-        {
-            //Camera scale limits
-            if (mainCam.orthographicSize < minMapSize)
-                mainCam.orthographicSize = minMapSize;
+        //if (mapMode)
+        //{
+        //    //Camera scale limits
+        //    if (mainCam.orthographicSize < minMapSize)
+        //        mainCam.orthographicSize = minMapSize;
 
-            if (mapCam.orthographicSize < 4)
-                mapCam.orthographicSize = 4;
-            else if (mapCam.orthographicSize > minMapSize)
-                mapCam.orthographicSize = minMapSize;
-        }
-        else
-        {
-            if (mainCam.orthographicSize < 4)
-                mainCam.orthographicSize = 4;
-            else if (mainCam.orthographicSize > minMapSize)
-                mainCam.orthographicSize = minMapSize;
+        //    if (mapCam.orthographicSize < 4)
+        //        mapCam.orthographicSize = 4;
+        //    else if (mapCam.orthographicSize > minMapSize)
+        //        mapCam.orthographicSize = minMapSize;
+        //}
+        //else
+        //{
+        //    if (mainCam.orthographicSize < 4)
+        //        mainCam.orthographicSize = 4;
+        //    else if (mainCam.orthographicSize > minMapSize)
+        //        mainCam.orthographicSize = minMapSize;
 
-            if (mapCam.orthographicSize < minMapSize)
-                 mapCam.orthographicSize = minMapSize;
-        }
+        //    if (mapCam.orthographicSize < minMapSize)
+        //         mapCam.orthographicSize = minMapSize;
+        //}
 
         //Update Background
         stars.transform.position = new Vector3(transform.position.x, transform.position.y);

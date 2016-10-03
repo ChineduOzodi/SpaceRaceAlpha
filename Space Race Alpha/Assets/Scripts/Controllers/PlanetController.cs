@@ -8,9 +8,13 @@ public class PlanetController : Controller<PlanetModel> {
 
     Transform rect;
     internal Rigidbody2D rb2D;
-    internal float[] LOD1 = { 1, 45, 10 };
+    internal float[] LOD1 = { 1, 45, 10 }; //level of detail for making the planet mesh
     internal List<int[]> createdMeshes = new List<int[]>();
     internal List<GameObject> planetMeshObjs;
+    GameObject SOI;
+
+    //Model reference
+    public PlanetModel Model;
 
     private void Awake()
     {
@@ -20,6 +24,7 @@ public class PlanetController : Controller<PlanetModel> {
 
         rb2D = GetComponent<Rigidbody2D>();
         rect = transform; //GetComponent<RectTransform>();
+
         
 
 
@@ -54,6 +59,20 @@ public class PlanetController : Controller<PlanetModel> {
         CircleCollider2D col = gameObject.AddComponent<CircleCollider2D>();
         col.radius = model.radius;
 
+        //Set Model
+        Model = model;
+
+        //create trajectory ring
+        SpaceTrajectory orb = gameObject.AddComponent<SpaceTrajectory>();
+
+        orb.model = model;
+        orb.width = 1;
+
+        //SOI Initiate
+        SOI = Instantiate(Resources.Load("SOI"), transform) as GameObject;
+        SOI.transform.localScale = Vector3.one * model.SOI;
+        SOI.transform.localPosition = Vector3.zero;
+        SOI.transform.rotation = Quaternion.identity;
         //rb2D.mass = model.mass;
         //rb2D.velocity = model.velocity;
     }
@@ -61,7 +80,8 @@ public class PlanetController : Controller<PlanetModel> {
     protected override void OnModelChanged()
     {
         //update orgital parameters
-        rect.position = model.position;
+        transform.Translate(model.velocity * Time.deltaTime);
+        //rect.position = model.position;
         rect.rotation = model.rotation;
         rect.localScale = model.localScale;
 

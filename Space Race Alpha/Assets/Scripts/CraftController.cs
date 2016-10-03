@@ -5,6 +5,8 @@ using System;
 
 public class CraftController : Controller<CraftModel> {
 
+    public float G = 1;
+
     internal float throttle = 0;
     internal bool control = true;
 
@@ -22,12 +24,12 @@ public class CraftController : Controller<CraftModel> {
     public ParticleSystem prtF;
     public ParticleSystem prtS;
 
-    public Vector3 force;
+    //public Vector3 force;
 
     // Use this for initialization
     void Start () {
 
-        rgb = GetComponent<Rigidbody2D>();
+        
         Model = model;
 	
 	}
@@ -42,6 +44,11 @@ public class CraftController : Controller<CraftModel> {
         //setup initial location and rotation
         transform.position = model.position;
         transform.rotation = model.rotation;
+
+        //Set physics
+        //rgb = GetComponent<Rigidbody2D>();
+        //rgb.velocity = model.velocity;
+        model.mass = 7.5f;
 
         //set.add to reference object list
         model.reference.Model.crafts.Add(model);
@@ -59,6 +66,39 @@ public class CraftController : Controller<CraftModel> {
         model.flightInfo = fInfo;
     }
 
+    protected override void OnModelChanged()
+    {
+        //update orgital parameters
+        transform.Translate(model.velocity * Time.deltaTime);
+        //rect.position = model.position;
+        transform.rotation = model.rotation;
+        //transform.localScale = model.localScale;
+
+
+        //rb2D.mass = model.mass;
+        //rb2D.velocity = model.velocity;
+    }
+
+    internal void OnStateChanged(Transform reference)
+    {
+        if (model.state == ObjectState.Landed)
+        {
+            transform.parent = reference;
+        }
+        else
+        {
+            transform.parent = reference;
+
+            //rgb.velocity = (model.reference.Model.velocity * .1f) + model.velocity;
+
+            model.velocity = Forces.AngularVelocity(model.reference.Model) 
+                * (model.position - model.reference.Model.reference.Model.position).magnitude 
+                * Forces.Tangent((model.reference.Model.position - model.reference.Model.reference.Model.position).normalized) + model.velocity;
+
+            model.NotifyChange();
+        }
+    }
+
     private void ToggleSAS()
     {
         if (SAS)
@@ -70,19 +110,17 @@ public class CraftController : Controller<CraftModel> {
 
     // Update is called once per frame
     void Update () {
+        
+        //update Orbital info
+        model.orbitalInfo = new OrbitalInfo(model, Forces.G);
 
-        //Apply forces
-        rgb.AddForce(model.force * Time.deltaTime);
-        force = model.force;
+        //force = model.force;
 
         //update basic info
-        model.position = transform.position;
+        //model.position = transform.position;
         model.rotation = transform.rotation;
-        model.mass = rgb.mass;
-        model.velocity = rgb.velocity;
-
-        //update Orbital info
-        model.orbitalInfo = new OrbitalInfo(model);
+        //model.mass = rgb.mass;
+        //model.velocity = rgb.velocity;
 
         if (control)
         {
@@ -93,10 +131,21 @@ public class CraftController : Controller<CraftModel> {
             if (Input.GetKey(KeyCode.Q))
             {
                 rotation = -1 * rotationSpeed * Time.deltaTime;
+                if (model.state == ObjectState.Landed)
+                {
+                    model.state = ObjectState.SubOrbit;
+                    OnStateChanged(null);
+                }
             }
             else if (Input.GetKey(KeyCode.E))
             {
                 rotation = 1 * rotationSpeed * Time.deltaTime;
+                if (model.state == ObjectState.Landed)
+                {
+                    model.state = ObjectState.SubOrbit;
+                    OnStateChanged(null);
+                }
+                
             }
             else if (SAS) //run SAS only when not manuelly controlling rotation
             {
@@ -122,14 +171,27 @@ public class CraftController : Controller<CraftModel> {
             {
                 throttle = 0;
             }
+
+            if (throttle > 0)
+            {
+                if (model.state == ObjectState.Landed)
+                {
+                    model.state = ObjectState.SubOrbit;
+                    OnStateChanged(null);
+                }
+            }
             prtF.startSpeed = throttle * .1f;
             prtS.startSpeed = throttle * .1f;
-            throttle = throttle * throttleSpeed;
-            
+            model.throttle = throttle * throttleSpeed;
 
+            //Vector3 relForce = Forces.PolarToCartesian(new Vector2(throttle, transform.rotation.eulerAngles.z * Mathf.Deg2Rad));
+            //model.force += relForce;
+            //model.velocity = Forces.ForceToVelocity(model);
+            //model.position = Forces.VelocityToPosition(model);
+            //model.NotifyChange();
 
-            rgb.AddRelativeForce(new Vector2(translationH, translationV + throttle));
-            rgb.AddTorque(rotation);
+            //rgb.AddRelativeForce(new Vector2(translationH, translationV + throttle));
+            //rgb.AddTorque(rotation);
 
 
             //transform.Translate(new Vector3(translationH, translationV, 0));
@@ -146,6 +208,14 @@ public class CraftController : Controller<CraftModel> {
         model.referenceDistance = model.position - model.reference.Model.position;
 	
 	}
+
+    void OnCollisionEnter2D(Collision2D coll)
+    {
+        model.state = ObjectState.Landed;
+        transform.parent = coll.transform;
+        rgb.velocity = Vector2.zero;
+        rgb.angularVelocity = 0;
+    }
 
     private void SASProgram()
     {

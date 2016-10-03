@@ -9,4 +9,5 @@ public class CraftModel : BaseModel {
     public float rotationSpeed = 0;
 
     public FlightInfo flightInfo;
+    internal float throttle = 0;
 }

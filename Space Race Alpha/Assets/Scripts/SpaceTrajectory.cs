@@ -5,6 +5,7 @@ using CodeControl;
 
 public class SpaceTrajectory : MonoBehaviour
 {
+    public float G = 50;
 
     public Color c1 = Color.red;//colors for orbit
     public Color c2 = Color.yellow;
@@ -19,7 +20,6 @@ public class SpaceTrajectory : MonoBehaviour
     internal Vector3 m2Pos;
     internal Vector3 m2Vel;
     internal float m2;
-    internal float G; //Same as G in Space Gravity
 
     //MapMode variables
     bool mapMode = false;
@@ -37,9 +37,6 @@ public class SpaceTrajectory : MonoBehaviour
         mapCam = GameObject.FindGameObjectWithTag("MapCamera").GetComponent<Camera>();
 
         verts = new Vector3[vertsCount];
-        G = Forces.G / 100 * 2; //Camera.main.GetComponent<SpaceGravityReal>().G / 100 * 2;
-
-        
     }
 
     private void ToggleMapMode(ToggleMapMessage m)
@@ -61,10 +58,12 @@ public class SpaceTrajectory : MonoBehaviour
 
             distance = model.position - m2Pos;
 
-            if (distance.magnitude != 0)
+            if (distance.magnitude != 0 && model.state != ObjectState.Landed)
             {
                 DrawTraject(m2Pos);
             }
+            else gameObject.GetComponent<LineRenderer>().SetVertexCount(0);
+
         }
     }
 
@@ -72,7 +71,7 @@ public class SpaceTrajectory : MonoBehaviour
     {
         float increment = 2 * Mathf.PI / (vertsCount - 1);
 
-        OrbitalInfo orbit = new OrbitalInfo(model);
+        OrbitalInfo orbit = new OrbitalInfo(model , G * Forces.G);
 
         //print("radius: " + distance.magnitude + " Es: " + eVect.magnitude);
         //print("Radial start: " + CartToAngle(distance));
