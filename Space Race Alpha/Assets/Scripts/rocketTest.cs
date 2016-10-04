@@ -10,14 +10,14 @@ public class rocketTest : MonoBehaviour {
 
         SolarSystemModel sol = new SolarSystemModel();
         SolarSystemController solCont = Controller.Instantiate<SolarSystemController>(sol);
-        var sun = solCont.AddSun(10000f,"sun",1);
-        //var planet = solCont.AddPlanet(sun.Model, 6400000f, 150000000f * new Vector3(1, 0));
-        var planet2 = solCont.AddPlanet(sun.Model, 50f, 50000f * new Vector3(1, 0));
+        var sun = solCont.AddSun(10f,"sun",1);
+        //var planet = solCont.AddPlanet(sun.Model, 4f, 15f * new Vector3(-1, 0));
+        //var planet2 = solCont.AddPlanet(sun.Model, 50f, 5000000f * new Vector3(1, 0));
         //var moon = solCont.AddPlanet(planet.Model, 2f, 10f * new Vector3(1, 0));
         //solCont.AddPlanet(moon.Model, .5f, 3f * new Vector3(-1, 0));
         //solCont.AddPlanet(new Vector3(0, 10000), 500, 10000000);
         //var craft = solCont.AddCraft(planet2.Model, 90 * Mathf.Deg2Rad);
-        var craft = solCont.AddCraft(planet2.Model, 60f * new Vector3(-1, 0));
+        var craft = solCont.AddCraft(sun.Model, 15f * new Vector3(1, 0));
         //craft.OnStateChanged(planet2.transform);
 
         var cam = gameObject.AddComponent<CameraController>();

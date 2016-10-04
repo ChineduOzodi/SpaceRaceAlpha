@@ -47,11 +47,11 @@ public class OrbitalInfo {
     {
         Vector3 altitude = model.position - model.reference.Model.position;     //distance b/w object one and reference
 
-        float GM = G * model.reference.Model.mass / 50f;
+        float GM = G * model.reference.Model.mass * .02f;
 
         if (model.type == ObjectType.Spacecraft)
         {
-            GM = G * model.reference.Model.mass / 50f;                                           //modified gravitational constant
+            GM = G * model.reference.Model.mass * .02f;                                           //modified gravitational constant
         }
 
         Vector3 relVel = model.velocity - model.reference.Model.velocity;       //velocity relative to parent object

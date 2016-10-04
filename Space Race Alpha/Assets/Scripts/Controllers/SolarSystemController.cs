@@ -112,6 +112,7 @@ public class SolarSystemController : Controller<SolarSystemModel>
         body.type = ObjectType.Spacecraft;
         body.reference = new ModelRef<SolarBodyModel>(planet);
         body.name = name;
+        body.mass = 7.5f;
         body.state = ObjectState.Landed;
 
         //craft position rotation info
@@ -233,15 +234,16 @@ public class SolarSystemController : Controller<SolarSystemModel>
         {
             if (body.state != ObjectState.Landed)
             {
-                //Vector3 force = Forces.Force(body, model.allSolarBodies);
-                Vector3 relForce = Forces.PolarToCartesian(new Vector2(body.throttle, body.rotation.eulerAngles.z * Mathf.Deg2Rad));
+                Vector3 force = Forces.Force(body, model.allSolarBodies);
+                //Vector3 relForce = Forces.PolarToCartesian(new Vector2(body.throttle, body.rotation.eulerAngles.z * Mathf.Deg2Rad));
                 //model.force += relForce;
-                Vector3 force = Forces.Force(body) + relForce;
-                body.force = force;
-                body.relVel += Forces.ForceToVelocity(body);
-                body.velocity = body.relVel + body.reference.Model.velocity;
-                body.position = Forces.VelocityToPosition(body);
-                body.NotifyChange();
+                //Vector3 force = Forces.Force(body) + relForce;
+                //Vector3 force = Forces.Force(body);
+                body.force = force; //+ Forces.Force(body.reference.Model);
+                body.relVel += Forces.ForceToVelocity(force,body.mass);
+                //body.velocity = body.relVel + body.reference.Model.velocity;
+                //body.position = Forces.VelocityToPosition(body);
+                //body.NotifyChange();
             }
 
             //Check for SOI change

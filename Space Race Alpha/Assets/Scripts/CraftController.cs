@@ -8,6 +8,10 @@ public class CraftController : Controller<CraftModel> {
     public float G = 1;
 
     internal float throttle = 0;
+    internal float rotation = 0;
+    float translationV = 0;
+    float translationH = 0;
+
     internal bool control = true;
 
     //Information needed for control
@@ -46,9 +50,9 @@ public class CraftController : Controller<CraftModel> {
         transform.rotation = model.rotation;
 
         //Set physics
-        //rgb = GetComponent<Rigidbody2D>();
-        //rgb.velocity = model.velocity;
-        model.mass = 7.5f;
+        rgb = GetComponent<Rigidbody2D>();
+        rgb.velocity = model.velocity;
+        rgb.mass = model.mass;
 
         //set.add to reference object list
         model.reference.Model.crafts.Add(model);
@@ -69,9 +73,9 @@ public class CraftController : Controller<CraftModel> {
     protected override void OnModelChanged()
     {
         //update orgital parameters
-        transform.Translate(model.velocity * Time.deltaTime);
+        //transform.Translate(model.velocity * Time.deltaTime);
         //rect.position = model.position;
-        transform.rotation = model.rotation;
+        //transform.rotation = model.rotation;
         //transform.localScale = model.localScale;
 
 
@@ -119,14 +123,15 @@ public class CraftController : Controller<CraftModel> {
         //update basic info
         //model.position = transform.position;
         model.rotation = transform.rotation;
+        rotation = 0;
         //model.mass = rgb.mass;
         //model.velocity = rgb.velocity;
 
         if (control)
         {
-            float translationV = Input.GetAxis("Vertical") * translationSpeed * Time.deltaTime;
-            float translationH = Input.GetAxis("Horizontal") * translationSpeed * Time.deltaTime;
-            float rotation = 0;
+            translationV = Input.GetAxis("Vertical") * translationSpeed * Time.deltaTime;
+            translationH = Input.GetAxis("Horizontal") * translationSpeed * Time.deltaTime;
+            
 
             if (Input.GetKey(KeyCode.Q))
             {
@@ -190,8 +195,7 @@ public class CraftController : Controller<CraftModel> {
             //model.position = Forces.VelocityToPosition(model);
             //model.NotifyChange();
 
-            //rgb.AddRelativeForce(new Vector2(translationH, translationV + throttle));
-            //rgb.AddTorque(rotation);
+            
 
 
             //transform.Translate(new Vector3(translationH, translationV, 0));
@@ -209,6 +213,23 @@ public class CraftController : Controller<CraftModel> {
 	
 	}
 
+    void FixedUpdate()
+    {
+        if (model.state != ObjectState.Landed)
+        {
+            //Update Physics
+            rgb.AddForce(model.force);
+
+            rgb.AddRelativeForce(new Vector2(translationH, translationV + throttle));
+            rgb.AddTorque(rotation);
+
+            model.position = transform.position;
+            model.rotation = transform.rotation;
+            model.velocity = rgb.velocity;
+        }
+        
+
+    }
     void OnCollisionEnter2D(Collision2D coll)
     {
         model.state = ObjectState.Landed;
