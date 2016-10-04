@@ -120,6 +120,7 @@
     <Compile Include="Assets\Scripts\Messages\ShowForceMessage.cs" />
     <Compile Include="Assets\Scripts\Messages\ToggleMapMessage.cs" />
     <Compile Include="Assets\Scripts\Models\BaseModel.cs" />
+    <Compile Include="Assets\Scripts\Models\ContainerModel.cs" />
     <Compile Include="Assets\Scripts\Models\CraftModel.cs" />
     <Compile Include="Assets\Scripts\Models\ForceArrowModel.cs" />
     <Compile Include="Assets\Scripts\Models\PlanetModel.cs" />
@@ -132,6 +133,7 @@
     <Compile Include="Assets\Scripts\TestScript.cs" />
     <Compile Include="Assets\Scripts\Trajectory.cs" />
     <Compile Include="Assets\Scripts\Types\CameraViewMode.cs" />
+    <Compile Include="Assets\Scripts\Types\ContainerTypes.cs" />
     <Compile Include="Assets\Scripts\Types\ControlMode.cs" />
     <Compile Include="Assets\Scripts\Types\ObjectState.cs" />
     <Compile Include="Assets\Scripts\Types\ObjectType.cs" />
