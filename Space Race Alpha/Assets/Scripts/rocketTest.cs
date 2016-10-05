@@ -10,14 +10,28 @@ public class rocketTest : MonoBehaviour {
 
         SolarSystemModel sol = new SolarSystemModel();
         SolarSystemController solCont = Controller.Instantiate<SolarSystemController>(sol);
-        var sun = solCont.AddSun(10f,"sun",1);
+        var sun = solCont.AddSun(1000000f,"sun",10);
+
+        int numberPlants = UnityEngine.Random.Range(4, 10);
+        float minPlantRadius = 500;
+        float maxSolarDistance = 100000000;
+
+        for(int i = 0; i< numberPlants; i++)
+        {
+            float planetsize = UnityEngine.Random.Range(minPlantRadius, sun.Model.radius * .5f + minPlantRadius);
+            Vector3 planetLocation = new Vector3(UnityEngine.Random.Range(-maxSolarDistance, maxSolarDistance), UnityEngine.Random.Range(-maxSolarDistance, maxSolarDistance), 0);
+            float density = UnityEngine.Random.Range(.1f, 10);
+
+            solCont.AddPlanet(sun.Model, planetsize, planetLocation, 1, "Planet" + i.ToString());
+        }
+        
         //var planet = solCont.AddPlanet(sun.Model, 4f, 15f * new Vector3(-1, 0));
         //var planet2 = solCont.AddPlanet(sun.Model, 50f, 5000000f * new Vector3(1, 0));
         //var moon = solCont.AddPlanet(planet.Model, 2f, 10f * new Vector3(1, 0));
         //solCont.AddPlanet(moon.Model, .5f, 3f * new Vector3(-1, 0));
         //solCont.AddPlanet(new Vector3(0, 10000), 500, 10000000);
-        //var craft = solCont.AddCraft(planet2.Model, 90 * Mathf.Deg2Rad);
-        var craft = solCont.AddCraft(sun.Model, 15f * new Vector3(1, 0));
+        //var craft = solCont.AddCraft(sol.allSolarBodies[1], 90 * Mathf.Deg2Rad);
+        var craft = solCont.AddCraft(sol.allSolarBodies[1], sol.allSolarBodies[1].radius * new Vector3(1.1f, 0));
         //craft.OnStateChanged(planet2.transform);
 
         var cam = gameObject.AddComponent<CameraController>();

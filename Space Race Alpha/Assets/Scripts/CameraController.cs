@@ -56,7 +56,15 @@ public class CameraController : MonoBehaviour {
         float mapMoveMod = camMoveSpeed * mapCam.orthographicSize;
         mainCam.orthographicSize += Input.GetAxis("Mouse ScrollWheel") * -zoomSpeed * moveModifier;
 
-       
+        //MapCamera Zoom
+        if (Input.GetKey(KeyCode.Equals))
+        {
+            mapCam.orthographicSize += zoomSpeed * mapMoveMod * .1f;
+        }
+        else if (Input.GetKey(KeyCode.Minus))
+        {
+            mapCam.orthographicSize -= zoomSpeed * mapMoveMod * .1f;
+        }
 
         //Toggle Map Mode
         if (Input.GetKeyDown(KeyCode.M))
@@ -73,15 +81,7 @@ public class CameraController : MonoBehaviour {
             //Camera.main.transform.Translate(new Vector3(transX, transY));
         }
 
-        //MapCamera Zoom
-        if (Input.GetKey(KeyCode.Equals))
-        {
-            mapCam.orthographicSize += zoomSpeed * mapMoveMod * .1f;
-        }
-        else if (Input.GetKey(KeyCode.Minus))
-        {
-            mapCam.orthographicSize -= zoomSpeed * mapMoveMod * .1f;
-        }
+        
 
         
         //if (mapMode)
@@ -106,6 +106,18 @@ public class CameraController : MonoBehaviour {
         //         mapCam.orthographicSize = minMapSize;
         //}
 
+       
+
+        if (Input.GetKeyDown(KeyCode.V))
+        {
+            SetViewMode((viewMode.GetHashCode() + 1 > 2) ? 0 : viewMode + 1);
+        }
+    }
+
+    void FixedUpdate()
+    {
+        
+
         //Update Background
         stars.transform.position = new Vector3(transform.position.x, transform.position.y);
         stars.transform.localScale = new Vector3(mainCam.orthographicSize, mainCam.orthographicSize);
@@ -121,11 +133,6 @@ public class CameraController : MonoBehaviour {
             Quaternion rot = new Quaternion();
             rot.eulerAngles = new Vector3(0, 0, Forces.CartesianToPolar(targetModel.position - targetModel.reference.Model.position).y * Mathf.Rad2Deg + 90);
             transform.rotation = rot;
-        }
-
-        if (Input.GetKeyDown(KeyCode.V))
-        {
-            SetViewMode((viewMode.GetHashCode() + 1 > 2) ? 0 : viewMode + 1);
         }
     }
 
