@@ -13,8 +13,8 @@ public class planetTest : MonoBehaviour {
 
         SunModel sun = SolarSystemCreator.AddSun(sol, 6510000, .35d, "Sun");
 
-        PlanetModel planet = SolarSystemCreator.AddPlanet(sol, sun, 64000, new Vector3d(Units.Gm, 0, 0), 1, "Planet");
-        planet.rotationRate = 0;
+        PlanetModel planet = SolarSystemCreator.AddPlanet(sol, sun, 640 * Units.km, new Vector3d(Units.Gm, 0, 0), 5.5, "Earth");
+        planet.RotationRate = 0;
         //PlanetModel moon = SolarSystemCreator.AddPlanet(sol, planet, 5000, new Vector3d(150 * Units.km, 0, 0), 1, "Moon");
         CraftModel craft = SolarSystemCreator.AddCraft(sol, planet, .5 * Mathd.PI, "Craft");
 

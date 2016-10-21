@@ -14,16 +14,7 @@ public class CraftModel : BaseModel {
 
     //------Flight Info-----//
 
-    /// <summary>
-    /// get altitude above body radius
-    /// </summary>
-    public double alt {
-        get
-        {
-            return polar.radius - reference.Model.radius;
-        }
-        
-    }
+    
 
 
 }

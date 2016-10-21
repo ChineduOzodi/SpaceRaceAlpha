@@ -112,7 +112,6 @@
     <Compile Include="Assets\Scripts\Helpers\Mathd.cs" />
     <Compile Include="Assets\Scripts\Helpers\NameGen.cs" />
     <Compile Include="Assets\Scripts\Helpers\NamesStrings.cs" />
-    <Compile Include="Assets\Scripts\Helpers\OrbitalInfo.cs" />
     <Compile Include="Assets\Scripts\Helpers\Polar2.cs" />
     <Compile Include="Assets\Scripts\Helpers\SolarSystemCreator.cs" />
     <Compile Include="Assets\Scripts\Helpers\SpaceTrajectory.cs" />

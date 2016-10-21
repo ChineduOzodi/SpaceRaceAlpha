@@ -71,16 +71,14 @@ public class SpaceTrajectory : MonoBehaviour
     {
         double increment = 2 * Mathd.PI / (vertsCount - 1);
 
-        OrbitalInfo orbit = new OrbitalInfo(model , G * Forces.G);
-
         //print("radius: " + distance.magnitude + " Es: " + eVect.magnitude);
         //print("Radial start: " + CartToAngle(distance));
 
         for (int i = 0; i < vertsCount; i++)
         {
-            double rad = Ellipse(orbit.SemiMajorAxis / Units.km, orbit.EccMag, i * increment + new Polar2(distance).angle);
+            double rad = Ellipse(model.SemiMajorAxis / Units.km, model.Ecc.magnitude, i * increment + new Polar2(distance).angle);
 
-            Vector2 disp = (Vector2)Polar2.PolarToCartesian(new Polar2((float)rad, i * (float)increment + (float)new Polar2(distance).angle + (float)new Polar2(orbit.Ecc).angle + Mathf.PI));
+            Vector2 disp = (Vector2)Polar2.PolarToCartesian(new Polar2((float)rad, i * (float)increment + (float)new Polar2(distance).angle + (float)new Polar2(model.Ecc).angle + Mathf.PI));
 
             verts[i] = new Vector3(-disp.x,-disp.y) + (Vector3) m2Pos;
         }

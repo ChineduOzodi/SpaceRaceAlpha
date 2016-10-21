@@ -17,7 +17,8 @@ public class SolarSystemModel : Model
     //References
 
     public Vector3d localReferencePoint = Vector3d.zero;
-    public Quaternion localReferencePointRotation = Quaternion.identity;
+    public Vector3d localReferenceVel = Vector3d.zero;
+    public Vector3d localReferenceForce = Vector3d.zero;
     public ModelRef<CraftModel> controlModel;
 
     //Debug Options

@@ -22,14 +22,14 @@ public class SolarSystemController : Controller<SolarSystemModel>
             body.LocalVelocity += Forces.ForceToVelocity(body);
             body.position = Forces.VelocityToPosition(body);
 
-            body.rotation.eulerAngles = new Vector3(0, 0, body.rotation.eulerAngles.z - (float) (body.rotationRate * Time.deltaTime)); //Rotate the planet
-            if (body.rotation.eulerAngles.z > 360)
+            body.rotation += body.RotationRate * Time.deltaTime; //Rotate the planet
+            if (body.rotation > 2 * Mathd.PI)
             {
-                body.rotation.eulerAngles = new Vector3(0, 0, body.rotation.eulerAngles.z - 360);
+                body.rotation -= 2 * Mathd.PI;
             }
-            else if (body.rotation.eulerAngles.z < 0)
+            else if (body.rotation < 0)
             {
-                body.rotation.eulerAngles = new Vector3(0, 0, body.rotation.eulerAngles.z + 360);
+                body.rotation += 2 * Mathd.PI;
             }
 
             body.NotifyChange();

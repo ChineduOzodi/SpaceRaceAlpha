@@ -8,7 +8,7 @@ public class PlanetController : Controller<PlanetModel> {
 
     public Material planetMaterial;
     Transform rect;
-    internal Rigidbody2D rb2D;
+    internal Rigidbody2D rgb;
     //internal float[] LOD1 = { 1, 45, 10 }; //level of detail for making the planet mesh
     internal List<int> createdMeshes = new List<int>();
     internal List<GameObject> planetMeshObjs;
@@ -26,7 +26,8 @@ public class PlanetController : Controller<PlanetModel> {
     {
 
         planetMeshObjs = new List<GameObject>();
-
+        //rgb = GetComponent<Rigidbody2D>();
+        //rgb.mass = 10000000000000000000000000f;
         rect = transform; //GetComponent<RectTransform>();
 
     }
@@ -35,15 +36,15 @@ public class PlanetController : Controller<PlanetModel> {
     {
         //setup initial location and rotation
         rect.position = Vector3.zero;
-        rect.rotation = Quaternion.identity;
+        rect.rotation = Quaternion.identity; //eulerAngles = new Vector3(0,0,(float) ( model.rotation * Mathd.Rad2Deg)); //Set Model rotation
 
         circumference = model.radius * Mathf.PI * .002f; //circumference in km
         meshAngleStep = 2 * Mathf.PI / circumference; //angle distance for each km in radians
 
-        //MakeTerrain(65000,model.radius);
+        //Set rigibody
+        //rgb.angularVelocity = (float)(model.RotationRate * Mathd.Rad2Deg);
 
-        //CircleCollider2D col = gameObject.AddComponent<CircleCollider2D>();
-        //col.radius = model.radius;
+        //MakeTerrain(65000,model.radius);
 
         //Set Model
         Model = model;
@@ -51,14 +52,9 @@ public class PlanetController : Controller<PlanetModel> {
 
         SetMeshes();
 
-        model.sol.Model.controlModel.Model.NotifyChange();
+        model.sol.Model.controlModel.Model.NotifyChange(); //TODO: Should send a message instead, that is picked up by all spawned local objects
 
 
-    }
-
-    protected override void OnModelChanged()
-    {
-        //rect.rotation = model.rotation; //set rotation;
     }
 
     void Update()
@@ -67,18 +63,22 @@ public class PlanetController : Controller<PlanetModel> {
         //SetMeshes(); //Needs a lot more work
 
         UpdateReferencePointData();
+        //rect.eulerAngles = new Vector3(0, 0, (float)(model.rotation * Mathd.Rad2Deg)); //Set Model rotation
 
-        
     }
 
+    /// <summary>
+    /// Sets the position, velocity, and force of reference point
+    /// </summary>
     private void UpdateReferencePointData()
     {
-        double worldAngleDisp = model.rotation.eulerAngles.z * Mathd.Deg2Rad;
 
-        Polar2 localReferencePoint = new Polar2(model.radius, (referenceID + .5) * meshAngleStep + worldAngleDisp); //the radius and angle of mesh Id in relationship with planet Object
+        model.sol.Model.localReferencePoint = new Polar2(model.radius, (referenceID + .5) * meshAngleStep + model.rotation).cartesian; //Reference location from the reference ID location + model rotation
 
-        model.sol.Model.localReferencePoint = localReferencePoint.cartesian;
-        model.sol.Model.localReferencePointRotation.eulerAngles = new Vector3(0, 0, (float)(localReferencePoint.angle * Mathd.Rad2Deg - 90));
+                                                                              //velocity calculated from rotation rate and radius and rotated to local coords
+        model.sol.Model.localReferenceVel = new Polar2(model.RotationRate * model.radius, new Polar2(model.sol.Model.localReferencePoint).angle - .5 * Mathd.PI).cartesian;
+                                                                              //force calculated by equation and rotated opposite of local position
+        model.sol.Model.localReferenceForce = new Polar2(model.RotationRate * model.RotationRate * model.radius, new Polar2(model.sol.Model.localReferencePoint).angle + Mathd.PI).cartesian;
     }
 
     private void SetMeshes()
@@ -180,14 +180,7 @@ public class PlanetController : Controller<PlanetModel> {
         List<int> triangleList = new List<int>();
         List<Color> vertexColor = new List<Color>();
 
-        
-
-        Polar2 polarRadius = new Polar2(model.radius, (meshID + 1) * meshAngleStep); //the radius and angle of mesh Id in relationship with planet Object
-        double worldAngleDisp = model.rotation.eulerAngles.z * Mathd.Deg2Rad;
-
-        
-
-        if (initial)
+        if (initial) //Check if it is the initial reference id
         {
             referenceID = meshID;
 
@@ -198,31 +191,38 @@ public class PlanetController : Controller<PlanetModel> {
             UpdateControlModel();
         }
 
+        Polar2 polarRadius = new Polar2(model.radius, (meshID + 1) * meshAngleStep); //the radius and angle of mesh Id in relationship with planet Object
+        Polar2 referencePol = new Polar2(model.radius, (referenceID + .5) * meshAngleStep);
+
+
+
+        
+
         float displacement = -5000 + FresNoise.GetTerrian(model.name, polarRadius);
-        Polar2 polarPosition = new Polar2(polarRadius.radius + displacement, polarRadius.angle - worldAngleDisp);
+        Polar2 polarPosition = new Polar2(polarRadius.radius + displacement, polarRadius.angle);
 
         // Make first triangle.
-        vertexList.Add((Vector3)Forces.ReferencePosition(polarPosition.cartesian, model.sol.Model.localReferencePoint, model.sol.Model.localReferencePointRotation)); //position in relationship to reference point );  // 1. First point that is -5000 lower
+        vertexList.Add((Vector2)(polarPosition.cartesian - referencePol.cartesian)); //position in relationship to reference point );  // 1. First point that is -5000 lower
         vertexColor.Add(VertexColor(displacement)); //Add Color
         //polyPoints.Add((Vector2)polarPosition.cartesian); //add collider point
 
         displacement = FresNoise.GetTerrian(model.name, polarRadius);
-        polarPosition = new Polar2(polarRadius.radius + displacement, polarRadius.angle - worldAngleDisp);
-        vertexList.Add((Vector3)Forces.ReferencePosition(polarPosition.cartesian, model.sol.Model.localReferencePoint, model.sol.Model.localReferencePointRotation));  // 1. First vertex on circle outline (radius = 0.5f)
+        polarPosition = new Polar2(polarRadius.radius + displacement, polarRadius.angle);
+        vertexList.Add((Vector2)(polarPosition.cartesian - referencePol.cartesian));  // 1. First vertex on circle outline (radius = 0.5f)
         vertexColor.Add(VertexColor(displacement)); //Add Color
-        polyPoints.Add((Vector3)Forces.ReferencePosition(polarPosition.cartesian, model.sol.Model.localReferencePoint, model.sol.Model.localReferencePointRotation)); //add collider point
+        polyPoints.Add((Vector2)(polarPosition.cartesian - referencePol.cartesian)); //add collider point
 
         polarRadius.angle += angleStep;
 
         displacement = FresNoise.GetTerrian(model.name, polarRadius);
-        polarPosition = new Polar2(polarRadius.radius + displacement, polarRadius.angle - worldAngleDisp);
-        vertexList.Add((Vector3)Forces.ReferencePosition(polarPosition.cartesian, model.sol.Model.localReferencePoint, model.sol.Model.localReferencePointRotation));     // 3. First vertex on circle outline rotated by angle)
+        polarPosition = new Polar2(polarRadius.radius + displacement, polarRadius.angle);
+        vertexList.Add((Vector2)(polarPosition.cartesian - referencePol.cartesian)); ;     // 3. First vertex on circle outline rotated by angle)
         vertexColor.Add(VertexColor(displacement)); //Add Color
-        polyPoints.Add((Vector3)Forces.ReferencePosition(polarPosition.cartesian, model.sol.Model.localReferencePoint, model.sol.Model.localReferencePointRotation)); //add collider point
+        polyPoints.Add((Vector2)(polarPosition.cartesian - referencePol.cartesian)); //add collider point
 
         displacement = -5000 + FresNoise.GetTerrian(model.name, polarRadius);
-        polarPosition = new Polar2(polarRadius.radius + displacement, polarRadius.angle - worldAngleDisp);
-        vertexList.Add((Vector3)Forces.ReferencePosition(polarPosition.cartesian, model.sol.Model.localReferencePoint, model.sol.Model.localReferencePointRotation));     // 4. vertex on circle outline rotated by angle and down one)
+        polarPosition = new Polar2(polarRadius.radius + displacement, polarRadius.angle);
+        vertexList.Add((Vector2)(polarPosition.cartesian - referencePol.cartesian));     // 4. vertex on circle outline rotated by angle and down one)
         vertexColor.Add(VertexColor(displacement)); //Add Color
 
         triangleList.Add(0);
@@ -246,14 +246,14 @@ public class PlanetController : Controller<PlanetModel> {
             polarRadius.angle += angleStep;
 
             displacement = FresNoise.GetTerrian(model.name, polarRadius);
-            polarPosition = new Polar2(polarRadius.radius + displacement, polarRadius.angle - worldAngleDisp);
-            vertexList.Add((Vector3)Forces.ReferencePosition(polarPosition.cartesian, model.sol.Model.localReferencePoint, model.sol.Model.localReferencePointRotation));     // 3. First vertex on circle outline rotated by angle)
+            polarPosition = new Polar2(polarRadius.radius + displacement, polarRadius.angle);
+            vertexList.Add((Vector2)(polarPosition.cartesian - referencePol.cartesian));     // 3. First vertex on circle outline rotated by angle)
             vertexColor.Add(VertexColor(displacement)); //Add Color
-            polyPoints.Add((Vector3)Forces.ReferencePosition(polarPosition.cartesian, model.sol.Model.localReferencePoint, model.sol.Model.localReferencePointRotation)); //add collider point
+            polyPoints.Add((Vector2)(polarPosition.cartesian - referencePol.cartesian)); //add collider point
 
             displacement = -5000 + FresNoise.GetTerrian(model.name, polarRadius);
-            polarPosition = new Polar2(polarRadius.radius + displacement, polarRadius.angle - worldAngleDisp);
-            vertexList.Add((Vector3)Forces.ReferencePosition(polarPosition.cartesian, model.sol.Model.localReferencePoint, model.sol.Model.localReferencePointRotation));    // 3. vertex on circle outline rotated by angle and down one)
+            polarPosition = new Polar2(polarRadius.radius + displacement, polarRadius.angle);
+            vertexList.Add((Vector2)(polarPosition.cartesian - referencePol.cartesian));    // 3. vertex on circle outline rotated by angle and down one)
             vertexColor.Add(VertexColor(displacement)); //Add Color
             //if (i + 1 == numVert - 1)
             //{
@@ -300,7 +300,7 @@ public class PlanetController : Controller<PlanetModel> {
 
         if (targetPolar.radius > .01f){ //avoid unspawned cameras
 
-            double angle = targetPolar.angle + model.rotation.eulerAngles.z * Mathd.Deg2Rad;
+            double angle = targetPolar.angle + model.rotation;
             angle = (angle < 0) ? angle + 2 * Mathd.PI : angle;
             int meshID = Mathd.FloorToInt(angle / angleStep);
 
@@ -330,26 +330,6 @@ public class PlanetController : Controller<PlanetModel> {
 
         return list;
     }
-
-    //private void OnPlanetAddedMessage(PlanetAddedMessage m)
-    //{
-    //    AddSolarBody(m.planet);
-    //    model.listsUpdated = true;
-    //}
-
-    //private void OnAddPlanetMessage(AddPlanetMessage m)
-    //{
-    //    if (m.planet != model)
-    //    {
-    //        AddSolarBody(m.planet);
-    //        PlanetAddedMessage returnM = new PlanetAddedMessage();
-
-    //        returnM.planet = model;
-    //        Message.Send(returnM);
-    //    }
-
-
-    //}
 
     private void UpdateControlModel() {
         model.sol.Model.controlModel.Model.NotifyChange();

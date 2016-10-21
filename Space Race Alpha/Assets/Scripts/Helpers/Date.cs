@@ -8,6 +8,9 @@ public class Date
     private static int Hours = 24;
     private static int Minutes = 60;
 
+    /// <summary>
+    /// seconds in year (3156000)
+    /// </summary>
     public static int Year = 3156000; //Seconds in a year 14400
     public static int Season = 789000;
     public static int Day = 86400;

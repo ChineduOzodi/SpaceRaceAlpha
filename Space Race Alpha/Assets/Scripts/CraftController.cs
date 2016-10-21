@@ -20,7 +20,7 @@ public class CraftController : Controller<CraftModel> {
     internal bool SAS = false;
 
     public float translationSpeed = 10f;
-    public float rotationSpeed = 10f;
+    public float rotationSpeed = 1f;
     public float throttleSpeed = 10f;
 
     internal Rigidbody2D rgb;
@@ -35,6 +35,7 @@ public class CraftController : Controller<CraftModel> {
 
         
         Model = model;
+        
 	
 	}
 
@@ -50,15 +51,15 @@ public class CraftController : Controller<CraftModel> {
 
         //setup initial location and rotation
         CheckAltitude();
+        transform.eulerAngles = new Vector3(0, 0, (float)(model.localRotation * Mathd.Rad2Deg));
 
         //Set physics
         rgb = GetComponent<Rigidbody2D>();
         rgb.mass = (float) model.mass;
-        rgb.angularVelocity = (float)(model.rotationRate * Mathd.Rad2Deg);
+        rgb.angularVelocity = (float)(model.LocalRotationRate * Mathd.Rad2Deg);        
+
         //set.add to reference object list
         //model.reference.Model.crafts.Add(model);
-
-        //Check if near solar body
         
     }
     protected override void OnDestroy()
@@ -66,17 +67,15 @@ public class CraftController : Controller<CraftModel> {
         model.spawned = false;
     }
 
-    protected override void OnModelChanged()
+    protected override void OnModelChanged() //Should only be called when a new local reference point selected
     {
+        if (rgb == null)
+        {
+            rgb = GetComponent<Rigidbody2D>(); //Added this because it was running OnModelChanged vefore initialize
+        }
         //update position location parameters
-
-        transform.position = (Vector3) Forces.ReferencePosition(model.LocalPosition, model.sol.Model.localReferencePoint, model.sol.Model.localReferencePointRotation); //position in relationship to reference point
-        transform.eulerAngles = new Vector3( 0, 0, model.rotation.eulerAngles.z - model.sol.Model.localReferencePointRotation.eulerAngles.z); //rotation in relationship to reference point
-        //transform.localScale = model.localScale;
-        transform.rotation = model.rotation;
-
-        //rb2D.mass = model.mass;
-        //rb2D.velocity = model.velocity;
+        transform.position = (Vector3)Forces.Rotate((model.LocalPosition - model.sol.Model.localReferencePoint), model.reference.Model.rotation) ; //position in relationship to reference point
+        rgb.velocity = (Vector3) Forces.Rotate((model.LocalVelocity - model.sol.Model.localReferenceVel), model.reference.Model.rotation); //sets the reletive velocity
     }
    
 
@@ -90,6 +89,7 @@ public class CraftController : Controller<CraftModel> {
         {
             transform.parent = reference;
 
+            rgb.velocity = (Vector3)Forces.Rotate((model.LocalVelocity - model.sol.Model.localReferenceVel), model.reference.Model.rotation); //sets the reletive velocity
             //model.LocalVelocity = Forces.AngularVelocity(model.reference.Model) 
             //    * model.LocalPosition.magnitude 
             //    * Forces.Tangent(model.LocalPosition.normalized) + model.LocalVelocity;
@@ -109,11 +109,6 @@ public class CraftController : Controller<CraftModel> {
 
     // Update is called once per frame
     void Update () {
-
-        
-
-        //update Orbital info
-        model.orbitalInfo = new OrbitalInfo(model, Forces.G);
 
         //force = model.force;
 
@@ -204,20 +199,16 @@ public class CraftController : Controller<CraftModel> {
 
         if (model.state != ObjectState.Landed)
         {
-            //Update Physics
-            Vector3 force = (Vector3) Forces.Rotate(model.relativeForce, new Polar2(model.sol.Model.localReferencePoint).angle + model.sol.Model.localReferencePointRotation.eulerAngles.z * Mathd.Deg2Rad - .5d * Mathd.PI);
-            //rgb.AddForce( force * Time.deltaTime * 50);
+            Vector3 force = (Vector3)Forces.Rotate(model.force - model.sol.Model.localReferenceForce, model.reference.Model.rotation);
+            rgb.AddForce(force * Time.deltaTime * 50);
 
             rgb.AddRelativeForce(new Vector2(translationH, translationV + throttle));
-            rgb.AddTorque(rotation);
-
-            
+            rgb.AddTorque(rotation );
         }
-        Vector3d surfVel = model.referencePointSurfaceVelocity;
-        model.LocalPosition = Forces.ReferencePositionReverse((Vector3d) transform.position, model.sol.Model.localReferencePoint, model.sol.Model.localReferencePointRotation);
-        model.rotation.eulerAngles = new Vector3(0, 0, model.sol.Model.localReferencePointRotation.eulerAngles.z - model.rotation.eulerAngles.z);
-        model.referencePointSurfaceVelocity = (Vector2d)rgb.velocity + new Vector2d(model.polar.radius * model.reference.Model.rotationRate, 0 ); //TODO: Check / update this to be more accurate
-        model.rotationRate = rgb.angularVelocity * Mathd.Deg2Rad;
+        model.LocalPosition = Forces.Rotate((Vector3d) transform.position,-model.reference.Model.rotation) + model.sol.Model.localReferencePoint;
+        model.LocalVelocity =  Forces.Rotate((Vector2d) rgb.velocity,-model.reference.Model.rotation) + model.sol.Model.localReferenceVel; //TODO: Check / update this to be more accurate
+        model.localRotation = transform.rotation.eulerAngles.z * Mathf.Deg2Rad;
+        model.LocalRotationRate += rgb.angularVelocity * Mathd.Deg2Rad;
 
     }
     void OnCollisionEnter2D(Collision2D coll)
@@ -258,16 +249,30 @@ public class CraftController : Controller<CraftModel> {
     {
         float rotation = 0;
 
-        if (model.rotationRate > 0)
+        if (model.RotationRate != 0)
         {
-            rotation = 1 * rotationSpeed * Time.deltaTime;
-        }
-        else
-        {
-            rotation = -1 * rotationSpeed * Time.deltaTime;
+            if (model.RotationRate > 0)
+            {
+                rotation = rotationSpeed * Time.deltaTime;
+            }
+            else
+            {
+                rotation = -rotationSpeed * Time.deltaTime;
+            }
+
+            rgb.AddTorque(rotation);
+            model.LocalRotationRate = rgb.angularVelocity * Mathd.Deg2Rad;
+            if (Mathf.Abs(rgb.angularVelocity) < .1) { //It has reached slow enough speed to stop
+
+                rgb.angularVelocity = 0;
+                model.RotationRate = 0;
+                model.rotation = transform.rotation.eulerAngles.z * Mathf.Deg2Rad;
+            }
         }
 
-        rgb.AddTorque(rotation);
+        
+
+        
 
     }
 }

@@ -107,7 +107,7 @@ public class PlanetIconController : Controller<PlanetModel> {
             transform.localScale = Vector3.one;
         }
 
-        transform.localRotation = model.rotation;
+        transform.eulerAngles = new Vector3(0,0,(float)(model.rotation * Mathd.Rad2Deg));
         
         
 

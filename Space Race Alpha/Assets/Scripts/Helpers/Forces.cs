@@ -6,7 +6,7 @@ using System;
 public class Forces
 {
 
-    public static double G = 1f; //universal gravity constant
+    public static double G = .00000000667; //universal gravity constant
 
     public static Vector3d Force(BaseModel self, ModelRefs<SolarBodyModel> solarBodies)
     {
@@ -60,18 +60,14 @@ public class Forces
         return force;
     }
 
+    public static double Force(double m1, double m2, double distance)
+    {
 
-    //protected static Vector3d univGrav(double m1, double m2, Vector3d r)
-    //{
-    //    if (r == Vector3d.zero)
-    //        return Vector3d.zero;
+        double force = univGrav(m1, m2, distance);
 
-    //    double r3 = Mathd.Pow(r.sqrMagnitude, 1.5F);
 
-    //    Vector3d force = (G * m1 * m2 * r) / r3;
-    //    //print("Force Added: " + force);
-    //    return force;
-    //}
+        return force;
+    }
     protected static Vector3d univGrav(double m1, double m2, Vector3d r)
     {
         if (r.magnitude == 0)
@@ -80,6 +76,17 @@ public class Forces
         double r2 = Mathd.Pow(r.magnitude, 2);
 
         Vector3d force = (G * m2 * m1) / r2 * r.normalized;
+        //print("Force Added: " + force);
+        return force;
+    }
+    protected static double univGrav(double m1, double m2, double r)
+    {
+        if (r== 0)
+            return 0;
+
+        double r2 = Mathd.Pow(r, 2);
+
+        double force = (G * m2 * m1) / r2;
         //print("Force Added: " + force);
         return force;
     }
@@ -178,25 +185,9 @@ public class Forces
         return Mathd.PI * radius * radius;
     }
 
-    /// <summary>
-    /// Adjust current localPosition to the references displacement and rotation
-    /// </summary>
-    /// <param name="position"></param>
-    /// <param name="referencePoint"></param>
-    /// <param name="referenceRotation"></param>
-    /// <returns></returns>
-    public  static Vector3d ReferencePosition(Vector3d position, Vector3d referencePoint, Quaternion referenceRotation)
+    internal static double SphereVolume(double radius)
     {
-        Polar2 positionPolar = new Polar2((position - referencePoint).magnitude, new Polar2(position - referencePoint).angle + referenceRotation.eulerAngles.z * Mathd.Deg2Rad);
-        return positionPolar.cartesian;
-    }
-
-    internal static Vector3d ReferencePositionReverse(Vector3d position, Vector3d referencePoint, Quaternion referenceRotation)
-    {
-        //Position unrotated
-        Vector3d newPos = new Polar2(position.magnitude, new Polar2(position).angle + referenceRotation.eulerAngles.z * Mathd.Deg2Rad).cartesian;
-
-        return newPos + referencePoint;
+        return (4.0d * Mathd.PI * radius * radius * radius) / 3.0d;
     }
 
 }

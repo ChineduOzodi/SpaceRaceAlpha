@@ -44,7 +44,7 @@ public static class SolarSystemCreator{
 
         //Calculate basic info
         Vector3d position = Vector3d.zero;
-        double density = mass / Forces.CircleArea(radius);
+        double density = mass / Forces.SphereVolume(radius);
 
         //Create Model
         var body = new SunModel();
@@ -95,7 +95,7 @@ public static class SolarSystemCreator{
     public static PlanetModel AddPlanetByMass(SolarSystemModel sol, SolarBodyModel reference, Vector3d LocalPosition, double radius, double mass, string name)
     {
         //Calculate basic info
-        double density = mass / Forces.CircleArea(radius);
+        double density = mass / Forces.SphereVolume(radius);
 
         var body = new PlanetModel();
         body.type = ObjectType.Planet;
@@ -131,12 +131,12 @@ public static class SolarSystemCreator{
         Polar2 polarRadius = new Polar2(planet.radius, angle);
 
         float displacement = FresNoise.GetTerrian(planet.name, polarRadius);
-        Polar2 polarPosition = new Polar2(polarRadius.radius + displacement + 4, polarRadius.angle);
+        Polar2 polarPosition = new Polar2(polarRadius.radius + displacement + 310, polarRadius.angle);
 
-        body.surfacePolar = polarPosition; //Set surface position
-        body.SurfaceVel = new Vector3d((planet.radius + displacement) * planet.rotationRate, 0, 0); //set surface velocity
+        body.polar = polarPosition; //Set surface position
+        body.SurfaceVel = new Vector3d((planet.radius + displacement) * planet.RotationRate, 0, 0); //set surface velocity
 
-        body.rotation = new Quaternion();
+        body.rotation = angle - .5 * Mathd.PI;
         //body.rotation.eulerAngles = new Vector3(0, 0, (float) angle * Mathf.Rad2Deg + planet.rotation.eulerAngles.z);
 
         sol.allCrafts.Add(body);
@@ -164,7 +164,7 @@ public static class SolarSystemCreator{
         body.name = name;
         body.state = ObjectState.Orbit;
         body.LocalPosition = localPosition;
-        body.rotation = new Quaternion();
+        body.localRotation = 0;
         body.mass = 7.5f;
         body.velocity = VelocityFromOrbit(body);
 
@@ -190,12 +190,12 @@ public static class SolarSystemCreator{
         body.sol = new ModelRef<SolarSystemModel>(sol);
         body.reference.Model.solarBodies.Add(body);
         body.position = position;                                     //set given info
-        body.mass = density * Forces.CircleArea(radius);
+        body.mass = density * Forces.SphereVolume(radius);
         body.radius = radius;
         body.density = density;
         body.name = name;
         System.Random seed = new System.Random(name.GetHashCode());
-        body.rotationRate = 360d / ((double) seed.Next(1, 50) * Date.Hour);
+        body.RotationRate = 2 * Mathd.PI / ((double) seed.Next(10, 50) * Date.Hour);
         body.color = new Color(seed.Next(0, 100) / 100f, seed.Next(0, 100) / 100f, seed.Next(0, 100) / 100f);
 
         if (sol.centerObject.Model == null)                                //set first center of mass object if not alreaady set

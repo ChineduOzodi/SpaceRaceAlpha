@@ -24,7 +24,7 @@ public class BaseModel : Model {
 
             localPosition = reference.Model.position - worldPosition;
             pol = new Polar2(localPosition);
-            surfPol = new Polar2(pol.radius, pol.angle - reference.Model.rotation.eulerAngles.z * Mathd.Deg2Rad);
+            surfPol = new Polar2(pol.radius, pol.angle - reference.Model.rotation);
         }
     }
     /// <summary>
@@ -39,7 +39,7 @@ public class BaseModel : Model {
 
             worldPosition = reference.Model.position + localPosition;
             pol = new Polar2(localPosition);
-            surfPol = new Polar2(pol.radius, pol.angle - reference.Model.rotation.eulerAngles.z * Mathd.Deg2Rad);
+            surfPol = new Polar2(pol.radius, pol.angle - reference.Model.rotation);
         }
     }
     /// <summary>
@@ -51,19 +51,22 @@ public class BaseModel : Model {
         set
         {
             pol = value;
-            surfPol = new Polar2(pol.radius, pol.angle - reference.Model.rotation.eulerAngles.z * Mathd.Deg2Rad);
+            surfPol = new Polar2(pol.radius, pol.angle - reference.Model.rotation);
 
             localPosition = Polar2.PolarToCartesian(pol);
             worldPosition = reference.Model.position + localPosition;
         }
     }
+    /// <summary>
+    /// Polar position in relationship to the surface of the body. Can be used to get position or above body
+    /// </summary>
     public Polar2 surfacePolar {
         get { return surfPol; }
         set
         {
             surfPol = value;
 
-            pol = new Polar2(surfPol.radius, reference.Model.rotation.eulerAngles.z * Mathd.Deg2Rad  + surfPol.angle);
+            pol = new Polar2(surfPol.radius, reference.Model.rotation);
 
             localPosition = Polar2.PolarToCartesian(pol);
             worldPosition = reference.Model.position + localPosition;
@@ -83,7 +86,7 @@ public class BaseModel : Model {
 
             var relPolVel = new Polar2(relVel);
 
-            surfaceVel = new Polar2(relPolVel.radius, relPolVel.angle - reference.Model.rotation.eulerAngles.z * Mathd.Deg2Rad).cartesian;
+            surfaceVel = new Polar2(relPolVel.radius, relPolVel.angle - reference.Model.rotation).cartesian;
         }
     }
     /// <summary>
@@ -118,36 +121,9 @@ public class BaseModel : Model {
 
     }
     /// <summary>
-    /// velocity relative to the reference point set by either a planer mesh or a craft
+    /// Force relative to reference position
     /// </summary>
-    public Vector3d referencePointSurfaceVelocity
-    {
-        get
-        {
-            return Forces.Rotate(relVel, new Polar2(sol.Model.localReferencePoint).angle + sol.Model.localReferencePointRotation.eulerAngles.z * Mathd.Deg2Rad - .5d * Mathd.PI);
-        }
-
-        set
-        {
-            relVel = Forces.Rotate(value, -new Polar2(sol.Model.localReferencePoint).angle - sol.Model.localReferencePointRotation.eulerAngles.z * Mathd.Deg2Rad - .5d * Mathd.PI);
-        }
-    }
-    /// <summary>
-    /// The force vector in reference to the reference point
-    /// </summary>
-    public Vector3d referencePointSurfaceForce
-    {
-        get
-        {
-            return Forces.Rotate(force, new Polar2(sol.Model.localReferencePoint).angle + sol.Model.localReferencePointRotation.eulerAngles.z * Mathd.Deg2Rad - .5d * Mathd.PI);
-        }
-
-        set
-        {
-            force = Forces.Rotate(value, - new Polar2(sol.Model.localReferencePoint).angle - sol.Model.localReferencePointRotation.eulerAngles.z * Mathd.Deg2Rad - .5d * Mathd.PI);
-        }
-    }
-    public Vector3d relativeForce
+    public Vector3d relativeForce //TODO: correct this, need to calculated theoretical force for the reference point of meshes
     {
         get
         {
@@ -161,12 +137,56 @@ public class BaseModel : Model {
     }
     //----------------Public fields------------------------------//
 
-    //global position in world settings
-    public Quaternion rotation = Quaternion.identity; //rotation speed
     /// <summary>
-    /// rotation in radians per second
+    /// z axis rotation of object in global parameters (in radians)
     /// </summary>
-    public double rotationRate = 0;
+    public double rotation = 0;
+    /// <summary>
+    /// z axis rotation of object in relation to reference rotation (in radians)
+    /// </summary>
+    public double localRotation
+    {
+        get
+        {
+            return rotation - reference.Model.rotation;
+        }
+        set
+        {
+            rotation = value + reference.Model.rotation;
+        }
+    }
+    /// <summary>
+    /// global rotation rate in radians per second
+    /// </summary>
+    public double RotationRate
+    {
+        get
+        {
+            return rotationRate;
+        }
+        set
+        {
+            rotationRate = value;
+
+            localRotationRate = rotationRate - surfaceVel.x / pol.radius;
+        }
+    }
+    /// <summary>
+    /// local rotation rate of object in reference to reference object. NOT rotation rate of orbit
+    /// </summary>
+    public double LocalRotationRate
+    {
+        get
+        {
+            return localRotationRate;
+        }
+        set
+        {
+            localRotationRate = value;
+
+            rotationRate = localRotationRate + surfaceVel.x / pol.radius;
+        }
+    }
 
 
     //basic physics info
@@ -177,9 +197,60 @@ public class BaseModel : Model {
     /// </summary>
     public Vector3d force = Vector3d.zero;
 
-    //orbital info
-    public Vector3d altitude;
-    public OrbitalInfo orbitalInfo;
+    //---------------------Orbital Info--------------------------------//
+
+    /// <summary>
+    /// get altitude above body radius
+    /// </summary>
+    public double alt
+    {
+        get
+        {
+            return polar.radius - reference.Model.radius;
+        }
+
+    }
+    public Vector3d Ecc //eccentricity
+    {
+        get { return (Vector3d.Cross(relVel, Vector3d.Cross(localPosition, relVel)) / (reference.Model.mass * Forces.G) - (localPosition / pol.radius)); }
+    }
+
+    public Vector2d PerApo
+    {
+        get {
+            Vector2d perApo = new Vector2d();
+            double angleY = Mathd.Deg2Rad * Vector2d.Angle(relVel, localPosition);         //angle of trajectory with reference to the reference object
+
+            double C = (2 * (reference.Model.mass * Forces.G)) / (pol.radius * relVel.magnitude * relVel.magnitude);
+
+            perApo.x = (-C + Mathd.Sqrt((C * C) - (4 * (1 - C) * (-Mathd.Pow(Mathd.Sin(angleY), 2))))) / (2 * (1 - C));
+            perApo.y = (-C - Mathd.Sqrt(C * C - 4 * (1 - C) * (-Mathd.Pow(Mathd.Sin(angleY), 2)))) / (2 * (1 - C));
+
+            perApo = (perApo.x < perApo.y) ? perApo * pol.radius : new Vector2d(perApo.y, perApo.x) * pol.radius;
+
+            return perApo;
+        }
+    }
+    public double SemiMajorAxis
+    {
+        get {
+
+            double sEnergy = ((Mathd.Pow(relVel.magnitude, 2) * .5f) - ((reference.Model.mass * Forces.G) / pol.radius));
+
+            return -((reference.Model.mass * Forces.G) / (2 * sEnergy));
+
+        }
+    }
+    /// <summary>
+    /// Orbital period in seconds
+    /// </summary>
+    public double OrbitalPeriod
+    {
+        get
+        {
+            return Mathd.PI * 2 * Mathd.Sqrt(Mathd.Pow(SemiMajorAxis, 3) / (reference.Model.mass * Forces.G));
+        }
+    }
 
     //parent object
     public ModelRef<SolarBodyModel> reference;
@@ -190,6 +261,9 @@ public class BaseModel : Model {
     private Vector3d worldPosition;
     private Polar2 pol;
     private Polar2 surfPol;
+
+    private double rotationRate = 0;
+    private double localRotationRate = 0;
 
     private Vector3d vel = Vector3d.zero;
     private Vector3d relVel = Vector3d.zero;

@@ -54,7 +54,7 @@ public class Trajectory : MonoBehaviour
         {
             //vel += (Vector3) Forces.ForceToVelocity(model, .1f);
             //vectPos[i] = Forces.VelocityToPosition(vectPos[i - 1],vel, .1f);
-            vectPos[i] = (Vector3) Porabola(Forces.Rotate(model.force, model.sol.Model.localReferencePointRotation.eulerAngles.z * Mathd.Deg2Rad) / model.mass, (Vector3d) vel, (Vector3d) transform.position, i * .1f * Time.deltaTime * 50);
+            vectPos[i] = (Vector3) Porabola(model.force / model.mass, (Vector3d) vel, (Vector3d) transform.position, i * 1 * Time.deltaTime);
         }
 
         var line = gameObject.GetComponent<LineRenderer>();
