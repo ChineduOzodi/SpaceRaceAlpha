@@ -112,9 +112,12 @@ public class CraftController : Controller<CraftModel> {
 
         //force = model.force;
 
-        //update basic info
-        //model.position = transform.position;
+        //Check Altitude
+
+        CheckAltitude();
+
         
+
         rotation = 0;
         //model.mass = rgb.mass;
         //model.velocity = rgb.velocity;
@@ -197,16 +200,38 @@ public class CraftController : Controller<CraftModel> {
 
         }
 
-        if (model.state != ObjectState.Landed)
+        //If not close to reference settings
+        if (!closeToReference)
         {
-            Vector3 force = (Vector3)Forces.Rotate(model.force - model.sol.Model.localReferenceForce, model.reference.Model.rotation);
-            rgb.AddForce(force * Time.deltaTime * 50);
+            //Manually update model forces
+            
+            Vector3d addedForce = Forces.Rotate(new Vector3d(translationH, translationV + throttle), model.localRotation); //forces located to local orientation
 
-            rgb.AddRelativeForce(new Vector2(translationH, translationV + throttle));
-            rgb.AddTorque(rotation );
+            model.LocalVelocity += Forces.ForceToVelocity(model, addedForce);
+            model.position = Forces.VelocityToPosition(model);
+            Vector3d surfVel = model.SurfaceVel;
+
+            //Update reference point
+            model.sol.Model.localReferencePoint = model.LocalPosition;
+            model.sol.Model.localReferenceVel = model.LocalVelocity;
+            model.sol.Model.localReferenceForce = model.force;
         }
-        model.LocalPosition = Forces.Rotate((Vector3d) transform.position,-model.reference.Model.rotation) + model.sol.Model.localReferencePoint;
-        model.LocalVelocity =  Forces.Rotate((Vector2d) rgb.velocity,-model.reference.Model.rotation) + model.sol.Model.localReferenceVel; //TODO: Check / update this to be more accurate
+        else
+        {
+            if (model.state != ObjectState.Landed)
+            {
+
+                Vector3 force = (Vector3)Forces.Rotate(model.force - model.sol.Model.localReferenceForce, model.reference.Model.rotation);
+                rgb.AddForce(force * Time.deltaTime * 50);
+
+                rgb.AddRelativeForce(new Vector2(translationH, translationV + throttle));
+                
+            }
+            model.LocalPosition = Forces.Rotate((Vector3d)transform.position, model.reference.Model.rotation) + model.sol.Model.localReferencePoint;
+            model.LocalVelocity = Forces.Rotate((Vector3d)(Vector2d)rgb.velocity, model.reference.Model.rotation) + model.sol.Model.localReferenceVel; //TODO: Check / update this to be more accurate
+        }
+
+        rgb.AddTorque(rotation);
         model.localRotation = transform.rotation.eulerAngles.z * Mathf.Deg2Rad;
         model.LocalRotationRate += rgb.angularVelocity * Mathd.Deg2Rad;
 
@@ -227,14 +252,16 @@ public class CraftController : Controller<CraftModel> {
 
     void CheckAltitude()
     {
-        if (closeToReference && model.polar.radius - model.reference.Model.radius > 10000) {
-            OnExitBodyProximity();
+        if (closeToReference && model.alt> 20000) {
             closeToReference = false;
+            OnExitBodyProximity();
+            
         }
-        else if (!closeToReference && model.polar.radius - model.reference.Model.radius < 10000)
+        else if (!closeToReference && model.alt < 20000)
         {
-            OnEnterBodyProximity();
             closeToReference = true;
+            OnEnterBodyProximity();
+            
         }
     }
     void OnEnterBodyProximity()
@@ -243,7 +270,14 @@ public class CraftController : Controller<CraftModel> {
     }
     void OnExitBodyProximity()
     {
-        Destroy(referenceController.gameObject);
+        Destroy(referenceController.gameObject); //Destroy pbody game object
+
+        model.sol.Model.localReferencePoint = model.LocalPosition; //set new reference point
+        model.sol.Model.localReferenceVel = model.LocalVelocity;
+        model.sol.Model.localReferenceForce = model.force;
+
+
+        model.NotifyChange(); //update local controller
     }
     private void SASProgram()
     {

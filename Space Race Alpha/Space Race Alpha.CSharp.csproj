@@ -98,6 +98,8 @@
     <Compile Include="Assets\SFSoftShadows\SFSoftShadowDemos\CaveScene\ParticleSystems\Scripts\SmokeParticles.cs" />
     <Compile Include="Assets\SFSoftShadows\SFSoftShadowDemos\DemoPrefabs\Spinner.cs" />
     <Compile Include="Assets\SFSoftShadows\SFSoftShadowDemos\ForestArtwork-Kenney\FlickerLight.cs" />
+    <Compile Include="Assets\Scripts\CameraController.cs" />
+    <Compile Include="Assets\Scripts\Controllers\CraftController.cs" />
     <Compile Include="Assets\Scripts\Controllers\CraftIconController.cs" />
     <Compile Include="Assets\Scripts\Controllers\ForceController.cs" />
     <Compile Include="Assets\Scripts\Controllers\PlanetController.cs" />
@@ -105,7 +107,6 @@
     <Compile Include="Assets\Scripts\Controllers\SolarSystemController.cs" />
     <Compile Include="Assets\Scripts\Controllers\SunController.cs" />
     <Compile Include="Assets\Scripts\Controllers\SunIconController.cs" />
-    <Compile Include="Assets\Scripts\CraftController.cs" />
     <Compile Include="Assets\Scripts\Helpers\Date.cs" />
     <Compile Include="Assets\Scripts\Helpers\Forces.cs" />
     <Compile Include="Assets\Scripts\Helpers\FresNoise.cs" />
@@ -131,11 +132,8 @@
     <Compile Include="Assets\Scripts\Models\SolarBodyModel.cs" />
     <Compile Include="Assets\Scripts\Models\SolarSystemModel.cs" />
     <Compile Include="Assets\Scripts\Models\SunModel.cs" />
-    <Compile Include="Assets\Scripts\Ref\CameraController.cs" />
     <Compile Include="Assets\Scripts\Ref\CustomImageEffect.cs" />
     <Compile Include="Assets\Scripts\Ref\DragObject2D.cs" />
-    <Compile Include="Assets\Scripts\Ref\SpaceGravity.cs" />
-    <Compile Include="Assets\Scripts\Ref\SpaceGravityReal.cs" />
     <Compile Include="Assets\Scripts\Ref\SpriteText.cs" />
     <Compile Include="Assets\Scripts\TestScript.cs" />
     <Compile Include="Assets\Scripts\Types\CameraViewMode.cs" />

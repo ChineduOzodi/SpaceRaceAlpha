@@ -22,7 +22,7 @@ public class BaseModel : Model {
         set {
             worldPosition = value;
 
-            localPosition = reference.Model.position - worldPosition;
+            localPosition = - reference.Model.position + worldPosition;
             pol = new Polar2(localPosition);
             surfPol = new Polar2(pol.radius, pol.angle - reference.Model.rotation);
         }
@@ -86,7 +86,7 @@ public class BaseModel : Model {
 
             var relPolVel = new Polar2(relVel);
 
-            surfaceVel = new Polar2(relPolVel.radius, relPolVel.angle - reference.Model.rotation).cartesian;
+            surfaceVel = Forces.Rotate(relVel, -pol.angle + .5 * Mathd.PI); //Rotate it
         }
     }
     /// <summary>
@@ -101,7 +101,7 @@ public class BaseModel : Model {
 
             vel = reference.Model.velocity + relVel;
 
-            surfaceVel = Forces.Rotate(relVel, -pol.angle - .5 * Mathd.PI); //Rotate it by the local position angle of - 90 degrees so that the planes work out
+            surfaceVel = Forces.Rotate(relVel, -pol.angle + .5 * Mathd.PI); //Rotate it
         }
     }
     /// <summary>

@@ -15,7 +15,7 @@ public class planetTest : MonoBehaviour {
 
         PlanetModel planet = SolarSystemCreator.AddPlanet(sol, sun, 640 * Units.km, new Vector3d(Units.Gm, 0, 0), 5.5, "Earth");
         planet.RotationRate = 0;
-        //PlanetModel moon = SolarSystemCreator.AddPlanet(sol, planet, 5000, new Vector3d(150 * Units.km, 0, 0), 1, "Moon");
+        PlanetModel moon = SolarSystemCreator.AddPlanet(sol, planet, 173.7 * Units.km, new Vector3d(3844 * Units.km, 0, 0), 3.34, "Moon");
         CraftModel craft = SolarSystemCreator.AddCraft(sol, planet, .5 * Mathd.PI, "Craft");
 
         //Set at target

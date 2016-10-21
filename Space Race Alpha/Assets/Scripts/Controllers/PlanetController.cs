@@ -7,14 +7,15 @@ using System.Collections.Generic;
 public class PlanetController : Controller<PlanetModel> {
 
     public Material planetMaterial;
+    public PhysicsMaterial2D physicsMaterial;
     Transform rect;
     internal Rigidbody2D rgb;
     //internal float[] LOD1 = { 1, 45, 10 }; //level of detail for making the planet mesh
     internal List<int> createdMeshes = new List<int>();
     internal List<GameObject> planetMeshObjs;
 
-    internal bool initial = true;
-    internal int referenceID;
+    internal bool referenceUpdated = false;
+    internal int referenceID = -1;
 
     double circumference;
     double meshAngleStep;
@@ -60,7 +61,7 @@ public class PlanetController : Controller<PlanetModel> {
     void Update()
     {
 
-        //SetMeshes(); //Needs a lot more work
+        SetMeshes(); //Needs a lot more work
 
         UpdateReferencePointData();
         //rect.eulerAngles = new Vector3(0, 0, (float)(model.rotation * Mathd.Rad2Deg)); //Set Model rotation
@@ -169,6 +170,7 @@ public class PlanetController : Controller<PlanetModel> {
     {
         //Create 2d polygon collider
         EdgeCollider2D poly = obj.AddComponent<EdgeCollider2D>();
+        poly.sharedMaterial = physicsMaterial;
         List<Vector2> polyPoints = new List<Vector2>();
 
         int numVert = 1000;
@@ -179,17 +181,6 @@ public class PlanetController : Controller<PlanetModel> {
         List<Vector3> vertexList = new List<Vector3>();
         List<int> triangleList = new List<int>();
         List<Color> vertexColor = new List<Color>();
-
-        if (initial) //Check if it is the initial reference id
-        {
-            referenceID = meshID;
-
-            UpdateReferencePointData();
-
-            initial = false;
-
-            UpdateControlModel();
-        }
 
         Polar2 polarRadius = new Polar2(model.radius, (meshID + 1) * meshAngleStep); //the radius and angle of mesh Id in relationship with planet Object
         Polar2 referencePol = new Polar2(model.radius, (referenceID + .5) * meshAngleStep);
@@ -309,6 +300,24 @@ public class PlanetController : Controller<PlanetModel> {
             if (!list.Contains(meshID))
             {
                 list.Add(meshID);
+
+                if (referenceID != meshID) //Check to see if there is a reference point change
+                {
+                    referenceID = meshID;
+
+                    UpdateReferencePointData();
+
+                    foreach (int mesh in createdMeshes) //Delete all meshes so they can all be recreated
+                    {
+                        DeleteMeshObj(mesh);
+                    }
+
+                    createdMeshes = new List<int>(); //Clear created meshes list
+
+                    UpdateControlModel();
+
+                    
+                }
             }
 
             meshID = (meshID + 1 < circumference) ? meshID + 1 : 0;

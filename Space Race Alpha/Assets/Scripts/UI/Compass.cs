@@ -27,7 +27,7 @@ public class Compass : MonoBehaviour {
         else {
 
         
-            transform.localEulerAngles = new Vector3(0, 0, (float) (targetModel.localRotation * Mathd.Rad2Deg)); //set rotation of compass needle
+            transform.localEulerAngles = new Vector3(0, 0, (float) ((targetModel.rotation - targetModel.polar.angle) * Mathd.Rad2Deg) + 90); //set rotation of compass needle
         }
 	
 	}

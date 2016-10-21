@@ -52,9 +52,9 @@ public class Trajectory : MonoBehaviour
 
         for (int i = 1; i < verts; i++)
         {
-            //vel += (Vector3) Forces.ForceToVelocity(model, .1f);
-            //vectPos[i] = Forces.VelocityToPosition(vectPos[i - 1],vel, .1f);
-            vectPos[i] = (Vector3) Porabola(model.force / model.mass, (Vector3d) vel, (Vector3d) transform.position, i * 1 * Time.deltaTime);
+            vel += (Vector3) Forces.ForceToVelocity(Forces.Rotate(model.force - model.sol.Model.localReferenceForce, model.reference.Model.rotation), model.mass);
+            vectPos[i] = Forces.VelocityToPosition(vectPos[i - 1],vel, Time.deltaTime);
+            //vectPos[i] = (Vector3) Porabola(model.force / model.mass, (Vector3d) vel, (Vector3d) transform.position, i * 1 * Time.deltaTime);
         }
 
         var line = gameObject.GetComponent<LineRenderer>();
@@ -65,7 +65,7 @@ public class Trajectory : MonoBehaviour
         }
         else
             line.SetWidth(width * mapCam.orthographicSize * .02f, width * mapCam.orthographicSize * .02f);
-        line.SetColors(c1, c2);
+        //line.SetColors(c1, c2);
 
         line.SetPositions(vectPos);
     }

@@ -131,7 +131,7 @@ public static class SolarSystemCreator{
         Polar2 polarRadius = new Polar2(planet.radius, angle);
 
         float displacement = FresNoise.GetTerrian(planet.name, polarRadius);
-        Polar2 polarPosition = new Polar2(polarRadius.radius + displacement + 310, polarRadius.angle);
+        Polar2 polarPosition = new Polar2(polarRadius.radius + displacement + 4, polarRadius.angle);
 
         body.polar = polarPosition; //Set surface position
         body.SurfaceVel = new Vector3d((planet.radius + displacement) * planet.RotationRate, 0, 0); //set surface velocity

@@ -40,6 +40,7 @@ public class PlanetIconController : Controller<PlanetModel> {
         mapCam = GameObject.FindGameObjectWithTag("MapCamera").GetComponent<Camera>();
 
         transform.position = (Vector3) (model.position / Units.km);
+        
 
         gameObject.AddComponent<SpaceTrajectory>().model = model;
 
@@ -62,7 +63,7 @@ public class PlanetIconController : Controller<PlanetModel> {
         }
         else
         {
-            //transform.localScale = Vector3.one * (float)(model.radius / Units.km * 2);
+            transform.localScale = Vector2.one;
             GetComponent<SpriteRenderer>().sprite = null;
             MakeTerrain(1000, (float)model.radius);
         }
@@ -90,14 +91,14 @@ public class PlanetIconController : Controller<PlanetModel> {
                 
                 if (mapMode)
                 {
-                    transform.localScale = Vector3.one * width * mainCam.orthographicSize;
+                    transform.localScale = Vector3.one * Mathf.Pow(width * mainCam.orthographicSize, .8f);
                 }
                 else
-                    transform.localScale = Vector3.one * width * mapCam.orthographicSize;
+                    transform.localScale = Vector3.one * Mathf.Pow(width * mapCam.orthographicSize, .8f);
             }
             else
             {
-                transform.localScale = Vector3.one * (float)(model.radius / Units.km * 2);
+                transform.localScale = Vector3.one;
             }
         }
             

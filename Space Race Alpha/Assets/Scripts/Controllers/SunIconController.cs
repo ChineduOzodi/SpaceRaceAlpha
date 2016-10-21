@@ -21,7 +21,7 @@ public class SunIconController : Controller<SunModel> {
         mainCam = Camera.main;
         mapCam = GameObject.FindGameObjectWithTag("MapCamera").GetComponent<Camera>();
 
-        transform.position = (Vector3) (model.position / Units.Mm);
+        transform.position = (Vector3) (model.position / Units.Gm);
     }
 
     private void ToggleMapMode(ToggleMapMessage m)

@@ -6,7 +6,7 @@ using System;
 public class Forces
 {
 
-    public static double G = .00000000667; //universal gravity constant
+    public static double G = .0000000667; //universal gravity constant
 
     public static Vector3d Force(BaseModel self, ModelRefs<SolarBodyModel> solarBodies)
     {
@@ -146,6 +146,10 @@ public class Forces
         return (body.force / body.mass) * Time.deltaTime;
     }
 
+    internal static Vector3d ForceToVelocity(BaseModel body, Vector3d addedForce)
+    {
+        return ((body.force + addedForce) / body.mass) * Time.deltaTime;
+    }
     internal static Vector3d ForceToVelocity(Vector3d force, double mass)
     {
         Vector3d acc = force / mass;

@@ -5,10 +5,10 @@ using System;
 
 public class CameraController : MonoBehaviour {
 
-    public GameObject target; //target object
-    public BaseModel targetModel; //targetModel
+    internal GameObject target; //target object
+    internal BaseModel targetModel; //targetModel
 
-    public GameObject reference;
+    internal GameObject reference;
 
     public CameraViewMode viewMode = CameraViewMode.Absolute;
     public ControlMode controlMode = ControlMode.Craft;
@@ -27,6 +27,8 @@ public class CameraController : MonoBehaviour {
     public float minMapSize = 350; //the minmum size of the map view
     public bool setup = false;
 
+    internal float mapViewSize;
+    internal float mainViewSize;
     //Background
     public GameObject stars;
     public GameObject starsMap;
@@ -37,7 +39,6 @@ public class CameraController : MonoBehaviour {
         mainCam = GetComponent<Camera>();
 
         mapCam = GameObject.FindGameObjectWithTag("MapCamera").GetComponent<Camera>();
-        //mapCam.orthographicSize = Camera.main.orthographicSize * 200;
 
         //initialize star background
         stars = Instantiate(Resources.Load("stars")) as GameObject;
@@ -120,18 +121,13 @@ public class CameraController : MonoBehaviour {
         {
             SetViewMode((viewMode.GetHashCode() + 1 > 2) ? 0 : viewMode + 1);
         }
-    }
-
-    void FixedUpdate()
-    {
-        
 
         //Update Background
         stars.transform.position = new Vector3(transform.position.x, transform.position.y);
-        stars.transform.localScale = new Vector3(mainCam.orthographicSize * .5f, mainCam.orthographicSize * .5f);
+        stars.transform.localScale = new Vector3(mainCam.orthographicSize * .25f, mainCam.orthographicSize * .25f);
 
         starsMap.transform.position = new Vector3(transform.position.x, transform.position.y);
-        starsMap.transform.localScale = new Vector3(mapCam.orthographicSize * .5f, mapCam.orthographicSize * .5f);
+        starsMap.transform.localScale = new Vector3(mapCam.orthographicSize * .25f, mapCam.orthographicSize * .25f);
 
 
         //camera rotation
@@ -141,11 +137,16 @@ public class CameraController : MonoBehaviour {
         }
         else if (viewMode == CameraViewMode.Reference)
         {
-            Quaternion rot = new Quaternion();
             //rot.eulerAngles = new Vector3(0, 0, new Polar2(targetModel.LocalPosition).angle * Mathf.Rad2Deg);
-            rot.eulerAngles = new Vector3(0, 0, (float) new Polar2(transform.position).angle * Mathf.Rad2Deg - 90);
-            transform.rotation = rot;
+            transform.eulerAngles = new Vector3(0, 0, (float)((new Polar2(targetModel.LocalPosition).angle + targetModel.reference.Model.rotation) * Mathd.Rad2Deg - 90)); //set rotation of compass needle
         }
+    }
+
+    void FixedUpdate()
+    {
+        
+
+        
 
         //if (mapMode)
         //{
@@ -170,8 +171,13 @@ public class CameraController : MonoBehaviour {
         if (mapMode)
         {
             mapMode = false;
-            mainCam.orthographicSize = 5;
-            mapCam.orthographicSize = 5;
+
+            //Set view sizes
+            mapViewSize = mainCam.orthographicSize;
+            mainViewSize = mapCam.orthographicSize;
+
+            mainCam.orthographicSize = mainViewSize;
+            mapCam.orthographicSize = mapViewSize;
 
             transform.parent = target.transform;
             mapCam.transform.parent = GameObject.FindGameObjectWithTag("satellite").transform;
@@ -186,10 +192,12 @@ public class CameraController : MonoBehaviour {
             transform.parent = GameObject.FindGameObjectWithTag("satellite").transform;
             mapCam.transform.parent = target.transform;
 
-            
+            //set view sizes
+            mapViewSize = mapCam.orthographicSize;
+            mainViewSize = mainCam.orthographicSize;
 
-            mainCam.orthographicSize = 5;
-            mapCam.orthographicSize = 5;
+            mainCam.orthographicSize = mapViewSize;
+            mapCam.orthographicSize = mainViewSize;
 
             transform.localPosition = new Vector3(0, 0, -1);
             mapCam.transform.localPosition = new Vector3(0, 0, -1);

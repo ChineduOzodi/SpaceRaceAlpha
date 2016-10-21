@@ -87,12 +87,12 @@ public class SpaceTrajectory : MonoBehaviour
         line.SetVertexCount(vertsCount);
         if (mapMode)
         {
-            line.SetWidth(width * mainCam.orthographicSize, width * mainCam.orthographicSize );
+            line.SetWidth(Mathf.Pow(width * mainCam.orthographicSize, .8f), Mathf.Pow(width * mainCam.orthographicSize, .8f));
         }
         else
-            line.SetWidth(width * mapCam.orthographicSize , width * mapCam.orthographicSize);
+            line.SetWidth(Mathf.Pow(width * mapCam.orthographicSize, .8f), Mathf.Pow(width * mapCam.orthographicSize, .8f));
 
-        line.SetColors(c1, c1);
+        //line.SetColors(c1, c1);
 
         line.SetPositions(verts);
     }

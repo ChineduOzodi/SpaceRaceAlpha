@@ -6,7 +6,8 @@ using System;
 public class CraftIconController : Controller<CraftModel> {
     bool mapMode = false;
 
-    internal float width = .35f;
+    //width of icon
+    internal float iconSize = .05f;
 
     Camera mainCam;
     Camera mapCam;
@@ -42,10 +43,10 @@ public class CraftIconController : Controller<CraftModel> {
 
         if (mapMode)
         {
-            transform.localScale = Vector3.one * width * mainCam.orthographicSize;
+            transform.localScale = Vector3.one * (Mathf.Pow(iconSize * mainCam.orthographicSize, .8f)) ;
         }
         else
-            transform.localScale = Vector3.one * width * mapCam.orthographicSize;
-
+            transform.localScale = Vector3.one * Mathf.Pow(iconSize * mapCam.orthographicSize, .8f);
+        transform.eulerAngles = new Vector3(0, 0, (float)(model.rotation * Mathd.Rad2Deg));
     }
 }

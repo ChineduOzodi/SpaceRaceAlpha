@@ -1,11 +1,12 @@
 fileFormatVersion: 2
 guid: 36feb8a13f4f82f438f260adee5985d2
-timeCreated: 1476729094
+timeCreated: 1477075875
 licenseType: Free
 MonoImporter:
   serializedVersion: 2
   defaultReferences:
-  - planetMaterial: {fileID: 10302, guid: 0000000000000000f000000000000000, type: 0}
+  - planetMaterial: {fileID: 2100000, guid: 903c7352dda7d41cbad8ce92fb3fa8b5, type: 2}
+  - physicsMaterial: {fileID: 6200000, guid: c3b6a15032ad24d859e4b36b86f676a5, type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
