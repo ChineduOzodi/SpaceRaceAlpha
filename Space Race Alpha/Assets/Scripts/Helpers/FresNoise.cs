@@ -3,15 +3,39 @@ using System.Collections;
 using System;
 
 [Serializable]
-public class FresNoise
+public static class FresNoise
 {
-    //public int pixWidth;
     //public int pixHeight;
     //public float xOrg;
     //public float yOrg;
     //public float scale = 1.0F;
+    /// <summary>
+    /// Return the displacement of from 0
+    /// </summary>
+    /// <param name="seed"></param>
+    /// <param name="polar">polar coords with radius and angle in radians</param>
+    /// <returns></returns>
+    public static float GetTerrian(string seed, Polar2 polar)
+    {
+        float fDetial = 1;
+        float fWeight = 10000f;
+        float fValue = 0;
+        int nOctaves = 10;
+        float scale = .00005f;
+        int disp = seed.Length;
+        polar.radius*= scale;
 
-    public float[,] CalcNoise(int pixWidth, int pixHeight, float xOrg, float yOrg, float scale = 1f)
+        Vector2d coord = polar.cartesian;
+        for (int i = 0; i < nOctaves; i++)
+        {
+            fValue += (Mathf.PerlinNoise(((float)coord.x + disp) * fDetial, ((float) coord.y + disp) * fDetial) -.5f) * fWeight ; //Sum wegihted noise value
+            fWeight *= .3f; //adjust weight
+            fDetial *= 3;
+        }
+        return fValue;
+    }
+
+    public static float[,] CalcNoise(int pixWidth, int pixHeight, float xOrg, float yOrg, float scale = 1f)
     {
         float[,] map = new float[pixWidth, pixHeight];
         int y = 0;
@@ -32,7 +56,7 @@ public class FresNoise
         return map;
     }
 
-    public float[,] CalcNoise(int pixWidth, int pixHeight, string seed = null, float scale = 10f)
+    public static float[,] CalcNoise(int pixWidth, int pixHeight, string seed = null, float scale = 10f)
     {
         if (seed == null)
         {
@@ -62,7 +86,7 @@ public class FresNoise
         return map;
     }
 
-    public int[,] CalcNoise(int pixWidth, int pixHeight,float[] heightMap, string seed = null, float scale = 10f)
+    public static int[,] CalcNoise(int pixWidth, int pixHeight,float[] heightMap, string seed = null, float scale = 10f)
     {
         if (seed == null)
         {
@@ -96,7 +120,7 @@ public class FresNoise
 
     }
 
-    public int ScaleFloatToInt(float sample, float[] heightMap)
+    public static int ScaleFloatToInt(float sample, float[] heightMap)
     {
         int num = heightMap.Length;
 

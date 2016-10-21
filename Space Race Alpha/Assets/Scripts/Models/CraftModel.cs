@@ -3,11 +3,27 @@ using System.Collections;
 
 public class CraftModel : BaseModel {
 
-    public Vector3 referenceDistance;
+    /// <summary>
+    /// Set whether craft has been spawned into surface view
+    /// </summary>
+    public bool spawned = false; 
+    /// <summary>
+    /// throttle power from 0 to 100
+    /// </summary>
+    public float throttle = 0;
 
-    public float altChangeSpeed = 0;
-    public float rotationSpeed = 0;
+    //------Flight Info-----//
 
-    public FlightInfo flightInfo;
-    internal float throttle = 0;
+    /// <summary>
+    /// get altitude above body radius
+    /// </summary>
+    public double alt {
+        get
+        {
+            return polar.radius - reference.Model.radius;
+        }
+        
+    }
+
+
 }

@@ -9,7 +9,7 @@ public class ForceController : Controller<ForceArrowModel> {
 
     Transform rect;
     SpriteRenderer img;
-    Vector3 force;
+    Vector3d force;
 
     protected override void OnInitialize()
     {
@@ -18,7 +18,7 @@ public class ForceController : Controller<ForceArrowModel> {
 
         force = model.parent.Model.force;
 
-        rect.position = model.position;
+        rect.position = (Vector3) model.position;
         rect.rotation = model.rotation = Quaternion.identity;
         rect.localScale = model.scale = Vector3.one;
 
@@ -39,7 +39,7 @@ public class ForceController : Controller<ForceArrowModel> {
 
     protected override void OnModelChanged()
     {
-        rect.position = model.position;
+        rect.position = (Vector3) model.position;
         rect.rotation = model.rotation;
         rect.localScale = model.scale;
 
@@ -50,9 +50,9 @@ public class ForceController : Controller<ForceArrowModel> {
     {
         model.force = model.parent.Model.force;
 
-        Vector2 polar = Forces.CartesianToPolar(model.force);
-        model.rotation = Quaternion.AngleAxis(polar.y * Mathf.Rad2Deg, new Vector3(0,0,1));
-        model.scale.x = polar.x * .001f;
+        Polar2 polar = new Polar2(model.force);
+        model.rotation = Quaternion.AngleAxis((float) polar.angle * Mathf.Rad2Deg, new Vector3(0,0,1));
+        model.scale.x = (float) polar.radius * .001f;
 
         model.position = model.parent.Model.position;
 

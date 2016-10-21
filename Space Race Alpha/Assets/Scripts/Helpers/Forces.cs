@@ -6,22 +6,22 @@ using System;
 public class Forces
 {
 
-    public static float G = 1f; //universal gravity constant
+    public static double G = 1f; //universal gravity constant
 
-    public static Vector3 Force(BaseModel self, ModelRefs<SolarBodyModel> solarBodies)
+    public static Vector3d Force(BaseModel self, ModelRefs<SolarBodyModel> solarBodies)
     {
-        Vector3 force = Vector3.zero;
+        Vector3d force = Vector3d.zero;
 
-        float m1 = self.mass;
+        double m1 = self.mass;
         if (solarBodies != null)
         {
             foreach (SolarBodyModel body in solarBodies)
             {
                 //TODO: Make more efficient so that they don't have to check force for themselves
-                Vector3 m2Pos = body.position;
-                float m2 = body.mass;
+                Vector3d m2Pos = body.position;
+                double m2 = body.mass;
 
-                Vector3 distance = m2Pos - self.position;
+                Vector3d distance = m2Pos - self.position;
                 force += univGrav(m1, m2, distance);
 
             }
@@ -31,18 +31,18 @@ public class Forces
         return force;
     }
 
-    public static Vector3 Force(BaseModel self)
+    public static Vector3d Force(BaseModel self)
     {
-        Vector3 force = Vector3.zero;
+        Vector3d force = Vector3d.zero;
 
-        float m1 = self.mass;
+        double m1 = self.mass;
         if (self.reference.Model != null)
         {
             //TODO: Make more efficient so that they don't have to check force for themselves
-            Vector3 m2Pos = self.reference.Model.position;
-            float m2 = self.reference.Model.mass;
+            Vector3d m2Pos = self.reference.Model.position;
+            double m2 = self.reference.Model.mass;
 
-            Vector3 distance = m2Pos - self.position;
+            Vector3d distance = m2Pos - self.position;
             force = univGrav(m1, m2, distance);
         }
 
@@ -50,105 +50,153 @@ public class Forces
         return force;
     }
 
+    public static Vector3d Force(double m1, double m2, Vector3d distance)
+    {
+        Vector3d force = Vector3d.zero;
 
-    //protected static Vector3 univGrav(float m1, float m2, Vector3 r)
+        force = univGrav(m1, m2, distance);
+
+
+        return force;
+    }
+
+
+    //protected static Vector3d univGrav(double m1, double m2, Vector3d r)
     //{
-    //    if (r == Vector3.zero)
-    //        return Vector3.zero;
+    //    if (r == Vector3d.zero)
+    //        return Vector3d.zero;
 
-    //    float r3 = Mathf.Pow(r.sqrMagnitude, 1.5F);
+    //    double r3 = Mathd.Pow(r.sqrMagnitude, 1.5F);
 
-    //    Vector3 force = (G * m1 * m2 * r) / r3;
+    //    Vector3d force = (G * m1 * m2 * r) / r3;
     //    //print("Force Added: " + force);
     //    return force;
     //}
-    protected static Vector3 univGrav(float m1, float m2, Vector3 r)
+    protected static Vector3d univGrav(double m1, double m2, Vector3d r)
     {
-        if (r == Vector3.zero)
-            return Vector3.zero;
+        if (r.magnitude == 0)
+            return Vector3d.zero;
 
-        float r2 = Mathf.Pow(r.magnitude, 2);
+        double r2 = Mathd.Pow(r.magnitude, 2);
 
-        Vector3 force = (G * m2 * m1) / r2 * r.normalized;
+        Vector3d force = (G * m2 * m1) / r2 * r.normalized;
         //print("Force Added: " + force);
         return force;
     }
-    public static Vector3 Tangent(Vector3 normal)
+    public static Vector3d Tangent(Vector3d normal)
     {
-        Vector3 tangent = Vector3.Cross(normal, Vector3.forward);
+        Vector3d tangent = Vector3d.Cross(normal, Vector3d.forward);
 
         if (tangent.magnitude == 0)
         {
-            tangent = Vector3.Cross(normal, Vector3.up);
+            tangent = Vector3d.Cross(normal, Vector3d.up);
         }
 
         return tangent;
     }
 
-    public static float CentripicalForceVel(float m1, float r, float force)
+    public static double CentripicalForceVel(double m1, double r, double force)
     {
-        return Mathf.Sqrt((force * r) / m1);
+        return Mathd.Sqrt((force * r) / m1);
     }
 
-    public static float AngularVelocity(SolarBodyModel model)
+    public static double AngularVelocity(SolarBodyModel model)
     {
-        //return Mathf.Sqrt((G * m2) / (Mathf.Pow(R + r, 2) * r));
+        //return Mathd.Sqrt((G * m2) / (Mathd.Pow(R + r, 2) * r));
         return model.velocity.magnitude / (model.position - model.reference.Model.position).magnitude;
     }
     /// <summary>
-    /// Converts Polar (r,0) to cartesian (x,y)
+    /// Rotate a vector by an angle in radias
     /// </summary>
-    /// <param name="point">(r,0)</param>
-    /// <returns>(x,y)</returns>
-    public static Vector2 PolarToCartesian(Vector2 point)
+    /// <param name="vector"></param>
+    /// <param name="angle">in radians</param>
+    /// <returns></returns>
+    internal static Vector3d Rotate(Vector3d vector, double angle)
     {
-        return new Vector2(point.x * Mathf.Cos(point.y), point.x * Mathf.Sin(point.y));
-    }
-    
-    public static Vector2 CartesianToPolar(Vector3 point)
-    {
-        Vector2 polar;
-
-        float angle = Mathf.Atan(point.y / point.x);
-
-        if (point.x < 0)
+        if (vector.sqrMagnitude == 0)
         {
-            angle += Mathf.PI * 2;
-        }
-        else if (point.y < 0)
-        {
-            angle += Mathf.PI;
-        }
-        else
-        {
-
-            angle += Mathf.PI;
+            return vector; //to avoid NaN
         }
 
-        polar = new Vector2(point.magnitude, angle);
-        return polar;
+        return new Polar2(new Polar2(vector).radius, new Polar2(vector).angle + angle).cartesian;
     }
 
-    internal static Vector3 ForceToVelocity(BaseModel body)
+    /// <summary>
+    /// Returns the linear velocity tangent to the position vector for a given angular vel
+    /// </summary>
+    /// <param name="rotationRate">in radians per second</param>
+    /// <param name="position">position in meters</param>
+    /// <returns></returns>
+    public static Vector3d AngularVelocity(double rotationRate, Vector3d position)
     {
-        return body.force / body.mass * Time.deltaTime;
+        //return Mathd.Sqrt((G * m2) / (Mathd.Pow(R + r, 2) * r));
+        return rotationRate * position.magnitude * Tangent(position.normalized);
     }
 
-    internal static Vector3 ForceToVelocity(Vector3 force, float mass)
+
+    internal static Vector3d ForceToVelocity(BaseModel body)
     {
-        return force / mass * Time.deltaTime;
+        return (body.force / body.mass) * Time.deltaTime;
     }
 
-    internal static Vector3 VelocityToPosition(BaseModel body)
+    internal static Vector3d ForceToVelocity(Vector3d force, double mass)
+    {
+        Vector3d acc = force / mass;
+        Vector3d vel = acc * Time.deltaTime;
+        return vel;
+    }
+
+    internal static Vector3d ForceToVelocityRough(BaseModel body, float time)
+    {
+        return body.force / body.mass * Time.deltaTime * 50 * time;
+    }
+    /// <summary>
+    /// returns it in world position
+    /// </summary>
+    /// <param name="body">the base model</param>
+    /// <returns></returns>
+    internal static Vector3d VelocityToPosition(BaseModel body)
     {
         return body.position + body.velocity * Time.deltaTime ;
     }
-
-    internal static float CircleArea(float radius)
+    internal static Vector3d VelocityToLocalPosition(BaseModel body)
     {
-        return Mathf.PI * radius * radius;
+        return body.LocalPosition + body.LocalVelocity * Time.deltaTime;
     }
-    
+    internal static Vector3d VelocityToPosition(Vector3d pos, Vector3d vel)
+    {
+        return pos + vel * Time.deltaTime;
+    }
 
-    
+    internal static Vector3 VelocityToPosition(Vector3 pos, Vector3 vel, float time)
+    {
+        return pos + vel * Time.deltaTime * 50 * time;
+    }
+
+    internal static double CircleArea(double radius)
+    {
+        return Mathd.PI * radius * radius;
+    }
+
+    /// <summary>
+    /// Adjust current localPosition to the references displacement and rotation
+    /// </summary>
+    /// <param name="position"></param>
+    /// <param name="referencePoint"></param>
+    /// <param name="referenceRotation"></param>
+    /// <returns></returns>
+    public  static Vector3d ReferencePosition(Vector3d position, Vector3d referencePoint, Quaternion referenceRotation)
+    {
+        Polar2 positionPolar = new Polar2((position - referencePoint).magnitude, new Polar2(position - referencePoint).angle + referenceRotation.eulerAngles.z * Mathd.Deg2Rad);
+        return positionPolar.cartesian;
+    }
+
+    internal static Vector3d ReferencePositionReverse(Vector3d position, Vector3d referencePoint, Quaternion referenceRotation)
+    {
+        //Position unrotated
+        Vector3d newPos = new Polar2(position.magnitude, new Polar2(position).angle + referenceRotation.eulerAngles.z * Mathd.Deg2Rad).cartesian;
+
+        return newPos + referencePoint;
+    }
+
 }

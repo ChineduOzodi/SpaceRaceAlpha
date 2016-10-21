@@ -1,0 +1,37 @@
+fileFormatVersion: 2
+guid: ea585a939d8a5334b92989cdf82a2529
+timeCreated: 1476563361
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontNames:
+  - Asimov
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 6420f09024064f840ba2d4573fdaabf1, type: 3}
+  - {fileID: 12800000, guid: 3a3697b00566c7d41b7c6068b4e0b5dd, type: 3}
+  - {fileID: 12800000, guid: 0adbdf51a5415ae4cb9b0fa12cd8229f, type: 3}
+  - {fileID: 12800000, guid: 82a00222dc78db743b67834218e2b418, type: 3}
+  - {fileID: 12800000, guid: 327f1a72b57675249a5a61ba9d7aa64a, type: 3}
+  - {fileID: 12800000, guid: 7a627be219fad5e4fa94ff671efb644e, type: 3}
+  - {fileID: 12800000, guid: 180a97844e4f5f541ac7617bef88bbeb, type: 3}
+  - {fileID: 12800000, guid: 85ff66c57c9dc2440aa2c88641525673, type: 3}
+  - {fileID: 12800000, guid: 95a0d7c668994394c8226b5ff5903fce, type: 3}
+  - {fileID: 12800000, guid: 2615fd183b427124bbc2b4a161cd5374, type: 3}
+  - {fileID: 12800000, guid: 610e0c58adc1ed448b3d9de755c82733, type: 3}
+  - {fileID: 12800000, guid: 248a45987b4d0c04e8f1302dc4405f3b, type: 3}
+  - {fileID: 12800000, guid: 1df1f5ad8d0407a40b337f658fe05f19, type: 3}
+  - {fileID: 12800000, guid: e1569ece815b1274791adad3098b9e48, type: 3}
+  - {fileID: 12800000, guid: 197685def9fd080459e1961011a71fa7, type: 3}
+  - {fileID: 12800000, guid: 02ab722f14ad8d943a02fe5b39fbe248, type: 3}
+  - {fileID: 12800000, guid: c4806ddf98c30344bbc1dcad5da832ab, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -4,6 +4,6 @@ using CodeControl;
 
 public class SunModel : PlanetModel {
     
-    float surfaceTemperature;
+    public double surfaceTemperature;
 
 }

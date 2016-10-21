@@ -49,7 +49,7 @@ namespace CodeControl {
             get {
                 return id;
             }
-            private set {
+            set {
                 Unregister();
                 id = value;
                 Register();

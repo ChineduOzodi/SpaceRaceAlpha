@@ -7,15 +7,15 @@ public class CraftController : Controller<CraftModel> {
 
     public float G = 1;
 
+    internal bool closeToReference = false;
+    PlanetController referenceController;
+
     internal float throttle = 0;
     internal float rotation = 0;
     float translationV = 0;
     float translationH = 0;
 
     internal bool control = true;
-
-    //Information needed for control
-    FlightInfo fInfo;
 
     internal bool SAS = false;
 
@@ -45,43 +45,40 @@ public class CraftController : Controller<CraftModel> {
 
         //Message.AddListener("ToggleSASMessage", ToggleSAS);
 
+        //-------Set Message Spawned ---------//
+        model.spawned = true;
+
         //setup initial location and rotation
-        transform.position = model.position;
-        transform.rotation = model.rotation;
+        CheckAltitude();
 
         //Set physics
         rgb = GetComponent<Rigidbody2D>();
-        rgb.velocity = model.velocity;
-        rgb.mass = model.mass;
-
+        rgb.mass = (float) model.mass;
+        rgb.angularVelocity = (float)(model.rotationRate * Mathd.Rad2Deg);
         //set.add to reference object list
-        model.reference.Model.crafts.Add(model);
+        //model.reference.Model.crafts.Add(model);
 
-        //create trajectory ring
-        SpaceTrajectory orb = gameObject.AddComponent<SpaceTrajectory>();
-
-        orb.model = model;
-        orb.width = 1;
-
-        //Initial flight info due to control being true
-        fInfo = gameObject.AddComponent<FlightInfo>();
-        fInfo.model = model;
-
-        model.flightInfo = fInfo;
+        //Check if near solar body
+        
+    }
+    protected override void OnDestroy()
+    {
+        model.spawned = false;
     }
 
     protected override void OnModelChanged()
     {
-        //update orgital parameters
-        //transform.Translate(model.velocity * Time.deltaTime);
-        //rect.position = model.position;
-        //transform.rotation = model.rotation;
-        //transform.localScale = model.localScale;
+        //update position location parameters
 
+        transform.position = (Vector3) Forces.ReferencePosition(model.LocalPosition, model.sol.Model.localReferencePoint, model.sol.Model.localReferencePointRotation); //position in relationship to reference point
+        transform.eulerAngles = new Vector3( 0, 0, model.rotation.eulerAngles.z - model.sol.Model.localReferencePointRotation.eulerAngles.z); //rotation in relationship to reference point
+        //transform.localScale = model.localScale;
+        transform.rotation = model.rotation;
 
         //rb2D.mass = model.mass;
         //rb2D.velocity = model.velocity;
     }
+   
 
     internal void OnStateChanged(Transform reference)
     {
@@ -93,17 +90,15 @@ public class CraftController : Controller<CraftModel> {
         {
             transform.parent = reference;
 
-            //rgb.velocity = (model.reference.Model.velocity * .1f) + model.velocity;
+            //model.LocalVelocity = Forces.AngularVelocity(model.reference.Model) 
+            //    * model.LocalPosition.magnitude 
+            //    * Forces.Tangent(model.LocalPosition.normalized) + model.LocalVelocity;
 
-            model.velocity = Forces.AngularVelocity(model.reference.Model) 
-                * (model.position - model.reference.Model.reference.Model.position).magnitude 
-                * Forces.Tangent((model.reference.Model.position - model.reference.Model.reference.Model.position).normalized) + model.velocity;
-
-            model.NotifyChange();
+            //model.NotifyChange();
         }
     }
 
-    private void ToggleSAS()
+    internal void ToggleSAS()
     {
         if (SAS)
             SAS = false;
@@ -114,7 +109,9 @@ public class CraftController : Controller<CraftModel> {
 
     // Update is called once per frame
     void Update () {
+
         
+
         //update Orbital info
         model.orbitalInfo = new OrbitalInfo(model, Forces.G);
 
@@ -122,7 +119,7 @@ public class CraftController : Controller<CraftModel> {
 
         //update basic info
         //model.position = transform.position;
-        model.rotation = transform.rotation;
+        
         rotation = 0;
         //model.mass = rgb.mass;
         //model.velocity = rgb.velocity;
@@ -157,8 +154,8 @@ public class CraftController : Controller<CraftModel> {
                 SASProgram();
             }
 
-            throttle += (Input.GetKey(KeyCode.LeftShift)) ? 1 * Time.deltaTime : 0;
-            throttle -= (Input.GetKey(KeyCode.LeftControl)) ? 1 * Time.deltaTime : 0;
+            throttle += (Input.GetKey(KeyCode.LeftShift)) ? 10 * Time.deltaTime : 0;
+            throttle -= (Input.GetKey(KeyCode.LeftControl)) ? 10 * Time.deltaTime : 0;
 
             if (Input.GetKeyDown(KeyCode.X))
             {
@@ -201,48 +198,67 @@ public class CraftController : Controller<CraftModel> {
             //transform.Translate(new Vector3(translationH, translationV, 0));
             //transform.Rotate(new Vector3(0, 0, rotation));
 
-            //Autopilot buttons
-            if (Input.GetKeyDown(KeyCode.T))
-            {
-                ToggleSAS();
-            }
+            
 
         }
-        //Figure out LOD for planets
-        model.referenceDistance = model.position - model.reference.Model.position;
-	
-	}
 
-    void FixedUpdate()
-    {
         if (model.state != ObjectState.Landed)
         {
             //Update Physics
-            rgb.AddForce(model.force);
+            Vector3 force = (Vector3) Forces.Rotate(model.relativeForce, new Polar2(model.sol.Model.localReferencePoint).angle + model.sol.Model.localReferencePointRotation.eulerAngles.z * Mathd.Deg2Rad - .5d * Mathd.PI);
+            //rgb.AddForce( force * Time.deltaTime * 50);
 
             rgb.AddRelativeForce(new Vector2(translationH, translationV + throttle));
             rgb.AddTorque(rotation);
 
-            model.position = transform.position;
-            model.rotation = transform.rotation;
-            model.velocity = rgb.velocity;
+            
         }
-        
+        Vector3d surfVel = model.referencePointSurfaceVelocity;
+        model.LocalPosition = Forces.ReferencePositionReverse((Vector3d) transform.position, model.sol.Model.localReferencePoint, model.sol.Model.localReferencePointRotation);
+        model.rotation.eulerAngles = new Vector3(0, 0, model.sol.Model.localReferencePointRotation.eulerAngles.z - model.rotation.eulerAngles.z);
+        model.referencePointSurfaceVelocity = (Vector2d)rgb.velocity + new Vector2d(model.polar.radius * model.reference.Model.rotationRate, 0 ); //TODO: Check / update this to be more accurate
+        model.rotationRate = rgb.angularVelocity * Mathd.Deg2Rad;
 
     }
     void OnCollisionEnter2D(Collision2D coll)
     {
-        model.state = ObjectState.Landed;
-        transform.parent = coll.transform;
-        rgb.velocity = Vector2.zero;
-        rgb.angularVelocity = 0;
+        //Check Landed
+        if (model.state == ObjectState.Landed)
+        {
+            transform.parent = coll.transform;
+            rgb.velocity = Vector2.zero;
+            rgb.angularVelocity = 0;
+        }
+        //model.state = ObjectState.Landed;
+
+
     }
 
+    void CheckAltitude()
+    {
+        if (closeToReference && model.polar.radius - model.reference.Model.radius > 10000) {
+            OnExitBodyProximity();
+            closeToReference = false;
+        }
+        else if (!closeToReference && model.polar.radius - model.reference.Model.radius < 10000)
+        {
+            OnEnterBodyProximity();
+            closeToReference = true;
+        }
+    }
+    void OnEnterBodyProximity()
+    {
+        referenceController = Controller.Instantiate<PlanetController>(model.reference.Model.type.ToString(), model.reference.Model);
+    }
+    void OnExitBodyProximity()
+    {
+        Destroy(referenceController.gameObject);
+    }
     private void SASProgram()
     {
         float rotation = 0;
 
-        if (fInfo.RotationSpeed > 0)
+        if (model.rotationRate > 0)
         {
             rotation = 1 * rotationSpeed * Time.deltaTime;
         }

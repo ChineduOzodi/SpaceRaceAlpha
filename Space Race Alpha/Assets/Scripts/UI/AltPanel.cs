@@ -31,7 +31,7 @@ public class AltPanel : MonoBehaviour {
 
         if (model != null)
         {
-            infoText.text = model.orbitalInfo.Alt.ToString("0") + " m| " + model.flightInfo.AltChangeSpeed.ToString("0.00") + " m/s";
+            infoText.text = model.alt.ToString("0") + " m| " + model.SurfaceVel.y.ToString("0.00") + " m/s";
         }
 	
 	}

@@ -9,9 +9,8 @@ public class SunController : Controller<SunModel> {
     protected override void OnInitialize()
     {
         //setup initial location and rotation
-        transform.position = model.position;
+        transform.position = (Vector3) model.position;
         transform.rotation = model.rotation;
-        transform.localScale = model.localScale;
 
         Model = model;
     }
@@ -26,8 +25,8 @@ public class SunController : Controller<SunModel> {
 	// Update is called once per frame
 	void Update () {
 
-        model.position = transform.position;
-        model.rotation = transform.rotation;
+        //model.position = (Vector3d) transform.position;
+        //model.rotation = transform.rotation;
 
     }
 

@@ -6,145 +6,126 @@ using System.Collections.Generic;
 
 public class PlanetController : Controller<PlanetModel> {
 
+    public Material planetMaterial;
     Transform rect;
     internal Rigidbody2D rb2D;
-    internal float[] LOD1 = { 1, 45, 10 }; //level of detail for making the planet mesh
-    internal List<int[]> createdMeshes = new List<int[]>();
+    //internal float[] LOD1 = { 1, 45, 10 }; //level of detail for making the planet mesh
+    internal List<int> createdMeshes = new List<int>();
     internal List<GameObject> planetMeshObjs;
-    GameObject SOI;
+
+    internal bool initial = true;
+    internal int referenceID;
+
+    double circumference;
+    double meshAngleStep;
 
     //Model reference
     public PlanetModel Model;
 
     private void Awake()
     {
-        //Message.AddListener<AddPlanetMessage>(OnAddPlanetMessage);
-        Message.AddListener<ShowForceMessage>(OnShowForceMessage);
+
         planetMeshObjs = new List<GameObject>();
 
-        rb2D = GetComponent<Rigidbody2D>();
         rect = transform; //GetComponent<RectTransform>();
-
-        
-
-
-    }
-
-    private void OnShowForceMessage(ShowForceMessage m)
-    {
-        Message.RemoveListener<ShowForceMessage>(OnShowForceMessage);
-
-        ForceArrowModel arrow = new ForceArrowModel();
-        arrow.color = m.color;
-        arrow.parent = new ModelRef<PlanetModel>(model); ;     
-        arrow.force = model.force;
-
-        model.showForce = true;
-
-        Controller.Instantiate<ForceController>("forceArrow", arrow);
-
-        
 
     }
 
     protected override void OnInitialize()
     {
         //setup initial location and rotation
-        rect.position = model.position;
-        rect.rotation = model.rotation;
-        rect.localScale = model.localScale;
+        rect.position = Vector3.zero;
+        rect.rotation = Quaternion.identity;
 
-        MakeCircle(1000,model.radius);
+        circumference = model.radius * Mathf.PI * .002f; //circumference in km
+        meshAngleStep = 2 * Mathf.PI / circumference; //angle distance for each km in radians
 
-        CircleCollider2D col = gameObject.AddComponent<CircleCollider2D>();
-        col.radius = model.radius;
+        //MakeTerrain(65000,model.radius);
+
+        //CircleCollider2D col = gameObject.AddComponent<CircleCollider2D>();
+        //col.radius = model.radius;
 
         //Set Model
         Model = model;
+        name = model.name;
 
-        //create trajectory ring
-        SpaceTrajectory orb = gameObject.AddComponent<SpaceTrajectory>();
+        SetMeshes();
 
-        orb.model = model;
-        orb.width = 1;
+        model.sol.Model.controlModel.Model.NotifyChange();
 
-        //SOI Initiate
-        SOI = Instantiate(Resources.Load("SOI"), transform) as GameObject;
-        SOI.transform.localScale = Vector3.one * model.SOI;
-        SOI.transform.localPosition = Vector3.zero;
-        SOI.transform.rotation = Quaternion.identity;
-        //rb2D.mass = model.mass;
-        //rb2D.velocity = model.velocity;
+
     }
 
     protected override void OnModelChanged()
     {
-        //update orgital parameters
-        transform.Translate(model.velocity * Time.deltaTime);
-        //rect.position = model.position;
-        rect.rotation = model.rotation;
-        rect.localScale = model.localScale;
-
-
-        //rb2D.mass = model.mass;
-        //rb2D.velocity = model.velocity;
+        //rect.rotation = model.rotation; //set rotation;
     }
 
     void Update()
     {
+
         //SetMeshes(); //Needs a lot more work
 
-        model.position = rect.position;
-        model.rotation = rect.rotation;
-        //model.localScale = rect.localScale;
-        //model.mass = rb2D.mass;
+        UpdateReferencePointData();
+
+        
+    }
+
+    private void UpdateReferencePointData()
+    {
+        double worldAngleDisp = model.rotation.eulerAngles.z * Mathd.Deg2Rad;
+
+        Polar2 localReferencePoint = new Polar2(model.radius, (referenceID + .5) * meshAngleStep + worldAngleDisp); //the radius and angle of mesh Id in relationship with planet Object
+
+        model.sol.Model.localReferencePoint = localReferencePoint.cartesian;
+        model.sol.Model.localReferencePointRotation.eulerAngles = new Vector3(0, 0, (float)(localReferencePoint.angle * Mathd.Rad2Deg - 90));
     }
 
     private void SetMeshes()
     {
-        List<int[]> idealMeshes = CalculateIdealMesh();
+        List<int> idealMeshes = CalculateIdealMesh();
         //List<int[]> meshesToAdd = new List<int[]>();
         //List<int[]> meshesToDelete = new List<int[]>();
-        List<int[]> meshesThatExist = new List<int[]>();
+        List<int> meshesThatExist = new List<int>();
 
         for (int i = 0; i < idealMeshes.Count; i++)
         {
             for (int b = 0; b < createdMeshes.Count; b++)
             {
-                if (createdMeshes[b][1] == idealMeshes[i][1])
+                if (createdMeshes[b] == idealMeshes[i])
                 {
                     meshesThatExist.Add(idealMeshes[i]);
                 }
             }
         }
-        foreach (int[] meshID in meshesThatExist)
+        foreach (int meshID in meshesThatExist)
         {
             for (int b = 0; b < createdMeshes.Count; b++)
             {
-                if (createdMeshes[b][1] == meshID[1])
+                if (createdMeshes[b] == meshID)
                 {
                    createdMeshes.RemoveAt(b);
                 }
             }
             for (int b = 0; b < idealMeshes.Count; b++)
             {
-                if (idealMeshes[b][1] == meshID[1])
+                if (idealMeshes[b] == meshID)
                 {
                     idealMeshes.RemoveAt(b);
                 }
             }
         }
 
-        foreach (int[] meshID in idealMeshes)
+        foreach (int meshID in idealMeshes)
         {
             CreateMeshObj(meshID);
         }
-        foreach (int[] meshID in createdMeshes)
+        foreach (int meshID in createdMeshes)
         {
             DeleteMeshObj(meshID);
             
         }
-        foreach (int[] meshID in meshesThatExist)
+        foreach (int meshID in meshesThatExist)
         {
             idealMeshes.Add(meshID);
         }
@@ -153,11 +134,11 @@ public class PlanetController : Controller<PlanetModel> {
 
     }
 
-    private void DeleteMeshObj(int[] meshID)
+    private void DeleteMeshObj(int meshID)
     {
         foreach (GameObject obj in planetMeshObjs)
         {
-            if (obj.name == meshID[1].ToString())
+            if (obj.name == meshID.ToString())
             {
                 planetMeshObjs.Remove(obj);
                 Destroy(obj);
@@ -166,94 +147,186 @@ public class PlanetController : Controller<PlanetModel> {
         }
     }
 
-    private void CreateMeshObj(int[] meshID)
+    private void CreateMeshObj(int meshID)
     {
         
-        GameObject obj = new GameObject(meshID[1].ToString());
-        obj.AddComponent<MeshRenderer>();
+        GameObject obj = new GameObject(meshID.ToString());
+        MeshRenderer rend = obj.AddComponent<MeshRenderer>();
         MeshFilter meshF  = obj.AddComponent<MeshFilter>();
+        obj.layer = 10;
         obj.transform.parent = transform;
+        obj.transform.localPosition = Vector3.zero;
+
+        rend.material = planetMaterial;
 
         meshF.mesh = MakeMesh(meshID, obj);
-        Instantiate(obj,transform);
         planetMeshObjs.Add(obj);
 
 
     }
 
-    private Mesh MakeMesh(int[] meshID, GameObject obj)
+    private Mesh MakeMesh(int meshID, GameObject obj)
     {
-        float angleStep = LOD1[1] / LOD1[2] ;
+        //Create 2d polygon collider
+        EdgeCollider2D poly = obj.AddComponent<EdgeCollider2D>();
+        List<Vector2> polyPoints = new List<Vector2>();
+
+        int numVert = 1000;
+        
+        
+        double angleStep = -meshAngleStep / numVert;
+
         List<Vector3> vertexList = new List<Vector3>();
         List<int> triangleList = new List<int>();
-        Quaternion quaternion = Quaternion.Euler(0.0f, 0.0f, -LOD1[1] * meshID[1]);
+        List<Color> vertexColor = new List<Color>();
+
+        
+
+        Polar2 polarRadius = new Polar2(model.radius, (meshID + 1) * meshAngleStep); //the radius and angle of mesh Id in relationship with planet Object
+        double worldAngleDisp = model.rotation.eulerAngles.z * Mathd.Deg2Rad;
+
+        
+
+        if (initial)
+        {
+            referenceID = meshID;
+
+            UpdateReferencePointData();
+
+            initial = false;
+
+            UpdateControlModel();
+        }
+
+        float displacement = -5000 + FresNoise.GetTerrian(model.name, polarRadius);
+        Polar2 polarPosition = new Polar2(polarRadius.radius + displacement, polarRadius.angle - worldAngleDisp);
+
         // Make first triangle.
-        vertexList.Add(new Vector3(0.0f, 0.0f, 0.0f));  // 1. Circle center.
+        vertexList.Add((Vector3)Forces.ReferencePosition(polarPosition.cartesian, model.sol.Model.localReferencePoint, model.sol.Model.localReferencePointRotation)); //position in relationship to reference point );  // 1. First point that is -5000 lower
+        vertexColor.Add(VertexColor(displacement)); //Add Color
+        //polyPoints.Add((Vector2)polarPosition.cartesian); //add collider point
 
-        var radius = new Vector3(model.radius, 0.0f, 0.0f);
-        vertexList.Add(quaternion * radius);            // 2. First vertex on circle outline (radius = 0.5f)
+        displacement = FresNoise.GetTerrian(model.name, polarRadius);
+        polarPosition = new Polar2(polarRadius.radius + displacement, polarRadius.angle - worldAngleDisp);
+        vertexList.Add((Vector3)Forces.ReferencePosition(polarPosition.cartesian, model.sol.Model.localReferencePoint, model.sol.Model.localReferencePointRotation));  // 1. First vertex on circle outline (radius = 0.5f)
+        vertexColor.Add(VertexColor(displacement)); //Add Color
+        polyPoints.Add((Vector3)Forces.ReferencePosition(polarPosition.cartesian, model.sol.Model.localReferencePoint, model.sol.Model.localReferencePointRotation)); //add collider point
 
-        quaternion = Quaternion.Euler(0.0f, 0.0f, -angleStep * (meshID[1]+1));
-        vertexList.Add(quaternion * vertexList[1]);     // 3. First vertex on circle outline rotated by angle)
-                                                        // Add triangle indices.
+        polarRadius.angle += angleStep;
+
+        displacement = FresNoise.GetTerrian(model.name, polarRadius);
+        polarPosition = new Polar2(polarRadius.radius + displacement, polarRadius.angle - worldAngleDisp);
+        vertexList.Add((Vector3)Forces.ReferencePosition(polarPosition.cartesian, model.sol.Model.localReferencePoint, model.sol.Model.localReferencePointRotation));     // 3. First vertex on circle outline rotated by angle)
+        vertexColor.Add(VertexColor(displacement)); //Add Color
+        polyPoints.Add((Vector3)Forces.ReferencePosition(polarPosition.cartesian, model.sol.Model.localReferencePoint, model.sol.Model.localReferencePointRotation)); //add collider point
+
+        displacement = -5000 + FresNoise.GetTerrian(model.name, polarRadius);
+        polarPosition = new Polar2(polarRadius.radius + displacement, polarRadius.angle - worldAngleDisp);
+        vertexList.Add((Vector3)Forces.ReferencePosition(polarPosition.cartesian, model.sol.Model.localReferencePoint, model.sol.Model.localReferencePointRotation));     // 4. vertex on circle outline rotated by angle and down one)
+        vertexColor.Add(VertexColor(displacement)); //Add Color
+
         triangleList.Add(0);
         triangleList.Add(1);
         triangleList.Add(2);
-        for (int i = 0; i < LOD1[2] - 1; i++)
+
+        triangleList.Add(0);
+        triangleList.Add(2);
+        triangleList.Add(3);
+
+        for (int i = 0; i < numVert - 1; i++)
         {
-            triangleList.Add(0);                       // Index of circle center.
+            triangleList.Add(vertexList.Count - 2);                       
+            triangleList.Add(vertexList.Count - 3);
+            triangleList.Add(vertexList.Count - 1);
+
+            triangleList.Add(vertexList.Count - 2);
             triangleList.Add(vertexList.Count - 1);
             triangleList.Add(vertexList.Count);
-            quaternion.eulerAngles = new Vector3(0f, 0f, -angleStep * (2 + i));
-            vertexList.Add(quaternion.eulerAngles = quaternion * vertexList[1]);
+
+            polarRadius.angle += angleStep;
+
+            displacement = FresNoise.GetTerrian(model.name, polarRadius);
+            polarPosition = new Polar2(polarRadius.radius + displacement, polarRadius.angle - worldAngleDisp);
+            vertexList.Add((Vector3)Forces.ReferencePosition(polarPosition.cartesian, model.sol.Model.localReferencePoint, model.sol.Model.localReferencePointRotation));     // 3. First vertex on circle outline rotated by angle)
+            vertexColor.Add(VertexColor(displacement)); //Add Color
+            polyPoints.Add((Vector3)Forces.ReferencePosition(polarPosition.cartesian, model.sol.Model.localReferencePoint, model.sol.Model.localReferencePointRotation)); //add collider point
+
+            displacement = -5000 + FresNoise.GetTerrian(model.name, polarRadius);
+            polarPosition = new Polar2(polarRadius.radius + displacement, polarRadius.angle - worldAngleDisp);
+            vertexList.Add((Vector3)Forces.ReferencePosition(polarPosition.cartesian, model.sol.Model.localReferencePoint, model.sol.Model.localReferencePointRotation));    // 3. vertex on circle outline rotated by angle and down one)
+            vertexColor.Add(VertexColor(displacement)); //Add Color
+            //if (i + 1 == numVert - 1)
+            //{
+            //    polyPoints.Add((Vector2)polarPosition.cartesian); //add last collider point
+            //}
         }
         Mesh mesh = new Mesh();
-        mesh.vertices = vertexList.ToArray();
-        mesh.triangles = triangleList.ToArray();
-        mesh.name = "Circle";
 
+        Vector3[] verts = new Vector3[vertexList.Count]; //Convert list to array
+        for (int i = 0; i < vertexList.Count; i++)
+        {
+            verts[i] = (Vector3)vertexList[i];
+        }
+        mesh.vertices = verts;
+        mesh.triangles = triangleList.ToArray();
+        mesh.colors = vertexColor.ToArray();
+        mesh.name = "Circle";
+        poly.points = polyPoints.ToArray();
         return mesh;
     }
 
-    private List<int[]> CalculateIdealMesh()
+    private Color VertexColor(float displacement)
+    {
+        if (displacement < 0)
+        {
+            return Color.blue;
+        }
+        else if (displacement < 100)
+        {
+            return Color.yellow;
+        }
+        else
+            return Color.green;
+    }
+
+    private List<int> CalculateIdealMesh()
     {
 
-        List<int[]> list = new List<int[]>();
+        List<int> list = new List<int>();
+        double circumference = model.radius * Mathd.PI * .002; //circumference in km
+        double angleStep = meshAngleStep; //angle distance for each km in radians
 
-        foreach ( CraftModel craft in model.crafts)
-        {
-            if (craft.referenceDistance.sqrMagnitude > .01f){ //avoid unspawned crafts
+        Polar2 targetPolar = model.sol.Model.controlModel.Model.polar;
 
-                float angle = Forces.CartesianToPolar(craft.referenceDistance).y - model.rotation.eulerAngles.z * Mathf.Deg2Rad;
-                int count = Mathf.FloorToInt(angle / (LOD1[1] * Mathf.Deg2Rad));
+        if (targetPolar.radius > .01f){ //avoid unspawned cameras
 
-                int[] meshID = { 1, count };
+            double angle = targetPolar.angle + model.rotation.eulerAngles.z * Mathd.Deg2Rad;
+            angle = (angle < 0) ? angle + 2 * Mathd.PI : angle;
+            int meshID = Mathd.FloorToInt(angle / angleStep);
 
-                if (!list.Contains(meshID))
-                {
-                    list.Add(meshID);
-                }
+            //Add the three mesh IDs
 
-                count = (count + 1 < Mathf.FloorToInt(360 / LOD1[1])) ? count + 1 : 0;
-
-                meshID = new int[] { 1, count };
-
-                if (!list.Contains(meshID))
-                {
-                    list.Add(meshID);
-                }
-
-                count = (count - 2 < 0) ? Mathf.FloorToInt(360 / LOD1[1]) - 1 : count - 2;
-
-                meshID = new int[] { 1, count };
-
-                if (!list.Contains(meshID))
-                {
-                    list.Add(meshID);
-                }
+            if (!list.Contains(meshID))
+            {
+                list.Add(meshID);
             }
-            
+
+            meshID = (meshID + 1 < circumference) ? meshID + 1 : 0;
+
+            if (!list.Contains(meshID))
+            {
+                list.Add(meshID);
+            }
+
+            meshID = (meshID - 2 < 0) ? Mathd.CeilToInt(circumference) - 1 : meshID - 2;
+
+            if (!list.Contains(meshID))
+            {
+                list.Add(meshID);
+            }
         }
+            
+        
 
         return list;
     }
@@ -278,14 +351,8 @@ public class PlanetController : Controller<PlanetModel> {
 
     //}
 
-    private void ListUpdate() {
-        model.listsUpdated = false;
-
-        //AddPlanetMessage m = new AddPlanetMessage();
-        //    m.planet = model;
-        //    Message.Send(m);
-
-        //    Message.AddListener<PlanetAddedMessage>(OnPlanetAddedMessage);
+    private void UpdateControlModel() {
+        model.sol.Model.controlModel.Model.NotifyChange();
     }
 
     public void MakeCircle(int numOfPoints, float radius)
@@ -296,8 +363,8 @@ public class PlanetController : Controller<PlanetModel> {
         Quaternion quaternion = Quaternion.Euler(0.0f, 0.0f, -angleStep);
         // Make first triangle.
         vertexList.Add(new Vector3(0.0f, 0.0f, 0.0f));  // 1. Circle center.
-        vertexList.Add(new Vector3(radius, 0.0f, 0.0f));  // 2. First vertex on circle outline (radius = 0.5f)
-        vertexList.Add(quaternion * vertexList[1]);     // 3. First vertex on circle outline rotated by angle)
+        vertexList.Add(new Vector3(radius + FresNoise.GetTerrian(model.name,new Polar2 (radius,0)), 0.0f, 0.0f));  // 2. First vertex on circle outline (radius = 0.5f)
+        vertexList.Add(quaternion * new Vector3(radius + FresNoise.GetTerrian(model.name, new Polar2(radius, angleStep)), 0.0f, 0.0f));     // 3. First vertex on circle outline rotated by angle)
                                                         // Add triangle indices.
         triangleList.Add(0);
         triangleList.Add(1);
@@ -308,7 +375,7 @@ public class PlanetController : Controller<PlanetModel> {
             triangleList.Add(vertexList.Count - 1);
             triangleList.Add(vertexList.Count);
             quaternion.eulerAngles = new Vector3(0f,0f,-angleStep * (2 + i));
-            vertexList.Add(quaternion.eulerAngles = quaternion * vertexList[1]);
+            vertexList.Add(quaternion.eulerAngles = quaternion * new Vector3(radius + FresNoise.GetTerrian(model.name, new Polar2(radius, quaternion.eulerAngles.z)), 0.0f, 0.0f));
         }
         Mesh mesh = new Mesh();
         mesh.vertices = vertexList.ToArray();
@@ -318,4 +385,5 @@ public class PlanetController : Controller<PlanetModel> {
         GetComponent<MeshFilter>().mesh = mesh;
         //GetComponent<MeshCollider>().sharedMesh = mesh;
     }
+    
 }

@@ -5,11 +5,13 @@ using CodeControl;
 public class SolarBodyModel : BaseModel {
 
     public BodyType bodyType = BodyType.SolarBody;
-    //public ModelRef<SolarSystemModel> system;
 
-    public float SOI;
-    public float radius;
 
-    //public ModelRefs<SolarBodyModel> solarBodies = new ModelRefs<SolarBodyModel>();
+    public double SOI;
+    public double radius;
+
+    public Color color;
+
+    public ModelRefs<SolarBodyModel> solarBodies = new ModelRefs<SolarBodyModel>();
     public ModelRefs<CraftModel> crafts = new ModelRefs<CraftModel>();
 }

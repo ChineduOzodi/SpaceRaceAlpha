@@ -4,14 +4,18 @@ using UnityEngine;
 public class Date
 {
     private static int Seasons = 4;
-    private static int Days = 40;
+    private static int Days = 360;
     private static int Hours = 24;
-    private static int Minutes = 15;
+    private static int Minutes = 60;
 
-    public static int Year = 14400; //Seconds in a year 14400
-    public static int Season = 3600;
-    public static int Day = 360;
-    public static int Hour = 15;
+    public static int Year = 3156000; //Seconds in a year 14400
+    public static int Season = 789000;
+    public static int Day = 86400;
+    /// <summary>
+    /// 3600s
+    /// </summary>
+    public static int Hour = 3600;
+    public static int Minute = 60;
 
     public float time;
     public float deltaTime;
