@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<SpaceEngineModel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Id>1bb0dfdd-4d53-4a5a-a035-628aa249bd2b</Id>
+  <name>Space Engine</name>
+  <type>Sun</type>
+  <state>Orbit</state>
+  <spriteName>space_engine</spriteName>
+  <position>
+    <x>0</x>
+    <y>0</y>
+    <z>0</z>
+  </position>
+  <rotation>
+    <x>0</x>
+    <y>0</y>
+    <z>0</z>
+    <w>1</w>
+    <eulerAngles>
+      <x>0</x>
+      <y>0</y>
+      <z>0</z>
+    </eulerAngles>
+  </rotation>
+  <localScale>
+    <x>1</x>
+    <y>1</y>
+    <z>1</z>
+  </localScale>
+  <mass>0</mass>
+  <density>0</density>
+  <force>
+    <x>0</x>
+    <y>0</y>
+    <z>0</z>
+  </force>
+  <velocity>
+    <x>0</x>
+    <y>0</y>
+    <z>0</z>
+  </velocity>
+  <relVel>
+    <x>0</x>
+    <y>0</y>
+    <z>0</z>
+  </relVel>
+  <altitude>
+    <x>0</x>
+    <y>0</y>
+    <z>0</z>
+  </altitude>
+</SpaceEngineModel>

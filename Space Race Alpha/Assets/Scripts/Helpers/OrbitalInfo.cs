@@ -42,7 +42,10 @@ public class OrbitalInfo {
         get { return semiMajorAxis; }
     }
 
+    public OrbitalInfo()
+    {
 
+    }
     public OrbitalInfo(BaseModel model, float G)
     {
         Vector3 altitude = model.position - model.reference.Model.position;     //distance b/w object one and reference

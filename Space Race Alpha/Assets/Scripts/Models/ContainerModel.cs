@@ -4,7 +4,7 @@ using CodeControl;
 /// <summary>
 /// Model that stores information for all container types
 /// </summary>
-public class ContainerModel : Model {
+public class ContainerModel : CraftPartModel {
 
     public ContainerTypes type;
 

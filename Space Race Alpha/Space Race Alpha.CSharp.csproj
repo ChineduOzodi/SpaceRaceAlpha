@@ -100,6 +100,7 @@
     <Compile Include="Assets\SFSoftShadows\SFSoftShadowDemos\ForestArtwork-Kenney\FlickerLight.cs" />
     <Compile Include="Assets\Scripts\Behaviors\SpaceGravityReal.cs" />
     <Compile Include="Assets\Scripts\CameraController.cs" />
+    <Compile Include="Assets\Scripts\Controllers\EngineController.cs" />
     <Compile Include="Assets\Scripts\Controllers\ForceController.cs" />
     <Compile Include="Assets\Scripts\Controllers\PlanetController.cs" />
     <Compile Include="Assets\Scripts\Controllers\SolarSystemController.cs" />
@@ -122,6 +123,8 @@
     <Compile Include="Assets\Scripts\Models\BaseModel.cs" />
     <Compile Include="Assets\Scripts\Models\ContainerModel.cs" />
     <Compile Include="Assets\Scripts\Models\CraftModel.cs" />
+    <Compile Include="Assets\Scripts\Models\CraftPartModels\CraftPartModel.cs" />
+    <Compile Include="Assets\Scripts\Models\CraftPartModels\EngineModel.cs" />
     <Compile Include="Assets\Scripts\Models\ForceArrowModel.cs" />
     <Compile Include="Assets\Scripts\Models\PlanetModel.cs" />
     <Compile Include="Assets\Scripts\Models\SolarBodyModel.cs" />
@@ -139,16 +142,17 @@
     <Compile Include="Assets\Scripts\Types\ObjectType.cs" />
     <Compile Include="Assets\Scripts\UI\AltPanel.cs" />
     <Compile Include="Assets\Scripts\UI\InfoPanel.cs" />
+    <Compile Include="Assets\Scripts\UI\ShipPartsPanel.cs" />
     <Compile Include="Assets\Scripts\rocketTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\CodeControl\changelog.txt" />
     <None Include="Assets\CodeControl\readme.txt" />
-    <None Include="Assets\SFSoftShadows\Resources\SFFogLayer.shader" />
-    <None Include="Assets\SFSoftShadows\Resources\SFLightBlendLinear.shader" />
-    <None Include="Assets\SFSoftShadows\Resources\SFLightBlendSoft.shader" />
-    <None Include="Assets\SFSoftShadows\Resources\SFShadowMask.shader" />
-    <None Include="Assets\SFSoftShadows\Resources\SFSoftShadow.shader" />
+    <None Include="Assets\SFSoftShadows\Shaders\SFFogLayer.shader" />
+    <None Include="Assets\SFSoftShadows\Shaders\SFLightBlendLinear.shader" />
+    <None Include="Assets\SFSoftShadows\Shaders\SFLightBlendSoft.shader" />
+    <None Include="Assets\SFSoftShadows\Shaders\SFShadowMask.shader" />
+    <None Include="Assets\SFSoftShadows\Shaders\SFSoftShadow.shader" />
     <None Include="Assets\Shaders\BasicShader.shader" />
     <None Include="Assets\Shaders\ImageDisplaceEffect.shader" />
     <None Include="Assets\Standard Assets\CrossPlatformInput\CrossPlatformInputGuidelines.txt" />
