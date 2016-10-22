@@ -47,6 +47,6 @@ public class CraftIconController : Controller<CraftModel> {
         }
         else
             transform.localScale = Vector3.one * Mathf.Pow(iconSize * mapCam.orthographicSize, .8f);
-        transform.eulerAngles = new Vector3(0, 0, (float)(model.rotation * Mathd.Rad2Deg));
+        transform.eulerAngles = new Vector3(0, 0, (float)(model.Rotation * Mathd.Rad2Deg));
     }
 }

@@ -1,11 +1,12 @@
 fileFormatVersion: 2
 guid: 58d25b315375a8548abb341c6d75d713
-timeCreated: 1476941756
+timeCreated: 1477115646
 licenseType: Free
 MonoImporter:
   serializedVersion: 2
   defaultReferences:
-  - visualSprite: {fileID: 21300000, guid: 5db8be59fcd2c2940b3d3936b8c20569, type: 3}
+  - messageText: {fileID: 114000012330638038, guid: c850ffa258282e24c9bb0e3065a4af0e,
+      type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

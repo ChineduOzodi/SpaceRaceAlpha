@@ -107,7 +107,8 @@ public class BaseModel : Model {
     /// <summary>
     /// velocity relative to the surface of body
     /// </summary>
-    public Vector3d SurfaceVel {
+    public Vector3d SurfaceVel
+    {
         get { return surfaceVel; }
 
         set
@@ -140,19 +141,70 @@ public class BaseModel : Model {
     /// <summary>
     /// z axis rotation of object in global parameters (in radians)
     /// </summary>
-    public double rotation = 0;
-    /// <summary>
-    /// z axis rotation of object in relation to reference rotation (in radians)
-    /// </summary>
-    public double localRotation
+    public double Rotation
     {
         get
         {
-            return rotation - reference.Model.rotation;
+            return rotation;
         }
         set
         {
-            rotation = value + reference.Model.rotation;
+
+            if (value > 2 * Mathd.PI)
+            {
+                rotation = value - 2 * Mathd.PI;
+            }
+            else if (value < 0)
+            {
+                rotation = value + 2 * Mathd.PI;
+            }
+            else rotation = value;
+
+            localRotation = ((rotation - polar.angle) + .5 * Mathd.PI);
+
+            if (localRotation > 2 * Mathd.PI)
+            {
+                localRotation -= 2 * Mathd.PI;
+            }
+            else if (rotation < 0)
+            {
+                localRotation += 2 * Mathd.PI;
+            }
+        }
+    }
+    /// <summary>
+    /// z axis rotation of object in relation to reference rotation (in radians)
+    /// </summary>
+    public double LocalRotation
+    {
+        get
+        {
+
+            return localRotation;
+        }
+        set
+        {
+            if (value > 2 * Mathd.PI)
+            {
+                localRotation = value - 2 * Mathd.PI;
+            }
+            else if (value < 0)
+            {
+                localRotation = value + 2 * Mathd.PI;
+            }
+            else localRotation = value;
+
+            rotation = localRotation - .5 * Mathd.PI + polar.angle;
+
+            if (rotation > 2 * Mathd.PI)
+            {
+                rotation -= 2 * Mathd.PI;
+            }
+            else if (rotation < 0)
+            {
+                rotation += 2 * Mathd.PI;
+            }
+
         }
     }
     /// <summary>
@@ -167,8 +219,8 @@ public class BaseModel : Model {
         set
         {
             rotationRate = value;
-
-            localRotationRate = rotationRate - surfaceVel.x / pol.radius;
+            var orbiatlRotationRate = surfaceVel.x / pol.radius;
+            localRotationRate = rotationRate + orbiatlRotationRate;
         }
     }
     /// <summary>
@@ -184,7 +236,7 @@ public class BaseModel : Model {
         {
             localRotationRate = value;
 
-            rotationRate = localRotationRate + surfaceVel.x / pol.radius;
+            rotationRate = localRotationRate - surfaceVel.x / pol.radius;
         }
     }
 
@@ -251,6 +303,41 @@ public class BaseModel : Model {
             return Mathd.PI * 2 * Mathd.Sqrt(Mathd.Pow(SemiMajorAxis, 3) / (reference.Model.mass * Forces.G));
         }
     }
+    /// <summary>
+    /// angle of prograde vector in relation with the surface
+    /// </summary>
+    public double ProgradeSurfaceAngle
+    {
+        get
+        {
+            double pSA = (new Polar2(surfaceVel).angle + 1.5 * Mathd.PI);
+            if (pSA > 2 * Mathd.PI)
+            {
+                pSA -= 2 * Mathd.PI;
+            }
+            else if (pSA < 0)
+            {
+                pSA += 2 * Mathd.PI;
+            }
+            return pSA;
+        }
+    }
+    public double RetrogradeSurfaceAngle
+    {
+        get
+        {
+            double rSA = (new Polar2(surfaceVel).angle + .5 * Mathd.PI);
+            if (rSA > 2 * Mathd.PI)
+            {
+                rSA -= 2 * Mathd.PI;
+            }
+            else if (rSA < 0)
+            {
+                rSA += 2 * Mathd.PI;
+            }
+            return rSA;
+        }
+    }
 
     //parent object
     public ModelRef<SolarBodyModel> reference;
@@ -262,6 +349,8 @@ public class BaseModel : Model {
     private Polar2 pol;
     private Polar2 surfPol;
 
+    private double rotation = 0;
+    private double localRotation = 0;
     private double rotationRate = 0;
     private double localRotationRate = 0;
 

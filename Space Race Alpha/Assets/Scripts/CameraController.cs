@@ -138,7 +138,7 @@ public class CameraController : MonoBehaviour {
         else if (viewMode == CameraViewMode.Reference)
         {
             //rot.eulerAngles = new Vector3(0, 0, new Polar2(targetModel.LocalPosition).angle * Mathf.Rad2Deg);
-            transform.eulerAngles = new Vector3(0, 0, (float)((new Polar2(targetModel.LocalPosition).angle + targetModel.reference.Model.rotation) * Mathd.Rad2Deg - 90)); //set rotation of compass needle
+            transform.eulerAngles = new Vector3(0, 0, (float)((new Polar2(targetModel.LocalPosition).angle + targetModel.reference.Model.Rotation) * Mathd.Rad2Deg - 90)); //set rotation of compass needle
         }
     }
 

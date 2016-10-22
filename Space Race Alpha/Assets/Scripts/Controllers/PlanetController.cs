@@ -74,10 +74,10 @@ public class PlanetController : Controller<PlanetModel> {
     private void UpdateReferencePointData()
     {
 
-        model.sol.Model.localReferencePoint = new Polar2(model.radius, (referenceID + .5) * meshAngleStep + model.rotation).cartesian; //Reference location from the reference ID location + model rotation
+        model.sol.Model.localReferencePoint = new Polar2(model.radius, (referenceID + .5) * meshAngleStep + model.Rotation).cartesian; //Reference location from the reference ID location + model rotation
 
                                                                               //velocity calculated from rotation rate and radius and rotated to local coords
-        model.sol.Model.localReferenceVel = new Polar2(model.RotationRate * model.radius, new Polar2(model.sol.Model.localReferencePoint).angle - .5 * Mathd.PI).cartesian;
+        model.sol.Model.localReferenceVel = new Polar2(model.RotationRate * model.radius, new Polar2(model.sol.Model.localReferencePoint).angle - 1.5 * Mathd.PI).cartesian;
                                                                               //force calculated by equation and rotated opposite of local position
         model.sol.Model.localReferenceForce = new Polar2(model.RotationRate * model.RotationRate * model.radius, new Polar2(model.sol.Model.localReferencePoint).angle + Mathd.PI).cartesian;
     }
@@ -291,7 +291,7 @@ public class PlanetController : Controller<PlanetModel> {
 
         if (targetPolar.radius > .01f){ //avoid unspawned cameras
 
-            double angle = targetPolar.angle + model.rotation;
+            double angle = targetPolar.angle - model.Rotation;
             angle = (angle < 0) ? angle + 2 * Mathd.PI : angle;
             int meshID = Mathd.FloorToInt(angle / angleStep);
 

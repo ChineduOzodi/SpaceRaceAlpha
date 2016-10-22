@@ -38,6 +38,20 @@ public struct Polar2 {
         angle = polar.angle;
         radius = polar.radius;
     }
+    //--------------Static Functions----------------//
+    /// <summary>
+    /// the angle difference from angle1 to angle2 (in radians)
+    /// </summary>
+    /// <param name="angle1"></param>
+    /// <param name="angle2"></param>
+    /// <returns></returns>
+    public static double Angle(double angle1, double angle2)
+    {
+        Polar2 angle1Pol = new Polar2(1, angle1);
+        Polar2 angle2Pol = new Polar2(1, angle2);
+
+        return Vector2d.Angle(angle1Pol.cartesian, angle2Pol.cartesian) * Mathd.Deg2Rad;
+    }
     /// <summary>
     /// Creates x and y variable from polar coords
     /// </summary>
@@ -57,7 +71,7 @@ public struct Polar2 {
     /// </summary>
     /// <param name="point">Cartesian coordinate</param>
     /// <returns></returns>
-    private static Polar2 CartesianToPolar(Vector3d point)
+    public static Polar2 CartesianToPolar(Vector3d point)
     {
         Polar2 polar;
 

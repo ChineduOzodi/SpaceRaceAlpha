@@ -61,4 +61,12 @@ public class autoPilotToggles : MonoBehaviour {
     {
         target.ToggleSAS();
     }
+    public void TogglePro()
+    {
+        target.TogglePrograde();
+    }
+    public void ToggleRetro()
+    {
+        target.ToggleRetrograde();
+    }
 }

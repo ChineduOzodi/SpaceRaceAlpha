@@ -3,18 +3,32 @@ using System.Collections;
 using CodeControl;
 using System;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 public class SolarSystemController : Controller<SolarSystemModel>
 {
-
+    internal Text messageText;
     protected override void OnInitialize()
     {
         //Message.AddListener<AddSolarBodyMessage>();
-        
+        messageText = GameObject.FindGameObjectWithTag("messageText").GetComponent<Text>();
+        messageText.text = "1";
     }
 
     void Update()
     {
+        //UPdate timeScale
+        if (Input.GetKeyDown(KeyCode.Period))
+        {
+            Time.timeScale *= 2;
+            messageText.text = Time.timeScale.ToString();
+        }
+        else if (Input.GetKeyDown(KeyCode.Comma))
+        {
+            Time.timeScale *= .5f;
+            messageText.text = Time.timeScale.ToString();
+        }
+        //Update Forces
         foreach (SolarBodyModel body in model.allSolarBodies)
         {
             Vector3d force = Forces.Force(body);
@@ -22,15 +36,7 @@ public class SolarSystemController : Controller<SolarSystemModel>
             body.LocalVelocity += Forces.ForceToVelocity(body);
             body.position = Forces.VelocityToPosition(body);
 
-            body.rotation += body.RotationRate * Time.deltaTime; //Rotate the planet
-            if (body.rotation > 2 * Mathd.PI)
-            {
-                body.rotation -= 2 * Mathd.PI;
-            }
-            else if (body.rotation < 0)
-            {
-                body.rotation += 2 * Mathd.PI;
-            }
+            body.Rotation += body.RotationRate * Time.deltaTime; //Rotate the planet
 
             body.NotifyChange();
             //rb2D.AddForce(force * Time.deltaTime);
@@ -79,6 +85,8 @@ public class SolarSystemController : Controller<SolarSystemModel>
                 {
                     body.reference.Delete();
                     body.reference = new ModelRef<SolarBodyModel>(solarMod);
+                    body.position = body.position;
+                    body.velocity = body.velocity;
                 }
             }
         }

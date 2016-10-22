@@ -123,7 +123,7 @@ public static class SolarSystemCreator{
         body.reference.Model.crafts.Add(body);
         body.name = name;
         body.mass = 7.5f;
-        body.state = ObjectState.Landed;
+        body.state = ObjectState.Orbit;
         
 
         //craft position rotation info
@@ -134,9 +134,9 @@ public static class SolarSystemCreator{
         Polar2 polarPosition = new Polar2(polarRadius.radius + displacement + 4, polarRadius.angle);
 
         body.polar = polarPosition; //Set surface position
-        body.SurfaceVel = new Vector3d((planet.radius + displacement) * planet.RotationRate, 0, 0); //set surface velocity
+        body.SurfaceVel = new Vector3d(-(planet.radius + displacement) * planet.RotationRate, 0, 0); //set surface velocity
 
-        body.rotation = angle - .5 * Mathd.PI;
+        body.Rotation = angle - .5 * Mathd.PI;
         //body.rotation.eulerAngles = new Vector3(0, 0, (float) angle * Mathf.Rad2Deg + planet.rotation.eulerAngles.z);
 
         sol.allCrafts.Add(body);
@@ -164,7 +164,7 @@ public static class SolarSystemCreator{
         body.name = name;
         body.state = ObjectState.Orbit;
         body.LocalPosition = localPosition;
-        body.localRotation = 0;
+        body.LocalRotation = 0;
         body.mass = 7.5f;
         body.velocity = VelocityFromOrbit(body);
 
@@ -195,7 +195,7 @@ public static class SolarSystemCreator{
         body.density = density;
         body.name = name;
         System.Random seed = new System.Random(name.GetHashCode());
-        body.RotationRate = 2 * Mathd.PI / ((double) seed.Next(10, 50) * Date.Hour);
+        body.LocalRotationRate = 2 * Mathd.PI / ((double) seed.Next(10, 50) * Date.Hour);
         body.color = new Color(seed.Next(0, 100) / 100f, seed.Next(0, 100) / 100f, seed.Next(0, 100) / 100f);
 
         if (sol.centerObject.Model == null)                                //set first center of mass object if not alreaady set

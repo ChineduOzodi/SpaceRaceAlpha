@@ -10,7 +10,7 @@ public class SunController : Controller<SunModel> {
     {
         //setup initial location and rotation
         transform.position = (Vector3) model.position;
-        transform.eulerAngles = new Vector3(0,0,(float)( model.rotation * Mathd.Rad2Deg));
+        transform.eulerAngles = new Vector3(0,0,(float)( model.Rotation * Mathd.Rad2Deg));
 
         Model = model;
     }

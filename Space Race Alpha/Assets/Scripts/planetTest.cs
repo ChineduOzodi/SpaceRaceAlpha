@@ -13,11 +13,11 @@ public class planetTest : MonoBehaviour {
 
         SunModel sun = SolarSystemCreator.AddSun(sol, 6510000, .35d, "Sun");
 
-        PlanetModel planet = SolarSystemCreator.AddPlanet(sol, sun, 640 * Units.km, new Vector3d(Units.Gm, 0, 0), 5.5, "Earth");
-        planet.RotationRate = 0;
-        PlanetModel moon = SolarSystemCreator.AddPlanet(sol, planet, 173.7 * Units.km, new Vector3d(3844 * Units.km, 0, 0), 3.34, "Moon");
-        CraftModel craft = SolarSystemCreator.AddCraft(sol, planet, .5 * Mathd.PI, "Craft");
-
+        PlanetModel planet = SolarSystemCreator.AddPlanet(sol, sun, 6400 * Units.km, new Vector3d(Units.Gm, 0, 0), 5.5, "Earth");
+        planet.LocalRotationRate = 2 * Mathd.PI/ (24 * Date.Hour);
+        PlanetModel moon = SolarSystemCreator.AddPlanet(sol, planet, 1737 * Units.km, new Vector3d(38440 * Units.km, 0, 0), 3.34, "Moon");
+        //CraftModel craft = SolarSystemCreator.AddCraft(sol, planet, .5 * Mathd.PI, "Craft");
+        CraftModel craft = SolarSystemCreator.AddCraft(sol, planet,new Vector3d( 6500 * Units.km,0,0) , "Craft");
         //Set at target
         Camera.main.GetComponent<CameraController>().targetModel = craft;
         sol.controlModel = new ModelRef<CraftModel>(craft);

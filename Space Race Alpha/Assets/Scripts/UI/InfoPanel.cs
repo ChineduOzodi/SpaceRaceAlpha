@@ -51,7 +51,7 @@ public class InfoPanel : MonoBehaviour {
         {
             PlanetModel pmodel = (PlanetModel) model;
             return string.Format("Radius: {1} km\nSurface Gravity: {0} m/s^2\n Orbital Period: {6} yrs\nAlt: {2} km\nApo: {3} Gm\nPer: {4} Gm\nRotaion Period: {5} hrs",
-            Forces.Force(1,model.mass,pmodel.radius).ToString("0.00"), (pmodel.radius * .001f).ToString("0.00"), (model.alt * .001f).ToString("0.000"), (model.PerApo[1] / Units.Gm).ToString("0.00"), (model.PerApo[0] / Units.Gm).ToString("0.00"), (360 / model.LocalRotationRate / Date.Hour).ToString("0.00"), (model.OrbitalPeriod / Date.Year).ToString("0.00"));
+            Forces.Force(1,model.mass,pmodel.radius).ToString("0.00"), (pmodel.radius * .001f).ToString("0.00"), (model.alt * .001f).ToString("0.000"), (model.PerApo[1] / Units.Gm).ToString("0.00"), (model.PerApo[0] / Units.Gm).ToString("0.00"), (2 * Mathd.PI / model.LocalRotationRate / Date.Hour).ToString("0.00"), (model.OrbitalPeriod / Date.Year).ToString("0.00"));
 
         }
     }

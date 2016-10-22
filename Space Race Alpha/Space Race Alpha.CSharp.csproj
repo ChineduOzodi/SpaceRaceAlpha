@@ -143,6 +143,7 @@
     <Compile Include="Assets\Scripts\UI\AltPanel.cs" />
     <Compile Include="Assets\Scripts\UI\Compass.cs" />
     <Compile Include="Assets\Scripts\UI\InfoPanel.cs" />
+    <Compile Include="Assets\Scripts\UI\ProgradeCompass.cs" />
     <Compile Include="Assets\Scripts\UI\autoPilotToggles.cs" />
     <Compile Include="Assets\Scripts\UI\throttleSlider.cs" />
     <Compile Include="Assets\Scripts\planetTest.cs" />

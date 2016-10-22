@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Compass : MonoBehaviour {
+public class ProgradeCompass : MonoBehaviour {
 
     public GameObject target; //target object
     public BaseModel targetModel; //targetModel
@@ -27,7 +27,7 @@ public class Compass : MonoBehaviour {
         else {
 
         
-            transform.localEulerAngles = new Vector3(0, 0, (float) ((targetModel.LocalRotation) * Mathd.Rad2Deg)); //set rotation of compass needle
+            transform.localEulerAngles = new Vector3(0, 0, (float) (targetModel.ProgradeSurfaceAngle * Mathd.Rad2Deg)); //set rotation of compass needle
         }
 	
 	}
