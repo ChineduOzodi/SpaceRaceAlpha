@@ -11,17 +11,25 @@ public class SunIconController : Controller<SunModel> {
     Camera mainCam;
     Camera mapCam;
 
+    //Model reference
+    public PlanetModel Model;
 
     protected override void OnInitialize()
     {
         //Add listeners
         Message.AddListener<ToggleMapMessage>(ToggleMapMode);
 
+        //Set Model
+        Model = model;
+        name = model.name + " Icon";
+
+        width = (float)(model.radius / Units.Mm);
+
         //Set Cameras
         mainCam = Camera.main;
         mapCam = GameObject.FindGameObjectWithTag("MapCamera").GetComponent<Camera>();
 
-        transform.position = (Vector3) (model.position / Units.Gm);
+        width =(float) (model.radius / Units.Mm);
     }
 
     private void ToggleMapMode(ToggleMapMessage m)
@@ -35,14 +43,14 @@ public class SunIconController : Controller<SunModel> {
 	
 	// Update is called once per frame
 	void Update () {
-        transform.position = (Vector3)(model.position / Units.Gm);
+        transform.position = (Vector3)(model.position / Units.Mm);
 
         if (mapMode)
         {
-            transform.localScale = Vector3.one * width * mainCam.orthographicSize;
+            transform.localScale = Vector3.one * (Mathf.Pow(width * mainCam.orthographicSize, .8f));
         }
         else
-            transform.localScale = Vector3.one * width * mapCam.orthographicSize;
+            transform.localScale = Vector3.one * Mathf.Pow(width * mapCam.orthographicSize, .8f);
 
     }
 }

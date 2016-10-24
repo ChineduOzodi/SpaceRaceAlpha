@@ -11,4 +11,6 @@ public class PlanetModel :  SolarBodyModel{
     //DebugOptions
     public bool showForce = false;
 
+    
+
 }

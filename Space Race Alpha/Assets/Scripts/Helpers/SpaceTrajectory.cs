@@ -56,7 +56,7 @@ public class SpaceTrajectory : MonoBehaviour
             m2 = model.reference.Model.mass;
             SOI = model.reference.Model.SOI;
 
-            distance = model.LocalPosition / Units.km;
+            distance = model.position / Units.Mm;
 
             if (distance.magnitude != 0 && model.state != ObjectState.Landed)
             {

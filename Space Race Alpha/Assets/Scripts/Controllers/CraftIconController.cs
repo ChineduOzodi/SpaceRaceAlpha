@@ -22,8 +22,6 @@ public class CraftIconController : Controller<CraftModel> {
         mainCam = Camera.main;
         mapCam = GameObject.FindGameObjectWithTag("MapCamera").GetComponent<Camera>();
 
-        transform.position = (Vector3) (model.position / Units.km);
-
         //Instantiate space trajectory
         gameObject.AddComponent<SpaceTrajectory>().model = model;
     }
@@ -39,11 +37,11 @@ public class CraftIconController : Controller<CraftModel> {
 	
 	// Update is called once per frame
 	void Update () {
-        transform.position = (Vector3)(model.LocalPosition / Units.km);
+        transform.position = (Vector3)(model.position / Units.Mm);
 
         if (mapMode)
         {
-            transform.localScale = Vector3.one * (Mathf.Pow(iconSize * mainCam.orthographicSize, .8f)) ;
+            transform.localScale = Vector3.one * (Mathf.Pow(iconSize * mainCam.orthographicSize, .8f));
         }
         else
             transform.localScale = Vector3.one * Mathf.Pow(iconSize * mapCam.orthographicSize, .8f);

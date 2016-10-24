@@ -1,8 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2015
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Space Race Alpha.CSharp.Plugins", "Space Race Alpha.CSharp.Plugins.csproj", "{B5729202-D631-6EA8-F7E5-AE4459E9C66C}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Space Race Alpha.CSharp", "Space Race Alpha.CSharp.csproj", "{41E6EF1F-4A8D-A55E-8457-79B360FFA475}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Space Race Alpha.CSharp.Editor", "Space Race Alpha.CSharp.Editor.csproj", "{9D544826-E9D2-A1B3-2C33-9FB97E6356FA}"
@@ -13,10 +11,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B5729202-D631-6EA8-F7E5-AE4459E9C66C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B5729202-D631-6EA8-F7E5-AE4459E9C66C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B5729202-D631-6EA8-F7E5-AE4459E9C66C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B5729202-D631-6EA8-F7E5-AE4459E9C66C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{41E6EF1F-4A8D-A55E-8457-79B360FFA475}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{41E6EF1F-4A8D-A55E-8457-79B360FFA475}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{41E6EF1F-4A8D-A55E-8457-79B360FFA475}.Release|Any CPU.ActiveCfg = Release|Any CPU

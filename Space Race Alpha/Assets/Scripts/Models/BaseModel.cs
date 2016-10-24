@@ -82,11 +82,11 @@ public class BaseModel : Model {
         {
             vel = value;
 
-            relVel = reference.Model.velocity - vel;
+            localVel = -reference.Model.velocity + vel;
 
-            var relPolVel = new Polar2(relVel);
+            var relPolVel = new Polar2(localVel);
 
-            surfaceVel = Forces.Rotate(relVel, -pol.angle + .5 * Mathd.PI); //Rotate it
+            surfaceVel = Forces.Rotate(localVel, -pol.angle + .5 * Mathd.PI) - Forces.Rotate(new Vector3d(polar.radius * -reference.Model.RotationRate, 0, 0), -pol.angle + .5 * Mathd.PI); //Rotate it
         }
     }
     /// <summary>
@@ -94,14 +94,14 @@ public class BaseModel : Model {
     /// </summary>
     public Vector3d LocalVelocity
     {
-        get { return relVel; }
+        get { return localVel; }
         set
         {
-            relVel = value;
+            localVel = value;
 
-            vel = reference.Model.velocity + relVel;
+            vel = reference.Model.velocity + localVel;
 
-            surfaceVel = Forces.Rotate(relVel, -pol.angle + .5 * Mathd.PI); //Rotate it
+            surfaceVel = Forces.Rotate(localVel, -pol.angle + .5 * Mathd.PI) - Forces.Rotate(new Vector3d(polar.radius * -reference.Model.RotationRate,0,0), - pol.angle + .5 * Mathd.PI); //Rotate it
         }
     }
     /// <summary>
@@ -115,9 +115,9 @@ public class BaseModel : Model {
         {
             surfaceVel = value;
 
-            relVel = Forces.Rotate(surfaceVel, pol.angle - .5 * Mathd.PI); //Rotate it by the local position angle of - 90 degrees so that the planes work out
+            localVel = Forces.Rotate(surfaceVel, pol.angle - .5 * Mathd.PI) + Forces.Rotate(new Vector3d(polar.radius * -reference.Model.RotationRate, 0, 0), pol.angle - .5 * Mathd.PI); //Rotate it by the local position angle of - 90 degrees so that the planes work out
 
-            vel = reference.Model.velocity + relVel;
+            vel = reference.Model.velocity + localVel;
         }
 
     }
@@ -128,7 +128,7 @@ public class BaseModel : Model {
     {
         get
         {
-            Vector3d velAhead = relVel + Forces.ForceToVelocity(force, mass);
+            Vector3d velAhead = localVel + Forces.ForceToVelocity(force, mass);
             Vector3d posAhead = Forces.VelocityToPosition(localPosition, velAhead);
             Vector3d forceAhead = Forces.Rotate(Forces.Force(mass, reference.Model.mass, posAhead), new Polar2(posAhead).angle - pol.angle);
 
@@ -145,57 +145,6 @@ public class BaseModel : Model {
     {
         get
         {
-            return rotation;
-        }
-        set
-        {
-
-            if (value > 2 * Mathd.PI)
-            {
-                rotation = value - 2 * Mathd.PI;
-            }
-            else if (value < 0)
-            {
-                rotation = value + 2 * Mathd.PI;
-            }
-            else rotation = value;
-
-            localRotation = ((rotation - polar.angle) + .5 * Mathd.PI);
-
-            if (localRotation > 2 * Mathd.PI)
-            {
-                localRotation -= 2 * Mathd.PI;
-            }
-            else if (rotation < 0)
-            {
-                localRotation += 2 * Mathd.PI;
-            }
-        }
-    }
-    /// <summary>
-    /// z axis rotation of object in relation to reference rotation (in radians)
-    /// </summary>
-    public double LocalRotation
-    {
-        get
-        {
-
-            return localRotation;
-        }
-        set
-        {
-            if (value > 2 * Mathd.PI)
-            {
-                localRotation = value - 2 * Mathd.PI;
-            }
-            else if (value < 0)
-            {
-                localRotation = value + 2 * Mathd.PI;
-            }
-            else localRotation = value;
-
-            rotation = localRotation - .5 * Mathd.PI + polar.angle;
-
             if (rotation > 2 * Mathd.PI)
             {
                 rotation -= 2 * Mathd.PI;
@@ -204,7 +153,35 @@ public class BaseModel : Model {
             {
                 rotation += 2 * Mathd.PI;
             }
-
+            return rotation;
+        }
+        set
+        {
+            rotation = value;
+            localRotation = ((rotation - polar.angle) + .5 * Mathd.PI);           
+        }
+    }
+    /// <summary>
+    /// z axis rotation of object in relation to reference rotation (in radians) (can also be called surface rotation)
+    /// </summary>
+    public double LocalRotation
+    {
+        get
+        {
+            if (localRotation > 2 * Mathd.PI)
+            {
+                localRotation -= 2 * Mathd.PI;
+            }
+            else if (rotation < 0)
+            {
+                localRotation += 2 * Mathd.PI;
+            }
+            return localRotation;
+        }
+        set
+        {
+            localRotation = value;
+            rotation = localRotation - .5 * Mathd.PI + polar.angle;
         }
     }
     /// <summary>
@@ -219,8 +196,8 @@ public class BaseModel : Model {
         set
         {
             rotationRate = value;
-            var orbiatlRotationRate = surfaceVel.x / pol.radius;
-            localRotationRate = rotationRate + orbiatlRotationRate;
+            var orbitalRotationRate = surfaceVel.x / pol.radius;
+            localRotationRate = rotationRate + orbitalRotationRate;
         }
     }
     /// <summary>
@@ -236,7 +213,12 @@ public class BaseModel : Model {
         {
             localRotationRate = value;
 
-            rotationRate = localRotationRate - surfaceVel.x / pol.radius;
+            if (pol.radius == 0)
+            {
+                rotationRate = value; //deals with references to self, where you would be deviding by 0
+            }
+            else
+                rotationRate = localRotationRate - reference.Model.SurfaceVel.x / pol.radius;
         }
     }
 
@@ -264,16 +246,16 @@ public class BaseModel : Model {
     }
     public Vector3d Ecc //eccentricity
     {
-        get { return (Vector3d.Cross(relVel, Vector3d.Cross(localPosition, relVel)) / (reference.Model.mass * Forces.G) - (localPosition / pol.radius)); }
+        get { return (Vector3d.Cross(localVel, Vector3d.Cross(localPosition, localVel)) / (reference.Model.mass * Forces.G) - (localPosition / pol.radius)); }
     }
 
     public Vector2d PerApo
     {
         get {
             Vector2d perApo = new Vector2d();
-            double angleY = Mathd.Deg2Rad * Vector2d.Angle(relVel, localPosition);         //angle of trajectory with reference to the reference object
+            double angleY = Mathd.Deg2Rad * Vector2d.Angle(localVel, localPosition);         //angle of trajectory with reference to the reference object
 
-            double C = (2 * (reference.Model.mass * Forces.G)) / (pol.radius * relVel.magnitude * relVel.magnitude);
+            double C = (2 * (reference.Model.mass * Forces.G)) / (pol.radius * localVel.magnitude * localVel.magnitude);
 
             perApo.x = (-C + Mathd.Sqrt((C * C) - (4 * (1 - C) * (-Mathd.Pow(Mathd.Sin(angleY), 2))))) / (2 * (1 - C));
             perApo.y = (-C - Mathd.Sqrt(C * C - 4 * (1 - C) * (-Mathd.Pow(Mathd.Sin(angleY), 2)))) / (2 * (1 - C));
@@ -287,7 +269,7 @@ public class BaseModel : Model {
     {
         get {
 
-            double sEnergy = ((Mathd.Pow(relVel.magnitude, 2) * .5f) - ((reference.Model.mass * Forces.G) / pol.radius));
+            double sEnergy = ((Mathd.Pow(localVel.magnitude, 2) * .5f) - ((reference.Model.mass * Forces.G) / pol.radius));
 
             return -((reference.Model.mass * Forces.G) / (2 * sEnergy));
 
@@ -310,7 +292,7 @@ public class BaseModel : Model {
     {
         get
         {
-            double pSA = (new Polar2(surfaceVel).angle + 1.5 * Mathd.PI);
+            double pSA = (new Polar2(surfaceVel + new Vector3d(polar.radius * -reference.Model.RotationRate, 0, 0)).angle);
             if (pSA > 2 * Mathd.PI)
             {
                 pSA -= 2 * Mathd.PI;
@@ -326,7 +308,7 @@ public class BaseModel : Model {
     {
         get
         {
-            double rSA = (new Polar2(surfaceVel).angle + .5 * Mathd.PI);
+            double rSA = (new Polar2(localVel).angle + 1 * Mathd.PI);
             if (rSA > 2 * Mathd.PI)
             {
                 rSA -= 2 * Mathd.PI;
@@ -354,8 +336,8 @@ public class BaseModel : Model {
     private double rotationRate = 0;
     private double localRotationRate = 0;
 
-    private Vector3d vel = Vector3d.zero;
-    private Vector3d relVel = Vector3d.zero;
-    private Vector3d surfaceVel;
+    protected Vector3d vel = Vector3d.zero;
+    protected Vector3d localVel = Vector3d.zero;
+    protected Vector3d surfaceVel;
     
 }

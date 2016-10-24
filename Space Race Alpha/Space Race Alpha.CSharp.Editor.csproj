@@ -105,10 +105,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="Space Race Alpha.CSharp.Plugins.csproj">
-      <Project>{B5729202-D631-6EA8-F7E5-AE4459E9C66C}</Project>
-      <Name>Space Race Alpha.CSharp.Plugins</Name>
-    </ProjectReference>
     <ProjectReference Include="Space Race Alpha.CSharp.csproj">
       <Project>{41E6EF1F-4A8D-A55E-8457-79B360FFA475}</Project>
       <Name>Space Race Alpha.CSharp</Name>
@@ -148,7 +144,6 @@
     <None Include="Assets\SFSoftShadows\Resources\SFSoftShadow.shader" />
     <None Include="Assets\Shaders\BasicShader.shader" />
     <None Include="Assets\Shaders\ImageDisplaceEffect.shader" />
-    <None Include="Assets\Standard Assets\CrossPlatformInput\CrossPlatformInputGuidelines.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />
 </Project>

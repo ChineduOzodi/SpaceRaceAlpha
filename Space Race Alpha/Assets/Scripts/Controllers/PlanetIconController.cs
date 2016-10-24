@@ -10,7 +10,7 @@ public class PlanetIconController : Controller<PlanetModel> {
     public Material planetIconMaterial;
 
     bool mapMode = false;
-    internal bool dynamicSize = false;
+    internal bool dynamicSize = true;
 
     internal float width = 1;
 
@@ -32,14 +32,14 @@ public class PlanetIconController : Controller<PlanetModel> {
         Model = model;
         name = model.name + " Icon";
 
+        width = (float)(model.radius / Units.Mm);
+
         //Set Collider
         GetComponent<CircleCollider2D>().radius = (float) (model.radius / Units.km);
 
         //Set Cameras
         mainCam = Camera.main;
         mapCam = GameObject.FindGameObjectWithTag("MapCamera").GetComponent<Camera>();
-
-        transform.position = (Vector3) (model.position / Units.km);
         
 
         gameObject.AddComponent<SpaceTrajectory>().model = model;
@@ -53,13 +53,16 @@ public class PlanetIconController : Controller<PlanetModel> {
         if (dynamicSize)
         {
             GetComponent<SpriteRenderer>().sprite = defaultSprite;
+            GetComponent<SpriteRenderer>().color = model.color;
+            GetComponent<CircleCollider2D>().radius = 1;
+            SOI.transform.localScale = Vector3.one * (float)model.SOI / Units.Gm;
 
             if (mapMode)
             {
-                transform.localScale = Vector3.one * width * mainCam.orthographicSize;
+                transform.localScale = Vector3.one * (Mathf.Pow(width * mainCam.orthographicSize, .8f));
             }
             else
-                transform.localScale = Vector3.one * width * mapCam.orthographicSize;
+                transform.localScale = Vector3.one * Mathf.Pow(width * mapCam.orthographicSize, .8f);
         }
         else
         {
@@ -84,7 +87,7 @@ public class PlanetIconController : Controller<PlanetModel> {
 	void Update () {
         if (!isReference)
         {
-            transform.position = (Vector3)(model.LocalPosition / Units.km);
+            transform.position = (Vector3)(model.position / Units.Mm);
 
             if (dynamicSize)
             {

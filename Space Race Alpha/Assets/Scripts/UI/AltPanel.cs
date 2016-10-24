@@ -21,7 +21,7 @@ public class AltPanel : MonoBehaviour {
 
     }
 
-    private void OnInfoPanelMessage(InfoPanelMessage m)
+    internal void OnInfoPanelMessage(InfoPanelMessage m)
     {
         model = m.model as CraftModel;
     }

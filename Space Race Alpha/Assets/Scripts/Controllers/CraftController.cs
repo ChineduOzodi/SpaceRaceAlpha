@@ -53,7 +53,7 @@ public class CraftController : Controller<CraftModel> {
 
         //setup initial location and rotation
         CheckAltitude();
-        transform.eulerAngles = new Vector3(0, 0, (float)(model.LocalRotation * Mathd.Rad2Deg));
+        transform.eulerAngles = new Vector3(0, 0, (float)(model.Rotation * Mathd.Rad2Deg));
 
         //Set physics
         rgb = GetComponent<Rigidbody2D>();
@@ -77,7 +77,9 @@ public class CraftController : Controller<CraftModel> {
         }
         //update position location parameters
         transform.position = (Vector3)Forces.Rotate((model.LocalPosition - model.sol.Model.localReferencePoint), model.reference.Model.Rotation) ; //position in relationship to reference point
-        rgb.velocity = (Vector3) Forces.Rotate((model.LocalVelocity - model.sol.Model.localReferenceVel), model.reference.Model.Rotation); //sets the reletive velocity
+        transform.eulerAngles = new Vector3(0, 0, (float)(model.Rotation * Mathd.Rad2Deg));
+        rgb.velocity = (Vector3) Forces.Rotate((model.LocalVelocity - model.sol.Model.localReferenceVel), model.reference.Model.Rotation + model.polar.angle - .5 * Mathd.PI); //sets the reletive velocity
+
     }
    
 
@@ -91,7 +93,7 @@ public class CraftController : Controller<CraftModel> {
         {
             transform.parent = reference;
 
-            rgb.velocity = (Vector3)Forces.Rotate((model.LocalVelocity - model.sol.Model.localReferenceVel), model.reference.Model.Rotation); //sets the reletive velocity
+            rgb.velocity = (Vector3)Forces.Rotate((model.LocalVelocity - model.sol.Model.localReferenceVel), model.reference.Model.Rotation + model.polar.angle - .5 * Mathd.PI); //sets the reletive velocity
             //model.LocalVelocity = Forces.AngularVelocity(model.reference.Model) 
             //    * model.LocalPosition.magnitude 
             //    * Forces.Tangent(model.LocalPosition.normalized) + model.LocalVelocity;
@@ -254,7 +256,7 @@ public class CraftController : Controller<CraftModel> {
         {
             //Manually update model forces
             
-            Vector3d addedForce = Forces.Rotate(new Vector3d(translationH, translationV + throttle), (model.LocalRotation + .5 * Mathd.PI) - model.reference.Model.Rotation); //forces located to local orientation
+            Vector3d addedForce = Forces.Rotate(new Vector3d(translationH, translationV + throttle), (model.Rotation)); //forces located to local orientation
 
             model.LocalVelocity += Forces.ForceToVelocity(model, addedForce);
             model.position = Forces.VelocityToPosition(model);
@@ -264,6 +266,8 @@ public class CraftController : Controller<CraftModel> {
             model.sol.Model.localReferencePoint = model.LocalPosition;
             model.sol.Model.localReferenceVel = model.LocalVelocity;
             model.sol.Model.localReferenceForce = model.force;
+
+            
         }
         else
         {
@@ -279,11 +283,12 @@ public class CraftController : Controller<CraftModel> {
                 
             }
             model.LocalPosition = Forces.Rotate((Vector3d)transform.position, -model.reference.Model.Rotation) + model.sol.Model.localReferencePoint;
-            model.LocalVelocity = Forces.Rotate((Vector3d)(Vector2d)rgb.velocity, -model.reference.Model.Rotation) + model.sol.Model.localReferenceVel; //TODO: Check / update this to be more accurate
+            model.LocalVelocity = Forces.Rotate((Vector3d)(Vector2d)rgb.velocity, -model.polar.angle + .5 * Mathd.PI - model.reference.Model.Rotation) + model.sol.Model.localReferenceVel; //TODO: Check / update this to be more accurate
+            
         }
 
         rgb.AddTorque(rotation);
-        model.LocalRotation = transform.rotation.eulerAngles.z * Mathf.Deg2Rad;
+        model.Rotation = transform.rotation.eulerAngles.z * Mathf.Deg2Rad;
         model.LocalRotationRate += rgb.angularVelocity * Mathd.Deg2Rad;
 
     }

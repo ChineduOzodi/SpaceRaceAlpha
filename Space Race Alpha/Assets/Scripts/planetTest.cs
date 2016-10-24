@@ -11,13 +11,14 @@ public class planetTest : MonoBehaviour {
 
         SolarSystemModel sol = new SolarSystemModel();
 
-        SunModel sun = SolarSystemCreator.AddSun(sol, 6510000, .35d, "Sun");
+        SunModel sun = SolarSystemCreator.AddSun(sol, 6510000, 1.25d, "Sun");
 
-        PlanetModel planet = SolarSystemCreator.AddPlanet(sol, sun, 6400 * Units.km, new Vector3d(Units.Gm, 0, 0), 5.5, "Earth");
+        PlanetModel planet = SolarSystemCreator.AddPlanet(sol, sun, 64 * Units.km, new Vector3d(.5 * Units.Gm, 0, 0), 5.5, "Earth");
+        //planet.Rotation = .25 * Mathd.PI;
         planet.LocalRotationRate = 2 * Mathd.PI/ (24 * Date.Hour);
-        PlanetModel moon = SolarSystemCreator.AddPlanet(sol, planet, 1737 * Units.km, new Vector3d(38440 * Units.km, 0, 0), 3.34, "Moon");
-        //CraftModel craft = SolarSystemCreator.AddCraft(sol, planet, .5 * Mathd.PI, "Craft");
-        CraftModel craft = SolarSystemCreator.AddCraft(sol, planet,new Vector3d( 6500 * Units.km,0,0) , "Craft");
+        PlanetModel moon = SolarSystemCreator.AddPlanet(sol, planet, 173.7 * Units.km, new Vector3d(38440 * Units.km, 0, 0), 3.34, "Moon");
+        CraftModel craft = SolarSystemCreator.AddCraft(sol, planet, .5 * Mathd.PI, "Craft");
+        //CraftModel craft = SolarSystemCreator.AddCraft(sol, planet,new Vector3d( 6500 * Units.km,0,0) , "Craft");
         //Set at target
         Camera.main.GetComponent<CameraController>().targetModel = craft;
         sol.controlModel = new ModelRef<CraftModel>(craft);
@@ -36,15 +37,23 @@ public class planetTest : MonoBehaviour {
 
         //Instatiate planet Icon
 
-        PlanetIconController planetC = Controller.Instantiate<PlanetIconController>("planetIcon", craft.reference.Model);
-        planetC.SetReference(true);
+        //PlanetIconController planetC = Controller.Instantiate<PlanetIconController>("planetIcon", craft.reference.Model);
+        //planetC.SetReference(true);
 
-        foreach (SolarBodyModel body in craft.reference.Model.solarBodies)
+        foreach (SolarBodyModel body in sol.allSolarBodies)
         {
-            Controller.Instantiate<PlanetIconController>("planetIcon", body);
+            if (body.type == ObjectType.Planet)
+            {
+                Controller.Instantiate<PlanetIconController>("planetIcon", body);
+            }
+            else if(body.type == ObjectType.Sun)
+            {
+                Controller.Instantiate<SunIconController>("sunIcon", body);
+            }
+            
         }
 
-        foreach (CraftModel body in craft.reference.Model.crafts)
+        foreach (CraftModel body in sol.allCrafts)
         {
             Controller.Instantiate<CraftIconController>("craftIcon", body);
         }

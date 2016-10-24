@@ -123,7 +123,7 @@ public static class SolarSystemCreator{
         body.reference.Model.crafts.Add(body);
         body.name = name;
         body.mass = 7.5f;
-        body.state = ObjectState.Orbit;
+        body.state = ObjectState.Landed;
         
 
         //craft position rotation info
@@ -131,10 +131,10 @@ public static class SolarSystemCreator{
         Polar2 polarRadius = new Polar2(planet.radius, angle);
 
         float displacement = FresNoise.GetTerrian(planet.name, polarRadius);
-        Polar2 polarPosition = new Polar2(polarRadius.radius + displacement + 4, polarRadius.angle);
+        Polar2 polarPosition = new Polar2(planet.radius + displacement + 4, angle);
 
         body.polar = polarPosition; //Set surface position
-        body.SurfaceVel = new Vector3d(-(planet.radius + displacement) * planet.RotationRate, 0, 0); //set surface velocity
+        body.SurfaceVel = Vector3d.zero;// new Vector3d(-(planet.radius + displacement) * planet.RotationRate, 0, 0); //set surface velocity
 
         body.Rotation = angle - .5 * Mathd.PI;
         //body.rotation.eulerAngles = new Vector3(0, 0, (float) angle * Mathf.Rad2Deg + planet.rotation.eulerAngles.z);

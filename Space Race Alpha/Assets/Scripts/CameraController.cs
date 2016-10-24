@@ -11,7 +11,8 @@ public class CameraController : MonoBehaviour {
     internal GameObject reference;
 
     public CameraViewMode viewMode = CameraViewMode.Absolute;
-    public ControlMode controlMode = ControlMode.Craft;
+    public ControlMode controlMode = ControlMode.Free;
+    public ControlMode mapCamperaMode = ControlMode.Free;
 
     //Cameras
     Camera mainCam;

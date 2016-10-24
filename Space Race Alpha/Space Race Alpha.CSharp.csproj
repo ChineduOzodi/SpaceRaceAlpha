@@ -69,12 +69,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="Space Race Alpha.CSharp.Plugins.csproj">
-      <Project>{B5729202-D631-6EA8-F7E5-AE4459E9C66C}</Project>
-      <Name>Space Race Alpha.CSharp.Plugins</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Assets\CodeControl\Scripts\Source\Controller.cs" />
     <Compile Include="Assets\CodeControl\Scripts\Source\Coroutiner.cs" />
     <Compile Include="Assets\CodeControl\Scripts\Source\Helpers\ListHelper.cs" />
@@ -125,6 +119,7 @@
     <Compile Include="Assets\Scripts\Messages\ShowForceMessage.cs" />
     <Compile Include="Assets\Scripts\Messages\ToggleMapMessage.cs" />
     <Compile Include="Assets\Scripts\Models\BaseModel.cs" />
+    <Compile Include="Assets\Scripts\Models\CameraModel.cs" />
     <Compile Include="Assets\Scripts\Models\CraftModel.cs" />
     <Compile Include="Assets\Scripts\Models\ForceArrowModel.cs" />
     <Compile Include="Assets\Scripts\Models\PlanetModel.cs" />
@@ -144,6 +139,7 @@
     <Compile Include="Assets\Scripts\UI\Compass.cs" />
     <Compile Include="Assets\Scripts\UI\InfoPanel.cs" />
     <Compile Include="Assets\Scripts\UI\ProgradeCompass.cs" />
+    <Compile Include="Assets\Scripts\UI\SurfVelCompass.cs" />
     <Compile Include="Assets\Scripts\UI\autoPilotToggles.cs" />
     <Compile Include="Assets\Scripts\UI\throttleSlider.cs" />
     <Compile Include="Assets\Scripts\planetTest.cs" />
@@ -161,7 +157,6 @@
     <None Include="Assets\SFSoftShadows\Resources\SFSoftShadow.shader" />
     <None Include="Assets\Shaders\BasicShader.shader" />
     <None Include="Assets\Shaders\ImageDisplaceEffect.shader" />
-    <None Include="Assets\Standard Assets\CrossPlatformInput\CrossPlatformInputGuidelines.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />
 </Project>

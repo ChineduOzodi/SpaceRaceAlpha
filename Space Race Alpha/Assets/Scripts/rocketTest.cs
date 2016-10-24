@@ -10,19 +10,31 @@ public class rocketTest : MonoBehaviour {
 
         SolarSystemModel sol = new SolarSystemModel();
         SolarSystemController solCont = Controller.Instantiate<SolarSystemController>(sol);
-        var sun = SolarSystemCreator.AddSun(sol, Units.Mm, .25, "Sun");
+        var sun = SolarSystemCreator.AddSun(sol, Units.Mm, 1.25, "Sun");
 
         int numberPlants = UnityEngine.Random.Range(4, 10);
-        float minPlantRadius = 10; // in km
-        float maxSolarDistance = 100000000; // in GM
+        
+        float minPlantRadius = 1000 * Units.km; // in km
+        float maxSolarDistance = 150 * Units.Gm; // in GM
 
         for (int i = 0; i < numberPlants; i++)
         {
-            double planetsize = UnityEngine.Random.Range(minPlantRadius, 100); //in km
+            double planetsize = UnityEngine.Random.Range(minPlantRadius, 100 * Units.km); //in km
             Vector3d planetLocation = new Vector3d(UnityEngine.Random.Range(-maxSolarDistance, maxSolarDistance), UnityEngine.Random.Range(-maxSolarDistance, maxSolarDistance), 0); //in gm
             double density = UnityEngine.Random.Range(.1f, 10);
 
-            SolarSystemCreator.AddPlanet(sol, sun, planetsize * Units.hm, planetLocation * Units.Mm, 1, "Planet " + i.ToString());
+            var planet = SolarSystemCreator.AddPlanet(sol, sun, planetsize, planetLocation, density, "Planet " + i.ToString());
+
+            int numberMoons = UnityEngine.Random.Range(0, 10);
+
+            for (int b = 0; b < numberMoons; b++)
+            {
+                double moonSize = UnityEngine.Random.Range(10, (float) planet.radius); //in km
+                Vector3d moonLocation = new Vector3d(UnityEngine.Random.Range((float)-planet.SOI, (float)planet.SOI), UnityEngine.Random.Range((float)-planet.SOI, (float)planet.SOI), 0); //in gm
+                density = UnityEngine.Random.Range(.1f, 10);
+
+                SolarSystemCreator.AddPlanet(sol, planet, moonSize, moonLocation, density, "Planet " + i.ToString() + ": Moon " + b.ToString());
+            }
         }
 
         //var planet = solCont.AddPlanet(sun.Model, 4f, 15f * new Vector3(-1, 0));
@@ -44,21 +56,26 @@ public class rocketTest : MonoBehaviour {
         
 
         PlanetController pControl = Controller.Instantiate<PlanetController>("planet", sol.allSolarBodies[1]);
-        
 
-        
+
+
 
         //Instatiate planet Icon
 
-        PlanetIconController planet = Controller.Instantiate<PlanetIconController>("planetIcon", craft.reference.Model);
-        planet.isReference = true;
-
-        foreach (SolarBodyModel body in craft.reference.Model.solarBodies)
+        foreach (SolarBodyModel body in sol.allSolarBodies)
         {
-            Controller.Instantiate<PlanetIconController>("planetIcon", body);
+            if (body.type == ObjectType.Planet)
+            {
+                Controller.Instantiate<PlanetIconController>("planetIcon", body);
+            }
+            else if (body.type == ObjectType.Sun)
+            {
+                Controller.Instantiate<SunIconController>("sunIcon", body);
+            }
+
         }
 
-        foreach (CraftModel body in craft.reference.Model.crafts)
+        foreach (CraftModel body in sol.allCrafts)
         {
             Controller.Instantiate<CraftIconController>("craftIcon", body);
         }
@@ -83,10 +100,12 @@ public class rocketTest : MonoBehaviour {
                 catch (Exception e){
                     try
                     {
+                        print(e);
                         m.model = hit.transform.parent.GetComponent<PlanetController>().Model;
                     }
                     catch (Exception b)
                     {
+                        print(b);
                         m.model = hit.transform.GetComponent<PlanetIconController>().Model;
                     }
                 }

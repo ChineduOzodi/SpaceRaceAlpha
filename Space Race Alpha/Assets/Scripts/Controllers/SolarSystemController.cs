@@ -17,7 +17,7 @@ public class SolarSystemController : Controller<SolarSystemModel>
 
     void Update()
     {
-        //UPdate timeScale
+        //Update timeScale
         if (Input.GetKeyDown(KeyCode.Period))
         {
             Time.timeScale *= 2;
@@ -31,9 +31,9 @@ public class SolarSystemController : Controller<SolarSystemModel>
         //Update Forces
         foreach (SolarBodyModel body in model.allSolarBodies)
         {
-            Vector3d force = Forces.Force(body);
+            Vector3d force = Forces.Force(body,model.allSolarBodies);
             body.force = force;
-            body.LocalVelocity += Forces.ForceToVelocity(body);
+            body.velocity += Forces.ForceToVelocity(body);
             body.position = Forces.VelocityToPosition(body);
 
             body.Rotation += body.RotationRate * Time.deltaTime; //Rotate the planet
@@ -53,18 +53,18 @@ public class SolarSystemController : Controller<SolarSystemModel>
         }
         foreach (CraftModel body in model.allCrafts)                                            //set craft forces and locations when applicable
         {
-            Vector3d force = Forces.Force(body);
+            Vector3d force = Forces.Force(body, model.allSolarBodies);
             body.force = force;
             if (!body.spawned) //Sets craft that are not spawned
             {
                 if (body.state != ObjectState.Landed)
                 {
-                    body.LocalVelocity += Forces.ForceToVelocity(force, body.mass);
+                    body.velocity += Forces.ForceToVelocity(force, body.mass);
                     body.position = Forces.VelocityToPosition(body);
                 }
                 else
                 {
-                    body.LocalPosition = body.LocalPosition;
+                    body.surfacePolar = body.surfacePolar; //Used to keep world position and velocity updated using, while not moving them on the surface
                     body.SurfaceVel = body.SurfaceVel;
 
                 }
