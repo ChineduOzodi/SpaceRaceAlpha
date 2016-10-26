@@ -1,4 +1,0 @@
-sceneSetups:
-- path: Assets/_scenes/craft_building.unity
-  isLoaded: 1
-  isActive: 1

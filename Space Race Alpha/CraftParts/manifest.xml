@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="Windows-1252"?>
-<Manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <Entries>
-    <ModelEntry>
-      <Id>1bb0dfdd-4d53-4a5a-a035-628aa249bd2b</Id>
-      <Type>SpaceEngineModel</Type>
-    </ModelEntry>
-  </Entries>
-</Manifest>
