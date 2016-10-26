@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<Manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Entries>
+    <ModelEntry>
+      <Id>9fc98392-d5ab-4f1b-87e8-0d34e469a8d1</Id>
+      <Type>GameModel</Type>
+    </ModelEntry>
+    <ModelEntry>
+      <Id>62af371d-5940-4588-8f17-3c5e6abfb274</Id>
+      <Type>LevelModel</Type>
+    </ModelEntry>
+    <ModelEntry>
+      <Id>44d52a0d-b26f-4f1a-adeb-ac65ce6ba731</Id>
+      <Type>TurretModel</Type>
+    </ModelEntry>
+    <ModelEntry>
+      <Id>4715aa51-deb3-4fcd-ac55-3d34bed1023a</Id>
+      <Type>TurretModel</Type>
+    </ModelEntry>
+    <ModelEntry>
+      <Id>361b3673-bb83-4469-90bc-305933515dcc</Id>
+      <Type>TurretModel</Type>
+    </ModelEntry>
+    <ModelEntry>
+      <Id>245ad583-6265-4e28-9450-9a119c99325c</Id>
+      <Type>TurretModel</Type>
+    </ModelEntry>
+    <ModelEntry>
+      <Id>37bc024a-5521-48ca-a3ba-d241b353e161</Id>
+      <Type>TurretModel</Type>
+    </ModelEntry>
+    <ModelEntry>
+      <Id>ca74734e-0416-4342-a2fb-f5e3fde947b6</Id>
+      <Type>TurretModel</Type>
+    </ModelEntry>
+  </Entries>
+</Manifest>
