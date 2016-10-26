@@ -271,7 +271,7 @@ public class CraftController : Controller<CraftModel> {
                     SASProgram(DesiredRotationRate(.20 * Mathd.PI));
                 }
             }
-            else if (model.Ecc.sqrMagnitude > .01)
+            else if (model.Ecc.sqrMagnitude > .0001)
             {
                 
                 if ( model.SurfaceVel.y > 100)
@@ -337,7 +337,7 @@ public class CraftController : Controller<CraftModel> {
                         SASProgram(DesiredRotationRate(.20 * Mathd.PI));
                     }
                 }
-                else if (model.Ecc.sqrMagnitude > .01)
+                else if (model.Ecc.sqrMagnitude > 0.0001)
                 {
 
                     if (model.SurfaceVel.y > 100)

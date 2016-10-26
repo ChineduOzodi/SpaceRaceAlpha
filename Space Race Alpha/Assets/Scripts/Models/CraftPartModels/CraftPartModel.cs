@@ -14,7 +14,7 @@ public class CraftPartModel : BaseModel{
     //------------Possible part properties------------------//
 
     public float dragCo = 1;
-    public float TWR
+    public double TWR
     {
         get
         {

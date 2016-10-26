@@ -137,11 +137,11 @@
     <None Include="Assets\CodeControl\readme.txt" />
     <None Include="Assets\Fonts\Assimov\Apache License.txt" />
     <None Include="Assets\Fonts\Assimov\FONTLOG_NOTICE.txt" />
-    <None Include="Assets\SFSoftShadows\Resources\SFFogLayer.shader" />
-    <None Include="Assets\SFSoftShadows\Resources\SFLightBlendLinear.shader" />
-    <None Include="Assets\SFSoftShadows\Resources\SFLightBlendSoft.shader" />
-    <None Include="Assets\SFSoftShadows\Resources\SFShadowMask.shader" />
-    <None Include="Assets\SFSoftShadows\Resources\SFSoftShadow.shader" />
+    <None Include="Assets\SFSoftShadows\Shaders\SFFogLayer.shader" />
+    <None Include="Assets\SFSoftShadows\Shaders\SFLightBlendLinear.shader" />
+    <None Include="Assets\SFSoftShadows\Shaders\SFLightBlendSoft.shader" />
+    <None Include="Assets\SFSoftShadows\Shaders\SFShadowMask.shader" />
+    <None Include="Assets\SFSoftShadows\Shaders\SFSoftShadow.shader" />
     <None Include="Assets\Shaders\BasicShader.shader" />
     <None Include="Assets\Shaders\ImageDisplaceEffect.shader" />
   </ItemGroup>

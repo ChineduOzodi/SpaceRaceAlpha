@@ -121,7 +121,11 @@
     <Compile Include="Assets\Scripts\Messages\ToggleMapMessage.cs" />
     <Compile Include="Assets\Scripts\Models\BaseModel.cs" />
     <Compile Include="Assets\Scripts\Models\CameraModel.cs" />
+    <Compile Include="Assets\Scripts\Models\ContainerComponent.cs" />
     <Compile Include="Assets\Scripts\Models\CraftModel.cs" />
+    <Compile Include="Assets\Scripts\Models\CraftPartModels\CraftComponents.cs" />
+    <Compile Include="Assets\Scripts\Models\CraftPartModels\CraftPartModel.cs" />
+    <Compile Include="Assets\Scripts\Models\CraftPartModels\EngineComponent.cs" />
     <Compile Include="Assets\Scripts\Models\ForceArrowModel.cs" />
     <Compile Include="Assets\Scripts\Models\PlanetModel.cs" />
     <Compile Include="Assets\Scripts\Models\SettingsModel.cs" />
@@ -133,7 +137,10 @@
     <Compile Include="Assets\Scripts\Ref\SpriteText.cs" />
     <Compile Include="Assets\Scripts\TestScript.cs" />
     <Compile Include="Assets\Scripts\Types\CameraViewMode.cs" />
+    <Compile Include="Assets\Scripts\Types\ContainerTypes.cs" />
     <Compile Include="Assets\Scripts\Types\ControlMode.cs" />
+    <Compile Include="Assets\Scripts\Types\Direction.cs" />
+    <Compile Include="Assets\Scripts\Types\EngineTypes.cs" />
     <Compile Include="Assets\Scripts\Types\ObjectState.cs" />
     <Compile Include="Assets\Scripts\Types\ObjectType.cs" />
     <Compile Include="Assets\Scripts\UI\AltPanel.cs" />
@@ -141,6 +148,7 @@
     <Compile Include="Assets\Scripts\UI\InfoPanel.cs" />
     <Compile Include="Assets\Scripts\UI\MessagePanel.cs" />
     <Compile Include="Assets\Scripts\UI\ProgradeCompass.cs" />
+    <Compile Include="Assets\Scripts\UI\ShipPartsPanel.cs" />
     <Compile Include="Assets\Scripts\UI\SurfVelCompass.cs" />
     <Compile Include="Assets\Scripts\UI\autoPilotToggles.cs" />
     <Compile Include="Assets\Scripts\UI\throttleSlider.cs" />
@@ -152,11 +160,11 @@
     <None Include="Assets\CodeControl\readme.txt" />
     <None Include="Assets\Fonts\Assimov\Apache License.txt" />
     <None Include="Assets\Fonts\Assimov\FONTLOG_NOTICE.txt" />
-    <None Include="Assets\SFSoftShadows\Resources\SFFogLayer.shader" />
-    <None Include="Assets\SFSoftShadows\Resources\SFLightBlendLinear.shader" />
-    <None Include="Assets\SFSoftShadows\Resources\SFLightBlendSoft.shader" />
-    <None Include="Assets\SFSoftShadows\Resources\SFShadowMask.shader" />
-    <None Include="Assets\SFSoftShadows\Resources\SFSoftShadow.shader" />
+    <None Include="Assets\SFSoftShadows\Shaders\SFFogLayer.shader" />
+    <None Include="Assets\SFSoftShadows\Shaders\SFLightBlendLinear.shader" />
+    <None Include="Assets\SFSoftShadows\Shaders\SFLightBlendSoft.shader" />
+    <None Include="Assets\SFSoftShadows\Shaders\SFShadowMask.shader" />
+    <None Include="Assets\SFSoftShadows\Shaders\SFSoftShadow.shader" />
     <None Include="Assets\Shaders\BasicShader.shader" />
     <None Include="Assets\Shaders\ImageDisplaceEffect.shader" />
   </ItemGroup>

@@ -2,8 +2,12 @@
 <Manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Entries>
     <ModelEntry>
-      <Id>1bb0dfdd-4d53-4a5a-a035-628aa249bd2b</Id>
-      <Type>SpaceEngineModel</Type>
+      <Id>0222e022-68a3-4eec-85bd-f97f6af2d6ee</Id>
+      <Type>CraftPartModel</Type>
+    </ModelEntry>
+    <ModelEntry>
+      <Id>69e52328-c8ad-4b03-a571-2fc338d14859</Id>
+      <Type>CraftPartModel</Type>
     </ModelEntry>
   </Entries>
 </Manifest>
