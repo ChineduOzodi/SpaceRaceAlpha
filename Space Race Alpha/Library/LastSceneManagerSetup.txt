@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/_scenes/rocketTest.unity
+- path: Assets/_scenes/craft_building.unity
   isLoaded: 1
   isActive: 1

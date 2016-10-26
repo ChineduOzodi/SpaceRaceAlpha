@@ -8,6 +8,7 @@ public class BaseModel : Model {
     public string name;
     public ObjectType type;
     public ObjectState state;
+    public string spriteName;
 
     public ModelRef<SolarSystemModel> sol;
 
