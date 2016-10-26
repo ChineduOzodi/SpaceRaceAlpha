@@ -35,7 +35,7 @@ public class SurfVelCompass : MonoBehaviour {
                 pSV += 2 * Mathd.PI;
             }
 
-            transform.localEulerAngles = new Vector3(0, 0, (float) (pSV * Mathd.Rad2Deg)); //set rotation of compass needle
+            transform.localEulerAngles = new Vector3(0, 0, (float) (pSV * Mathd.Rad2Deg - 90)); //set rotation of compass needle
         }
 	
 	}

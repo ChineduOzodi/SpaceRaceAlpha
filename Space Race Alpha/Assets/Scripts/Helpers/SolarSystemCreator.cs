@@ -140,6 +140,7 @@ public static class SolarSystemCreator{
         //body.rotation.eulerAngles = new Vector3(0, 0, (float) angle * Mathf.Rad2Deg + planet.rotation.eulerAngles.z);
 
         sol.allCrafts.Add(body);
+        planet.crafts.Add(body);
         //Controller.Instantiate<CraftIconController>("craftIcon", body);
         return body;
     }
@@ -169,7 +170,7 @@ public static class SolarSystemCreator{
         body.velocity = VelocityFromOrbit(body);
 
         sol.allCrafts.Add(body);
-
+        reference.crafts.Add(body);
         return body;
     }
 
@@ -220,7 +221,7 @@ public static class SolarSystemCreator{
     /// Calculate Sphere of Influence based on centor solar body distance and mass
     /// </summary>
     /// <param name="m"> solar body to calculate SOI for</param>
-    /// <returns></returns>
+    /// <returns>SOI radial distance</returns>
     private static double CalculateSOI(SolarBodyModel m) 
     {
         double r = Vector3d.Distance(m.position, m.reference.Model.position);

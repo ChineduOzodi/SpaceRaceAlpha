@@ -7,12 +7,9 @@ using UnityEngine.UI;
 
 public class SolarSystemController : Controller<SolarSystemModel>
 {
-    internal Text messageText;
     protected override void OnInitialize()
     {
         //Message.AddListener<AddSolarBodyMessage>();
-        messageText = GameObject.FindGameObjectWithTag("messageText").GetComponent<Text>();
-        messageText.text = "1";
     }
 
     void Update()
@@ -20,13 +17,13 @@ public class SolarSystemController : Controller<SolarSystemModel>
         //Update timeScale
         if (Input.GetKeyDown(KeyCode.Period))
         {
-            Time.timeScale *= 2;
-            messageText.text = Time.timeScale.ToString();
+            Time.timeScale += 10;
+            MessagePanel.SendMessage("Time Accel: " + Time.timeScale.ToString(), 5, Color.yellow);
         }
         else if (Input.GetKeyDown(KeyCode.Comma))
         {
-            Time.timeScale *= .5f;
-            messageText.text = Time.timeScale.ToString();
+            Time.timeScale = 1f;
+            MessagePanel.SendMessage("Time Accel: " + Time.timeScale.ToString(), 5, Color.white);
         }
         //Update Forces
         foreach (SolarBodyModel body in model.allSolarBodies)

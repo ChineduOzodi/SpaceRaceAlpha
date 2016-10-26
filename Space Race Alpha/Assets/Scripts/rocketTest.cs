@@ -30,7 +30,7 @@ public class rocketTest : MonoBehaviour {
             for (int b = 0; b < numberMoons; b++)
             {
                 double moonSize = UnityEngine.Random.Range(10, (float) planet.radius); //in km
-                Vector3d moonLocation = new Vector3d(UnityEngine.Random.Range((float)-planet.SOI, (float)planet.SOI), UnityEngine.Random.Range((float)-planet.SOI, (float)planet.SOI), 0); //in gm
+                Vector3d moonLocation = new Vector3d(UnityEngine.Random.Range(0, (float)planet.SOI), UnityEngine.Random.Range(0, (float)planet.SOI), 0); //in gm
                 density = UnityEngine.Random.Range(.1f, 10);
 
                 SolarSystemCreator.AddPlanet(sol, planet, moonSize, moonLocation, density, "Planet " + i.ToString() + ": Moon " + b.ToString());
@@ -51,34 +51,7 @@ public class rocketTest : MonoBehaviour {
 
         var cam = gameObject.GetComponent<CameraController>();
         cam.SetTarget(craftC);
-        cam.SetViewMode(CameraViewMode.Reference);
-
-        
-
-        PlanetController pControl = Controller.Instantiate<PlanetController>("planet", sol.allSolarBodies[1]);
-
-
-
-
-        //Instatiate planet Icon
-
-        foreach (SolarBodyModel body in sol.allSolarBodies)
-        {
-            if (body.type == ObjectType.Planet)
-            {
-                Controller.Instantiate<PlanetIconController>("planetIcon", body);
-            }
-            else if (body.type == ObjectType.Sun)
-            {
-                Controller.Instantiate<SunIconController>("sunIcon", body);
-            }
-
-        }
-
-        foreach (CraftModel body in sol.allCrafts)
-        {
-            Controller.Instantiate<CraftIconController>("craftIcon", body);
-        }
+        cam.SetViewMode(CameraViewMode.Reference);        
 
     }
 	
@@ -110,7 +83,7 @@ public class rocketTest : MonoBehaviour {
                     }
                 }
                 
-                Message.Send<InfoPanelMessage>(m);
+                Message.Send(m);
             }
         }
     }

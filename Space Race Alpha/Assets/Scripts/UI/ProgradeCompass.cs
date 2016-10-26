@@ -27,7 +27,7 @@ public class ProgradeCompass : MonoBehaviour {
         else {
 
         
-            transform.localEulerAngles = new Vector3(0, 0, (float) (targetModel.ProgradeSurfaceAngle * Mathd.Rad2Deg)); //set rotation of compass needle
+            transform.localEulerAngles = new Vector3(0, 0, (float) (targetModel.ProgradeSurfaceAngle * Mathd.Rad2Deg - 90)); //set rotation of compass needle
         }
 	
 	}

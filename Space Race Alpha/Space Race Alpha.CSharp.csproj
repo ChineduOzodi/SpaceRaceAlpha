@@ -116,6 +116,7 @@
     <Compile Include="Assets\Scripts\Helpers\Vector3d.cs" />
     <Compile Include="Assets\Scripts\LoadSaveScript.cs" />
     <Compile Include="Assets\Scripts\Messages\InfoPanelMessage.cs" />
+    <Compile Include="Assets\Scripts\Messages\MessagePanelMessage.cs" />
     <Compile Include="Assets\Scripts\Messages\ShowForceMessage.cs" />
     <Compile Include="Assets\Scripts\Messages\ToggleMapMessage.cs" />
     <Compile Include="Assets\Scripts\Models\BaseModel.cs" />
@@ -138,6 +139,7 @@
     <Compile Include="Assets\Scripts\UI\AltPanel.cs" />
     <Compile Include="Assets\Scripts\UI\Compass.cs" />
     <Compile Include="Assets\Scripts\UI\InfoPanel.cs" />
+    <Compile Include="Assets\Scripts\UI\MessagePanel.cs" />
     <Compile Include="Assets\Scripts\UI\ProgradeCompass.cs" />
     <Compile Include="Assets\Scripts\UI\SurfVelCompass.cs" />
     <Compile Include="Assets\Scripts\UI\autoPilotToggles.cs" />

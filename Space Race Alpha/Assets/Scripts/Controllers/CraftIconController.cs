@@ -12,6 +12,7 @@ public class CraftIconController : Controller<CraftModel> {
     Camera mainCam;
     Camera mapCam;
 
+    double distanceModifier;
 
     protected override void OnInitialize()
     {
@@ -24,6 +25,10 @@ public class CraftIconController : Controller<CraftModel> {
 
         //Instantiate space trajectory
         gameObject.AddComponent<SpaceTrajectory>().model = model;
+        name = model.name + " Icon";
+
+        //Get Relevant information
+        distanceModifier = mainCam.GetComponent<CameraController>().distanceModifier;
     }
 
     private void ToggleMapMode(ToggleMapMessage m)
@@ -37,7 +42,7 @@ public class CraftIconController : Controller<CraftModel> {
 	
 	// Update is called once per frame
 	void Update () {
-        transform.position = (Vector3)(model.position / Units.Mm);
+        transform.position = (Vector3)((model.position - model.sol.Model.mapViewReference.Model.position) / distanceModifier);
 
         if (mapMode)
         {

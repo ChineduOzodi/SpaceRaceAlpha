@@ -21,6 +21,9 @@ public class SolarSystemModel : Model
     public Vector3d localReferenceForce = Vector3d.zero;
     public ModelRef<CraftModel> controlModel;
 
+    //Map View References
+    public ModelRef<SolarBodyModel> mapViewReference = new ModelRef<SolarBodyModel>();
+
     //Debug Options
     public bool showForce = false;
 }

@@ -11,6 +11,8 @@ public class SunIconController : Controller<SunModel> {
     Camera mainCam;
     Camera mapCam;
 
+    double distanceModifier;
+
     //Model reference
     public PlanetModel Model;
 
@@ -23,13 +25,14 @@ public class SunIconController : Controller<SunModel> {
         Model = model;
         name = model.name + " Icon";
 
-        width = (float)(model.radius / Units.Mm);
-
         //Set Cameras
         mainCam = Camera.main;
         mapCam = GameObject.FindGameObjectWithTag("MapCamera").GetComponent<Camera>();
 
-        width =(float) (model.radius / Units.Mm);
+        //Get Relevant information
+        distanceModifier = mainCam.GetComponent<CameraController>().distanceModifier;
+
+        width =(float) (model.radius / distanceModifier);
     }
 
     private void ToggleMapMode(ToggleMapMessage m)
@@ -43,7 +46,7 @@ public class SunIconController : Controller<SunModel> {
 	
 	// Update is called once per frame
 	void Update () {
-        transform.position = (Vector3)(model.position / Units.Mm);
+        transform.position = (Vector3)((model.position - model.sol.Model.mapViewReference.Model.position) / distanceModifier);
 
         if (mapMode)
         {

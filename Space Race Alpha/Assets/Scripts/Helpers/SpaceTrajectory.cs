@@ -23,6 +23,9 @@ public class SpaceTrajectory : MonoBehaviour
 
     //MapMode variables
     bool mapMode = false;
+
+    double distanceModifier;
+
     Camera mainCam;
     Camera mapCam;
 
@@ -35,6 +38,9 @@ public class SpaceTrajectory : MonoBehaviour
         //Set Cameras
         mainCam = Camera.main;
         mapCam = GameObject.FindGameObjectWithTag("MapCamera").GetComponent<Camera>();
+
+        //Get Relevant information
+        distanceModifier = mainCam.GetComponent<CameraController>().distanceModifier;
 
         verts = new Vector3[vertsCount];
     }
@@ -56,18 +62,20 @@ public class SpaceTrajectory : MonoBehaviour
             m2 = model.reference.Model.mass;
             SOI = model.reference.Model.SOI;
 
-            distance = model.position / Units.Mm;
+            distance = model.LocalPosition / distanceModifier;
+
+            Vector3d PositionFromCenter = model.reference.Model.position - model.sol.Model.mapViewReference.Model.position;
 
             if (distance.magnitude != 0 && model.state != ObjectState.Landed)
             {
-                DrawTraject(m2Pos);
+                DrawTraject(PositionFromCenter);
             }
             else gameObject.GetComponent<LineRenderer>().SetVertexCount(0);
 
         }
     }
 
-    public void DrawTraject(Vector3d m2Pos)
+    public void DrawTraject(Vector3d positionFromCenter)
     {
         double increment = 2 * Mathd.PI / (vertsCount - 1);
 
@@ -76,9 +84,9 @@ public class SpaceTrajectory : MonoBehaviour
 
         for (int i = 0; i < vertsCount; i++)
         {
-            double rad = Ellipse(model.SemiMajorAxis / Units.km, model.Ecc.magnitude, i * increment + new Polar2(distance).angle);
+            double rad = Ellipse(model.SemiMajorAxis / distanceModifier, model.Ecc.magnitude, i * increment + new Polar2(distance).angle); //Figures out the radius of the next angle step in trajectory
 
-            Vector2 disp = (Vector2)Polar2.PolarToCartesian(new Polar2((float)rad, i * (float)increment + (float)new Polar2(distance).angle + (float)new Polar2(model.Ecc).angle + Mathf.PI));
+            Vector2 disp = (Vector2)(Polar2.PolarToCartesian(new Polar2((float)rad, i * (float)increment + (float)new Polar2(distance).angle + (float)new Polar2(model.Ecc).angle + Mathf.PI)) - (Vector2d) positionFromCenter);
 
             verts[i] = new Vector3(-disp.x,-disp.y) + (Vector3) m2Pos;
         }

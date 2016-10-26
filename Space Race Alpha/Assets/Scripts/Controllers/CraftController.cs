@@ -23,7 +23,7 @@ public class CraftController : Controller<CraftModel> {
 
     public float translationSpeed = 10f;
     public float rotationSpeed = 1f;
-    public float throttleSpeed = 10f;
+    public float throttleSpeed = 1f;
 
     internal Rigidbody2D rgb;
     internal CraftModel Model;
@@ -233,7 +233,7 @@ public class CraftController : Controller<CraftModel> {
             }
             prtF.startSpeed = throttle * .1f;
             prtS.startSpeed = throttle * .1f;
-            model.throttle = throttle * throttleSpeed;
+            model.throttle = throttle;
 
             //Vector3 relForce = Forces.PolarToCartesian(new Vector2(throttle, transform.rotation.eulerAngles.z * Mathf.Deg2Rad));
             //model.force += relForce;
@@ -254,8 +254,55 @@ public class CraftController : Controller<CraftModel> {
         //If not close to reference settings
         if (!closeToReference)
         {
+            if (model.alt < 100 * Units.km)
+            {
+                model.throttle = 100;
+                throttle = model.throttle;
+                if (model.alt < 4.5 * Units.km)
+                {
+                    SASProgram(DesiredRotationRate(0 * Mathd.PI));
+                }
+                else if (model.alt < 60 * Units.km)
+                {
+                    SASProgram(DesiredRotationRate(.15 * Mathd.PI));
+                }
+                else
+                {
+                    SASProgram(DesiredRotationRate(.20 * Mathd.PI));
+                }
+            }
+            else if (model.Ecc.sqrMagnitude > .01)
+            {
+                
+                if ( model.SurfaceVel.y > 100)
+                {
+                    model.throttle--;
+                    throttle = model.throttle;
+                    ProgradeProgram();
+                }
+                else if (model.SurfaceVel.y < 100)
+                {
+                    model.throttle++;
+                    throttle = model.throttle;
+                    
+                    if (model.SurfaceVel.y < 50)
+                    {
+                        SASProgram(DesiredRotationRate(.20 * Mathd.PI));
+                    }
+                    else
+                    {
+                        SASProgram(DesiredRotationRate(.30 * Mathd.PI));
+                    }
+                }
+            }
+            else
+            {
+                model.throttle = 0;
+                throttle = model.throttle;
+            }
+
             //Manually update model forces
-            
+
             Vector3d addedForce = Forces.Rotate(new Vector3d(translationH, translationV + throttle), (model.Rotation)); //forces located to local orientation
 
             model.LocalVelocity += Forces.ForceToVelocity(model, addedForce);
@@ -273,11 +320,57 @@ public class CraftController : Controller<CraftModel> {
         {
             if (model.state != ObjectState.Landed)
             {
+                if (model.alt < 100 * Units.km)
+                {
+                    model.throttle = 100;
+                    throttle = model.throttle;
+                    if (model.alt < 4.5 * Units.km)
+                    {
+                        SASProgram(DesiredRotationRate(0 * Mathd.PI));
+                    }
+                    else if (model.alt < 60 * Units.km)
+                    {
+                        SASProgram(DesiredRotationRate(.15 * Mathd.PI));
+                    }
+                    else
+                    {
+                        SASProgram(DesiredRotationRate(.20 * Mathd.PI));
+                    }
+                }
+                else if (model.Ecc.sqrMagnitude > .01)
+                {
+
+                    if (model.SurfaceVel.y > 100)
+                    {
+                        model.throttle--;
+                        throttle = model.throttle;
+                        ProgradeProgram();
+                    }
+                    else if (model.SurfaceVel.y < 100)
+                    {
+                        model.throttle++;
+                        throttle = model.throttle;
+
+                        if (model.SurfaceVel.y < 50)
+                        {
+                            SASProgram(DesiredRotationRate(.20 * Mathd.PI));
+                        }
+                        else
+                        {
+                            SASProgram(DesiredRotationRate(.30 * Mathd.PI));
+                        }
+                    }
+                }
+                else
+                {
+                    model.throttle = 0;
+                    throttle = model.throttle;
+                }
 
                 Vector3 force = (Vector3)Forces.Rotate(model.force - model.sol.Model.localReferenceForce, model.reference.Model.Rotation);
                 rgb.AddForce(force * Time.deltaTime * 50);
 
-                rgb.AddRelativeForce(new Vector2(translationH, translationV + throttle));
+                rgb.AddRelativeForce(new Vector2(translationH, translationV + model.throttle));
                 
 
                 
@@ -371,7 +464,7 @@ public class CraftController : Controller<CraftModel> {
     {
         double multiplier = 1.25;
         double pow = .4;
-        double rotationDifference = RotationDifference(desiredRotation, model.LocalRotation);
+        double rotationDifference = RotationDifference(desiredRotation, model.Rotation);
         if (rotationDifference > 0)
         {
             double desiredRotationRate = Mathd.Pow(rotationDifference * multiplier, pow);
@@ -394,13 +487,16 @@ public class CraftController : Controller<CraftModel> {
     /// <returns></returns>
     private double RotationDifference(double desiredRotation, double localRotation)
     {
-        double rotationDifference = desiredRotation- localRotation;
+        double rotationDifference = desiredRotation - localRotation;
 
-        if (Mathd.Abs(rotationDifference) > Math.PI)
+        if (rotationDifference > Math.PI)
         {
             rotationDifference -= 2 * Math.PI;
         }
-
+        if (rotationDifference < -Math.PI)
+        {
+            rotationDifference += 2 * Math.PI;
+        }
         return rotationDifference;
     }
 
@@ -410,7 +506,7 @@ public class CraftController : Controller<CraftModel> {
     /// </summary>
     private void ProgradeProgram()
     {
-        double desiredRotationRate = DesiredRotationRate(model.ProgradeSurfaceAngle); //Figure out rotation rate wanted
+        double desiredRotationRate = DesiredRotationRate(new Polar2(model.LocalVelocity).angle - .5 * Mathd.PI); //Figure out rotation rate wanted
 
         SASProgram(desiredRotationRate); //Add torque
 
@@ -418,7 +514,7 @@ public class CraftController : Controller<CraftModel> {
     }
     private void RetrogradeProgram()
     {
-        double desiredRotationRate = DesiredRotationRate(model.RetrogradeSurfaceAngle); //Figure out rotation rate wanted
+        double desiredRotationRate = DesiredRotationRate(new Polar2(model.LocalVelocity).angle - 1.5 * Mathd.PI); //Figure out rotation rate wanted
 
         SASProgram(desiredRotationRate); //Add torque
 
