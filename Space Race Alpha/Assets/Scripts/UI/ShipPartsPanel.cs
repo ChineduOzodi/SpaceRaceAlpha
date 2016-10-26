@@ -29,7 +29,7 @@ public class ShipPartsPanel : MonoBehaviour {
 
     private void OnLoadDone()
     {
-        craftModels = Model.GetAll<SpaceEngineModel>().ToArray();
+        craftModels = Model.GetAll<CraftPartModel>().ToArray();
 
         foreach (CraftPartModel craftPart in craftModels)
         {
@@ -63,9 +63,25 @@ public class ShipPartsPanel : MonoBehaviour {
 
     private void CreateDefualtParts()
     {
-        EngineModel engine = new EngineModel();
-        engine.name = "Space Engine";
-        engine.spriteName = "space_engine";
+        CraftPartModel spaceEngine = new CraftPartModel();
+        spaceEngine.engines = new EngineComponent[1] { new EngineComponent()};
+        spaceEngine.engines[0].mass = Units.Mm;
+        spaceEngine.engines[0].specificImpulse = 8.34f * Units.km;
+        spaceEngine.engines[0].thrust = 80;
+        spaceEngine.engines[0].dimensions = new Vector2(1, 2);
+        spaceEngine.name = "Space Engine";
+        spaceEngine.spriteName = "space_engine";
+
+        CraftPartModel fuelContainer = new CraftPartModel();
+        fuelContainer.containers = new ContainerComponent[1] { new ContainerComponent() };
+        fuelContainer.containers[0].type = ContainerTypes.LiquidFuel;
+        fuelContainer.containers[0].maxAmount = 2000;
+        fuelContainer.containers[0].currentAmount = 2000;
+        fuelContainer.containers[0].massPerUnit = 20;
+        fuelContainer.containers[0].massEmpty = 200;
+        fuelContainer.containers[0].dimensions = new Vector2(3, 10);
+        fuelContainer.name = "Fuel Container";
+        fuelContainer.spriteName = "ship_fueltank";
 
         Model.SaveAll("CraftParts");
     }

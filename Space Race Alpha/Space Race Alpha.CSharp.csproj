@@ -100,7 +100,6 @@
     <Compile Include="Assets\SFSoftShadows\SFSoftShadowDemos\ForestArtwork-Kenney\FlickerLight.cs" />
     <Compile Include="Assets\Scripts\Behaviors\SpaceGravityReal.cs" />
     <Compile Include="Assets\Scripts\CameraController.cs" />
-    <Compile Include="Assets\Scripts\Controllers\EngineController.cs" />
     <Compile Include="Assets\Scripts\Controllers\ForceController.cs" />
     <Compile Include="Assets\Scripts\Controllers\PlanetController.cs" />
     <Compile Include="Assets\Scripts\Controllers\SolarSystemController.cs" />
@@ -121,10 +120,11 @@
     <Compile Include="Assets\Scripts\Messages\ShowForceMessage.cs" />
     <Compile Include="Assets\Scripts\Messages\ToggleMapMessage.cs" />
     <Compile Include="Assets\Scripts\Models\BaseModel.cs" />
-    <Compile Include="Assets\Scripts\Models\ContainerModel.cs" />
+    <Compile Include="Assets\Scripts\Models\ContainerComponent.cs" />
     <Compile Include="Assets\Scripts\Models\CraftModel.cs" />
+    <Compile Include="Assets\Scripts\Models\CraftPartModels\CraftComponents.cs" />
     <Compile Include="Assets\Scripts\Models\CraftPartModels\CraftPartModel.cs" />
-    <Compile Include="Assets\Scripts\Models\CraftPartModels\EngineModel.cs" />
+    <Compile Include="Assets\Scripts\Models\CraftPartModels\EngineComponent.cs" />
     <Compile Include="Assets\Scripts\Models\ForceArrowModel.cs" />
     <Compile Include="Assets\Scripts\Models\PlanetModel.cs" />
     <Compile Include="Assets\Scripts\Models\SolarBodyModel.cs" />
@@ -138,6 +138,8 @@
     <Compile Include="Assets\Scripts\Types\CameraViewMode.cs" />
     <Compile Include="Assets\Scripts\Types\ContainerTypes.cs" />
     <Compile Include="Assets\Scripts\Types\ControlMode.cs" />
+    <Compile Include="Assets\Scripts\Types\Direction.cs" />
+    <Compile Include="Assets\Scripts\Types\EngineTypes.cs" />
     <Compile Include="Assets\Scripts\Types\ObjectState.cs" />
     <Compile Include="Assets\Scripts\Types\ObjectType.cs" />
     <Compile Include="Assets\Scripts\UI\AltPanel.cs" />
