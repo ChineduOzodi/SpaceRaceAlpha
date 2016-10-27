@@ -156,10 +156,26 @@ public class Forces
         Vector3d vel = acc * Time.deltaTime;
         return vel;
     }
-
-    internal static Vector3d ForceToVelocityRough(BaseModel body, float time)
+    /// <summary>
+    /// Gives a rough estimate of velocity by applying static force over given amount of time
+    /// </summary>
+    /// <param name="body"></param>
+    /// <param name="time"></param>
+    /// <returns></returns>
+    internal static Vector3d ForceToVelocityRough(BaseModel body, double time)
     {
-        return body.force / body.mass * Time.deltaTime * 50 * time;
+        return body.force / body.mass * time;
+    }
+    /// <summary>
+    /// Gives a rough estimate of velocity by applying static force over given amount of time
+    /// </summary>
+    /// <param name="force"></param>
+    /// <param name="mass"></param>
+    /// <param name="time"></param>
+    /// <returns></returns>
+    internal static Vector3d ForceToVelocityRough(Vector3d force, double mass, double time)
+    {
+        return force / mass * time;
     }
     /// <summary>
     /// returns it in world position
@@ -178,6 +194,17 @@ public class Forces
     {
         return pos + vel * Time.deltaTime;
     }
+    /// <summary>
+    /// Returns the position after a velocity has been applied for a certain amount of time
+    /// </summary>
+    /// <param name="pos">current position</param>
+    /// <param name="vel"> velocity</param>
+    /// <param name="time">durration of velocity applied</param>
+    /// <returns></returns>
+    internal static Vector3d VelocityToPosition(Vector3d pos, Vector3d vel, double time)
+    {
+        return pos + vel * time;
+    }
 
     internal static Vector3 VelocityToPosition(Vector3 pos, Vector3 vel, float time)
     {
@@ -194,4 +221,48 @@ public class Forces
         return (4.0d * Mathd.PI * radius * radius * radius) / 3.0d;
     }
 
+    internal static Vector2d TimeToApoPeri (BaseModel model)
+    {
+        double previousVerticalVelocity = model.SurfaceVel.y;
+        double currentVerticalVelocity = model.SurfaceVel.y;
+        double timeToApo = 0;
+        double timeToPeri = 0;
+
+        double time = 0;
+        int counter = 0;
+        Vector3d locPos = model.LocalPosition;
+        Vector3d locVel = model.LocalVelocity;
+        Vector3d force = model.force;
+
+        while (timeToApo == 0 || timeToPeri == 0)
+        {
+            double timeMulti = 1;
+            time += timeMulti;
+            currentVerticalVelocity = Forces.Rotate(locVel, -new Polar2(locPos).angle + .5 * Mathd.PI).y;
+            
+            locPos = VelocityToPosition(locPos, locVel, timeMulti);
+            force = -Force(model.mass, model.reference.Model.mass, locPos);
+            locVel += ForceToVelocityRough(force, model.mass, timeMulti);
+            
+            
+
+            if ( previousVerticalVelocity < 0 && currentVerticalVelocity > 0)
+            {
+                timeToPeri = time;
+            }
+            else if (previousVerticalVelocity > 0 && currentVerticalVelocity < 0)
+            {
+                timeToApo = time;
+            }
+
+            previousVerticalVelocity = currentVerticalVelocity;
+            counter++;
+            if (counter > 10000)
+            {
+                break;
+            }
+        }
+
+        return new Vector2d(timeToApo, timeToPeri);
+    }
 }

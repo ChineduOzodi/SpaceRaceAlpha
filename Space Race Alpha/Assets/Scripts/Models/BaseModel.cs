@@ -322,6 +322,33 @@ public class BaseModel : Model {
             return rSA;
         }
     }
+    /// <summary>
+    /// average speed of satellite
+    /// </summary>
+    public double MeanMotion
+    {
+        get
+        {
+            return Mathd.Sqrt((Forces.G * reference.Model.mass) / Mathd.Pow(SemiMajorAxis, 3));
+        }
+    }
+
+    public double TrueAnomly
+    {
+        get
+        {
+            //time past perigee
+            double t = OrbitalPeriod * .5;
+            double MeanAnomaly = MeanMotion * t;
+            double E0 = MeanAnomaly;
+
+            for (int i = 0; i < 10; i++)
+            {
+                E0 = E0 - ((E0 - Mathd.Epsilon * Mathd.Sin(E0) - MeanAnomaly) / (1 - Mathd.Epsilon * Mathd.Cos(E0)));
+            }
+            return E0;
+        }
+    }
 
     //parent object
     public ModelRef<SolarBodyModel> reference;

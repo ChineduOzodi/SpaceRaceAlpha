@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: 00614dcac3831fb4c8c14f8022f459dd
-timeCreated: 1475588424
+timeCreated: 1477509058
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
@@ -17,6 +17,9 @@ TextureImporter:
     21300020: ship_parts_10
     21300022: ship_parts_11
     21300024: ship_parts_12
+    21300026: ship_parts_13
+    21300028: ship_parts_14
+    21300030: ship_parts_15
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -75,7 +78,7 @@ TextureImporter:
         height: 242
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
+      border: {x: 14, y: 46, z: 13, w: 12}
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
@@ -125,19 +128,6 @@ TextureImporter:
         y: 289
         width: 34
         height: 18
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      tessellationDetail: 0
-    - serializedVersion: 2
-      name: ship_parts_5
-      rect:
-        serializedVersion: 2
-        x: 847
-        y: 290
-        width: 66
-        height: 241
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -232,6 +222,45 @@ TextureImporter:
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: ship_parts_13
+      rect:
+        serializedVersion: 2
+        x: 847
+        y: 288
+        width: 66
+        height: 242
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 34, y: 28, z: 29, w: 74}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: ship_parts_14
+      rect:
+        serializedVersion: 2
+        x: 247
+        y: 50
+        width: 130
+        height: 149
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 40, y: 24, z: 41, w: 13}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: ship_parts_15
+      rect:
+        serializedVersion: 2
+        x: 1055
+        y: 385
+        width: 34
+        height: 50
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 7, y: 7, z: 9, w: 24}
       outline: []
       tessellationDetail: 0
     outline: []

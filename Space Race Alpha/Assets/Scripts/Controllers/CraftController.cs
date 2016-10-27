@@ -5,8 +5,6 @@ using System;
 
 public class CraftController : Controller<CraftModel> {
 
-    public float G = 1;
-
     internal bool closeToReference = false;
     PlanetController referenceController;
 
@@ -76,9 +74,9 @@ public class CraftController : Controller<CraftModel> {
             rgb = GetComponent<Rigidbody2D>(); //Added this because it was running OnModelChanged vefore initialize
         }
         //update position location parameters
-        transform.position = (Vector3)Forces.Rotate((model.LocalPosition - model.sol.Model.localReferencePoint), model.reference.Model.Rotation) ; //position in relationship to reference point
+        transform.position = (Vector3)Forces.Rotate((model.LocalPosition - model.sol.Model.localReferencePoint), -model.reference.Model.Rotation) ; //position in relationship to reference point
         transform.eulerAngles = new Vector3(0, 0, (float)(model.Rotation * Mathd.Rad2Deg));
-        rgb.velocity = (Vector3) Forces.Rotate((model.LocalVelocity - model.sol.Model.localReferenceVel), model.reference.Model.Rotation + model.polar.angle - .5 * Mathd.PI); //sets the reletive velocity
+        rgb.velocity = (Vector3) Forces.Rotate((model.LocalVelocity - model.sol.Model.localReferenceVel), -model.reference.Model.Rotation - model.polar.angle + .5 * Mathd.PI); //sets the reletive velocity
 
     }
    
@@ -254,52 +252,52 @@ public class CraftController : Controller<CraftModel> {
         //If not close to reference settings
         if (!closeToReference)
         {
-            if (model.alt < 100 * Units.km)
-            {
-                model.throttle = 100;
-                throttle = model.throttle;
-                if (model.alt < 4.5 * Units.km)
-                {
-                    SASProgram(DesiredRotationRate(0 * Mathd.PI));
-                }
-                else if (model.alt < 60 * Units.km)
-                {
-                    SASProgram(DesiredRotationRate(.15 * Mathd.PI));
-                }
-                else
-                {
-                    SASProgram(DesiredRotationRate(.20 * Mathd.PI));
-                }
-            }
-            else if (model.Ecc.sqrMagnitude > .0001)
-            {
+            //if (model.alt < 100 * Units.km)
+            //{
+            //    model.throttle = 100;
+            //    throttle = model.throttle;
+            //    if (model.alt < 4.5 * Units.km)
+            //    {
+            //        SASProgram(DesiredRotationRate(0 * Mathd.PI));
+            //    }
+            //    else if (model.alt < 60 * Units.km)
+            //    {
+            //        SASProgram(DesiredRotationRate(.15 * Mathd.PI));
+            //    }
+            //    else
+            //    {
+            //        SASProgram(DesiredRotationRate(.20 * Mathd.PI));
+            //    }
+            //}
+            //else if (model.Ecc.sqrMagnitude > .0001)
+            //{
                 
-                if ( model.SurfaceVel.y > 100)
-                {
-                    model.throttle--;
-                    throttle = model.throttle;
-                    ProgradeProgram();
-                }
-                else if (model.SurfaceVel.y < 100)
-                {
-                    model.throttle++;
-                    throttle = model.throttle;
+            //    if ( model.SurfaceVel.y > 100)
+            //    {
+            //        model.throttle--;
+            //        throttle = model.throttle;
+            //        ProgradeProgram();
+            //    }
+            //    else if (model.SurfaceVel.y < 100)
+            //    {
+            //        model.throttle++;
+            //        throttle = model.throttle;
                     
-                    if (model.SurfaceVel.y < 50)
-                    {
-                        SASProgram(DesiredRotationRate(.20 * Mathd.PI));
-                    }
-                    else
-                    {
-                        SASProgram(DesiredRotationRate(.30 * Mathd.PI));
-                    }
-                }
-            }
-            else
-            {
-                model.throttle = 0;
-                throttle = model.throttle;
-            }
+            //        if (model.SurfaceVel.y < 50)
+            //        {
+            //            SASProgram(DesiredRotationRate(.20 * Mathd.PI));
+            //        }
+            //        else
+            //        {
+            //            SASProgram(DesiredRotationRate(.30 * Mathd.PI));
+            //        }
+            //    }
+            //}
+            //else
+            //{
+            //    model.throttle = 0;
+            //    throttle = model.throttle;
+            //}
 
             //Manually update model forces
 
@@ -320,64 +318,23 @@ public class CraftController : Controller<CraftModel> {
         {
             if (model.state != ObjectState.Landed)
             {
-                if (model.alt < 100 * Units.km)
-                {
-                    model.throttle = 100;
-                    throttle = model.throttle;
-                    if (model.alt < 4.5 * Units.km)
-                    {
-                        SASProgram(DesiredRotationRate(0 * Mathd.PI));
-                    }
-                    else if (model.alt < 60 * Units.km)
-                    {
-                        SASProgram(DesiredRotationRate(.15 * Mathd.PI));
-                    }
-                    else
-                    {
-                        SASProgram(DesiredRotationRate(.20 * Mathd.PI));
-                    }
-                }
-                else if (model.Ecc.sqrMagnitude > 0.0001)
-                {
-
-                    if (model.SurfaceVel.y > 100)
-                    {
-                        model.throttle--;
-                        throttle = model.throttle;
-                        ProgradeProgram();
-                    }
-                    else if (model.SurfaceVel.y < 100)
-                    {
-                        model.throttle++;
-                        throttle = model.throttle;
-
-                        if (model.SurfaceVel.y < 50)
-                        {
-                            SASProgram(DesiredRotationRate(.20 * Mathd.PI));
-                        }
-                        else
-                        {
-                            SASProgram(DesiredRotationRate(.30 * Mathd.PI));
-                        }
-                    }
-                }
-                else
-                {
-                    model.throttle = 0;
-                    throttle = model.throttle;
-                }
-
+                
                 Vector3 force = (Vector3)Forces.Rotate(model.force - model.sol.Model.localReferenceForce, model.reference.Model.Rotation);
                 rgb.AddForce(force * Time.deltaTime * 50);
 
                 rgb.AddRelativeForce(new Vector2(translationH, translationV + model.throttle));
-                
 
                 
+
             }
-            model.LocalPosition = Forces.Rotate((Vector3d)transform.position, -model.reference.Model.Rotation) + model.sol.Model.localReferencePoint;
-            model.LocalVelocity = Forces.Rotate((Vector3d)(Vector2d)rgb.velocity, -model.polar.angle + .5 * Mathd.PI - model.reference.Model.Rotation) + model.sol.Model.localReferenceVel; //TODO: Check / update this to be more accurate
-            
+            else
+            {
+                rgb.velocity = Vector2.zero;
+            }
+            Vector3d newlocPosDiff = Forces.Rotate((Vector3d)transform.position, model.reference.Model.Rotation);
+            model.LocalPosition = newlocPosDiff + model.sol.Model.localReferencePoint;
+            model.LocalVelocity = Forces.Rotate((Vector3d)(Vector2d)rgb.velocity, model.polar.angle - .5 * Mathd.PI + model.reference.Model.Rotation) + model.sol.Model.localReferenceVel; //TODO: Check / update this to be more accurate
+
         }
 
         rgb.AddTorque(rotation);

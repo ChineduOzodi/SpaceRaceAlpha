@@ -16,6 +16,7 @@ public class PlanetController : Controller<PlanetModel> {
 
     internal bool referenceUpdated = false;
     internal int referenceID = -1;
+    internal bool justRefreshed = false;
 
     double circumference;
     double meshAngleStep;
@@ -299,35 +300,43 @@ public class PlanetController : Controller<PlanetModel> {
 
             if (!list.Contains(meshID))
             {
-                list.Add(meshID);
-
                 if (referenceID != meshID) //Check to see if there is a reference point change
                 {
-                    referenceID = meshID;
-
-                    UpdateReferencePointData();
-
-                    foreach (int mesh in createdMeshes) //Delete all meshes so they can all be recreated
+                    if (!justRefreshed)
                     {
-                        DeleteMeshObj(mesh);
+                        justRefreshed = true;
+
+                        referenceID = meshID;
+
+                        UpdateReferencePointData();
+
+                        foreach (int mesh in createdMeshes) //Delete all meshes so they can all be recreated
+                        {
+                            DeleteMeshObj(mesh);
+                        }
+
+                        createdMeshes = new List<int>(); //Clear created meshes list
+
+                        UpdateControlModel();
                     }
-
-                    createdMeshes = new List<int>(); //Clear created meshes list
-
-                    UpdateControlModel();
+                    else
+                    {
+                        justRefreshed = false;
+                    }
 
                     
                 }
+                list.Add(referenceID);
             }
 
-            meshID = (meshID + 1 < circumference) ? meshID + 1 : 0;
+            meshID = (referenceID + 1 < circumference) ? referenceID + 1 : 0;
 
             if (!list.Contains(meshID))
             {
                 list.Add(meshID);
             }
 
-            meshID = (meshID - 2 < 0) ? Mathd.CeilToInt(circumference) - 1 : meshID - 2;
+            meshID = (referenceID - 1 < 0) ? Mathd.CeilToInt(circumference) - 1 : referenceID - 1;
 
             if (!list.Contains(meshID))
             {
