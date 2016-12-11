@@ -60,7 +60,7 @@ public class rocketTest : MonoBehaviour {
         if (Input.GetMouseButtonDown(0))
         {
             Vector3 rayPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            RaycastHit2D hit = Physics2D.CircleCast(rayPos, 1, Vector2.up);
+            RaycastHit2D hit = Physics2D.CircleCast(rayPos, .1f, Vector2.up, .1f);
 
             if (hit.collider != null)
             {
