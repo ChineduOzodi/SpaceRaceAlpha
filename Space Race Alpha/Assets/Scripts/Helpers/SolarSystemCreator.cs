@@ -74,7 +74,8 @@ public static class SolarSystemCreator{
         //Set basic info
         var body = new PlanetModel();
         body.type = ObjectType.Planet;
-        body.reference = new ModelRef<SolarBodyModel>(reference);
+        body.reference = new ModelRef<BaseModel>(reference);
+        body.referenceBody = new ModelRef<SolarBodyModel>(reference);
         body.position = position;
         body.velocity = VelocityFromOrbit(body);
 
@@ -99,7 +100,8 @@ public static class SolarSystemCreator{
 
         var body = new PlanetModel();
         body.type = ObjectType.Planet;
-        body.reference = new ModelRef<SolarBodyModel>(reference);
+        body.reference = new ModelRef<BaseModel>(reference);
+        body.referenceBody = new ModelRef<SolarBodyModel>(reference);
         body.LocalPosition = LocalPosition;
         body.velocity = VelocityFromOrbit(body);
 
@@ -116,15 +118,15 @@ public static class SolarSystemCreator{
     /// <returns></returns>
     public static CraftModel AddCraft(SolarSystemModel sol, SolarBodyModel planet, double angle, string name)
     {
-        var body = new CraftModel(); //basic craft info
+        var body = CraftModel.liquidFuelContainer; //basic craft info
+        body.AddCraftModal(CraftModel.spaceEngine, new Vector3(0, -1), 180 * Mathd.Deg2Rad);
         body.type = ObjectType.Spacecraft;
-        body.reference = new ModelRef<SolarBodyModel>(planet);
+        body.reference = new ModelRef<BaseModel>(planet);
+        body.referenceBody = new ModelRef<SolarBodyModel>(planet);
         body.sol = new ModelRef<SolarSystemModel>(sol);
-        body.reference.Model.crafts.Add(body);
+        body.referenceBody.Model.crafts.Add(body);
         body.name = name;
-        body.mass = 7.5f;
         body.state = ObjectState.Landed;
-        
 
         //craft position rotation info
 
@@ -155,18 +157,17 @@ public static class SolarSystemCreator{
     public static CraftModel AddCraft(SolarSystemModel sol, SolarBodyModel reference, Vector3d localPosition, string name)
     {
         
-
-        var body = new CraftModel(); //basic craft info
+        var body = CraftModel.liquidFuelContainer; //basic craft info
         body.type = ObjectType.Spacecraft;
-        body.reference = new ModelRef<SolarBodyModel>(reference);
+        body.reference = new ModelRef<BaseModel>(reference);
+        body.referenceBody = new ModelRef<SolarBodyModel>(reference);
         body.sol = new ModelRef<SolarSystemModel>(sol);
-        body.reference.Model.crafts.Add(body);
+        body.referenceBody.Model.crafts.Add(body);
 
         body.name = name;
         body.state = ObjectState.Orbit;
         body.LocalPosition = localPosition;
         body.LocalRotation = 0;
-        body.mass = 7.5f;
         body.velocity = VelocityFromOrbit(body);
 
         sol.allCrafts.Add(body);
@@ -187,9 +188,10 @@ public static class SolarSystemCreator{
     /// <param name="name"> name of solar body</param>
     private static void AddSolarBody(SolarSystemModel sol, SolarBodyModel reference, SolarBodyModel body, Vector3d position, double radius, double density, string name)
     {
-        body.reference = new ModelRef<SolarBodyModel>(reference);
+        body.reference = new ModelRef<BaseModel>(reference);
+        body.referenceBody = new ModelRef<SolarBodyModel>(reference);
         body.sol = new ModelRef<SolarSystemModel>(sol);
-        body.reference.Model.solarBodies.Add(body);
+        body.referenceBody.Model.solarBodies.Add(body);
         body.position = position;                                     //set given info
         body.mass = density * Forces.SphereVolume(radius);
         body.radius = radius;

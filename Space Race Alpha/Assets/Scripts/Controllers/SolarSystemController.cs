@@ -81,7 +81,7 @@ public class SolarSystemController : Controller<SolarSystemModel>
                 if ( distance < closestBody && solarMod.SOI > distance)
                 {
                     body.reference.Delete();
-                    body.reference = new ModelRef<SolarBodyModel>(solarMod);
+                    body.reference = new ModelRef<BaseModel>(solarMod);
                     body.position = body.position;
                     body.velocity = body.velocity;
                 }

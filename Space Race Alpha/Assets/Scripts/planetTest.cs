@@ -27,7 +27,7 @@ public class planetTest : MonoBehaviour {
         SolarSystemController solControl = Controller.Instantiate<SolarSystemController>(sol);
         SpriteRenderer sR = solControl.gameObject.AddComponent<SpriteRenderer>();
         sR.sprite = visualSprite;
-        CraftController craftC = Controller.Instantiate<CraftController>("rocket", craft);
+        CraftController craftC = Controller.Instantiate<CraftController>(craft.spriteName, craft);
 
         GetComponent<CameraController>().target = craftC.gameObject;
         GetComponent<CameraController>().targetModel = craft;

@@ -8,7 +8,7 @@ public class SolarBodyModel : BaseModel {
 
 
     public double SOI;
-    public double radius;
+    
     /// <summary>
     /// atm pressure at altitude 0
     /// </summary>

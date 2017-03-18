@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2015
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Space Race Alpha.CSharp", "Space Race Alpha.CSharp.csproj", "{41E6EF1F-4A8D-A55E-8457-79B360FFA475}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Space Race Alpha", "Space Race Alpha.csproj", "{6CCCB324-73CE-C99A-320F-D442680FEBBF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Space Race Alpha.CSharp.Editor", "Space Race Alpha.CSharp.Editor.csproj", "{9D544826-E9D2-A1B3-2C33-9FB97E6356FA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Space Race Alpha.Editor", "Space Race Alpha.Editor.csproj", "{62BE2C90-9A13-8147-F3ED-1C2BCE264286}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,14 +11,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{41E6EF1F-4A8D-A55E-8457-79B360FFA475}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{41E6EF1F-4A8D-A55E-8457-79B360FFA475}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{41E6EF1F-4A8D-A55E-8457-79B360FFA475}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{41E6EF1F-4A8D-A55E-8457-79B360FFA475}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9D544826-E9D2-A1B3-2C33-9FB97E6356FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9D544826-E9D2-A1B3-2C33-9FB97E6356FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9D544826-E9D2-A1B3-2C33-9FB97E6356FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9D544826-E9D2-A1B3-2C33-9FB97E6356FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CCCB324-73CE-C99A-320F-D442680FEBBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CCCB324-73CE-C99A-320F-D442680FEBBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CCCB324-73CE-C99A-320F-D442680FEBBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CCCB324-73CE-C99A-320F-D442680FEBBF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{62BE2C90-9A13-8147-F3ED-1C2BCE264286}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62BE2C90-9A13-8147-F3ED-1C2BCE264286}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62BE2C90-9A13-8147-F3ED-1C2BCE264286}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62BE2C90-9A13-8147-F3ED-1C2BCE264286}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

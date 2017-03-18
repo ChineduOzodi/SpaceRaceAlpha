@@ -147,20 +147,12 @@ public class BaseModel : Model {
     {
         get
         {
-            if (rotation > 2 * Mathd.PI)
-            {
-                rotation -= 2 * Mathd.PI;
-            }
-            else if (rotation < 0)
-            {
-                rotation += 2 * Mathd.PI;
-            }
             return rotation;
         }
         set
         {
-            rotation = value;
-            localRotation = ((rotation - polar.angle) + .5 * Mathd.PI);           
+            rotation = value % (2 * Mathd.PI);
+            localRotation = (rotation - reference.Model.rotation) % (2 * Mathd.PI);           
         }
     }
     /// <summary>
@@ -170,20 +162,12 @@ public class BaseModel : Model {
     {
         get
         {
-            if (localRotation > 2 * Mathd.PI)
-            {
-                localRotation -= 2 * Mathd.PI;
-            }
-            else if (rotation < 0)
-            {
-                localRotation += 2 * Mathd.PI;
-            }
             return localRotation;
         }
         set
         {
-            localRotation = value;
-            rotation = localRotation - .5 * Mathd.PI + polar.angle;
+            localRotation = value % (2 * Mathd.PI);
+            rotation = (localRotation + reference.Model.rotation) % (2 * Mathd.PI);
         }
     }
     /// <summary>
@@ -351,7 +335,10 @@ public class BaseModel : Model {
     }
 
     //parent object
-    public ModelRef<SolarBodyModel> reference;
+    public ModelRef<BaseModel> reference;
+    public ModelRef<SolarBodyModel> referenceBody;
+
+    public double radius;
 
     //--------------------Private fields------------------------------//
 
@@ -359,7 +346,7 @@ public class BaseModel : Model {
     private Vector3d worldPosition;
     private Polar2 pol;
     private Polar2 surfPol;
-
+    
     private double rotation = 0;
     private double localRotation = 0;
     private double rotationRate = 0;

@@ -20,3 +20,12 @@ public enum BodyType
     SolarBody,
     MinorSolarBody 
 }
+
+public enum CraftComponentType
+{
+    Container,
+    Antenna,
+    Command,
+    Engine,
+    Capsule
+}

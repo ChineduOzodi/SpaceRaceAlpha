@@ -49,15 +49,28 @@ public class CraftController : Controller<CraftModel> {
         //-------Set Message Spawned ---------//
         model.spawned = true;
 
-        //setup initial location and rotation
-        CheckAltitude();
-        transform.eulerAngles = new Vector3(0, 0, (float)(model.Rotation * Mathd.Rad2Deg));
-
         //Set physics
         rgb = GetComponent<Rigidbody2D>();
-        rgb.mass = (float) model.mass;
-        rgb.angularVelocity = (float)(model.LocalRotationRate * Mathd.Rad2Deg);        
+        rgb.mass = (float)model.mass;
 
+        if (model.isRoot)
+        {
+            //setup initial location and rotation
+            CheckAltitude();
+
+            transform.eulerAngles = new Vector3(0, 0, (float)(model.Rotation * Mathd.Rad2Deg));
+            rgb.angularVelocity = (float)(model.LocalRotationRate * Mathd.Rad2Deg);
+        }
+        else
+        {
+            transform.localPosition = (Vector3) model.LocalPosition;
+            transform.localEulerAngles = new Vector3(0, 0, (float)model.LocalRotation);
+        }
+
+        foreach (CraftModel craft in model.craftParts)
+        {
+            Controller.Instantiate<CraftController>(craft.spriteName, craft, this.transform);
+        }
         //set.add to reference object list
         //model.reference.Model.crafts.Add(model);
         
@@ -71,12 +84,16 @@ public class CraftController : Controller<CraftModel> {
     {
         if (rgb == null)
         {
-            rgb = GetComponent<Rigidbody2D>(); //Added this because it was running OnModelChanged vefore initialize
+            rgb = GetComponent<Rigidbody2D>(); //Added this because it was running OnModelChanged before initialize
         }
-        //update position location parameters
-        transform.position = (Vector3)Forces.Rotate((model.LocalPosition - model.sol.Model.localReferencePoint), -model.reference.Model.Rotation) ; //position in relationship to reference point
-        transform.eulerAngles = new Vector3(0, 0, (float)(model.Rotation * Mathd.Rad2Deg));
-        rgb.velocity = (Vector3) Forces.Rotate((model.LocalVelocity - model.sol.Model.localReferenceVel), -model.reference.Model.Rotation - model.polar.angle + .5 * Mathd.PI); //sets the reletive velocity
+
+        if (model.isRoot)
+        {
+            //update position location parameters
+            transform.position = (Vector3)Forces.Rotate((model.LocalPosition - model.sol.Model.localReferencePoint), -model.reference.Model.Rotation); //position in relationship to reference point
+            transform.eulerAngles = new Vector3(0, 0, (float)(model.Rotation * Mathd.Rad2Deg));
+            rgb.velocity = (Vector3)Forces.Rotate((model.LocalVelocity - model.sol.Model.localReferenceVel), -model.reference.Model.Rotation - model.polar.angle + .5 * Mathd.PI); //sets the reletive velocity
+        }
 
     }
    
@@ -155,192 +172,195 @@ public class CraftController : Controller<CraftModel> {
     // Update is called once per frame
     public void Update () {
 
-        //Check Altitude
 
-        CheckAltitude();
-
-        
-
-        rotation = 0; //rotation torque to add
-
-        if (control)
+        if (model.isRoot)
         {
-            translationV = Input.GetAxis("Vertical") * translationSpeed * Time.deltaTime;
-            translationH = Input.GetAxis("Horizontal") * translationSpeed * Time.deltaTime;
-            
+            //Check Altitude
 
-            if (Input.GetKey(KeyCode.Q))
+            CheckAltitude();
+
+
+
+            rotation = 0; //rotation torque to add
+
+            if (control)
             {
-                rotation = -1 * rotationSpeed * Time.deltaTime;
-                if (model.state == ObjectState.Landed)
+                translationV = Input.GetAxis("Vertical") * translationSpeed * Time.deltaTime;
+                translationH = Input.GetAxis("Horizontal") * translationSpeed * Time.deltaTime;
+
+
+                if (Input.GetKey(KeyCode.Q))
                 {
-                    model.state = ObjectState.SubOrbit;
-                    OnStateChanged(null);
+                    rotation = -1 * rotationSpeed * Time.deltaTime;
+                    if (model.state == ObjectState.Landed)
+                    {
+                        model.state = ObjectState.SubOrbit;
+                        OnStateChanged(null);
+                    }
                 }
-            }
-            else if (Input.GetKey(KeyCode.E))
-            {
-                rotation = 1 * rotationSpeed * Time.deltaTime;
-                if (model.state == ObjectState.Landed)
+                else if (Input.GetKey(KeyCode.E))
                 {
-                    model.state = ObjectState.SubOrbit;
-                    OnStateChanged(null);
+                    rotation = 1 * rotationSpeed * Time.deltaTime;
+                    if (model.state == ObjectState.Landed)
+                    {
+                        model.state = ObjectState.SubOrbit;
+                        OnStateChanged(null);
+                    }
+
                 }
-                
-            }
-            else if (SAS) //run SAS only when not manuelly controlling rotation
-            {
-                SASProgram();
-            }
-            else if (Prograde)
-            {
-                ProgradeProgram();
-            }
-            else if (Retrograde)
-            {
-                RetrogradeProgram();
-            }
-
-            throttle += (Input.GetKey(KeyCode.LeftShift)) ? 10 * Time.deltaTime : 0;
-            throttle -= (Input.GetKey(KeyCode.LeftControl)) ? 10 * Time.deltaTime : 0;
-
-            if (Input.GetKeyDown(KeyCode.X))
-            {
-                throttle = 0;
-            }
-            else if (Input.GetKeyDown(KeyCode.Z))
-            {
-                throttle = 100;
-            }
-            else if ( throttle > 100)
-            {
-                throttle = 100;
-            }
-            else if (throttle < 0)
-            {
-                throttle = 0;
-            }
-
-            if (throttle > 0)
-            {
-                if (model.state == ObjectState.Landed)
+                else if (SAS) //run SAS only when not manuelly controlling rotation
                 {
-                    model.state = ObjectState.SubOrbit;
-                    OnStateChanged(null);
+                    SASProgram();
                 }
+                else if (Prograde)
+                {
+                    ProgradeProgram();
+                }
+                else if (Retrograde)
+                {
+                    RetrogradeProgram();
+                }
+
+                throttle += (Input.GetKey(KeyCode.LeftShift)) ? 10 * Time.deltaTime : 0;
+                throttle -= (Input.GetKey(KeyCode.LeftControl)) ? 10 * Time.deltaTime : 0;
+
+                if (Input.GetKeyDown(KeyCode.X))
+                {
+                    throttle = 0;
+                }
+                else if (Input.GetKeyDown(KeyCode.Z))
+                {
+                    throttle = 100;
+                }
+                else if (throttle > 100)
+                {
+                    throttle = 100;
+                }
+                else if (throttle < 0)
+                {
+                    throttle = 0;
+                }
+
+                if (throttle > 0)
+                {
+                    if (model.state == ObjectState.Landed)
+                    {
+                        model.state = ObjectState.SubOrbit;
+                        OnStateChanged(null);
+                    }
+                }
+                prtF.startSpeed = throttle * .1f;
+                prtS.startSpeed = throttle * .1f;
+                model.throttle = throttle;
+
+                //Vector3 relForce = Forces.PolarToCartesian(new Vector2(throttle, transform.rotation.eulerAngles.z * Mathf.Deg2Rad));
+                //model.force += relForce;
+                //model.velocity = Forces.ForceToVelocity(model);
+                //model.position = Forces.VelocityToPosition(model);
+                //model.NotifyChange();
+
+
+
+
+                //transform.Translate(new Vector3(translationH, translationV, 0));
+                //transform.Rotate(new Vector3(0, 0, rotation));
+
+
+
             }
-            prtF.startSpeed = throttle * .1f;
-            prtS.startSpeed = throttle * .1f;
-            model.throttle = throttle;
 
-            //Vector3 relForce = Forces.PolarToCartesian(new Vector2(throttle, transform.rotation.eulerAngles.z * Mathf.Deg2Rad));
-            //model.force += relForce;
-            //model.velocity = Forces.ForceToVelocity(model);
-            //model.position = Forces.VelocityToPosition(model);
-            //model.NotifyChange();
-
-            
-
-
-            //transform.Translate(new Vector3(translationH, translationV, 0));
-            //transform.Rotate(new Vector3(0, 0, rotation));
-
-            
-
-        }
-
-        //If not close to reference settings
-        if (!closeToReference)
-        {
-            //if (model.alt < 100 * Units.km)
-            //{
-            //    model.throttle = 100;
-            //    throttle = model.throttle;
-            //    if (model.alt < 4.5 * Units.km)
-            //    {
-            //        SASProgram(DesiredRotationRate(0 * Mathd.PI));
-            //    }
-            //    else if (model.alt < 60 * Units.km)
-            //    {
-            //        SASProgram(DesiredRotationRate(.15 * Mathd.PI));
-            //    }
-            //    else
-            //    {
-            //        SASProgram(DesiredRotationRate(.20 * Mathd.PI));
-            //    }
-            //}
-            //else if (model.Ecc.sqrMagnitude > .0001)
-            //{
-                
-            //    if ( model.SurfaceVel.y > 100)
-            //    {
-            //        model.throttle--;
-            //        throttle = model.throttle;
-            //        ProgradeProgram();
-            //    }
-            //    else if (model.SurfaceVel.y < 100)
-            //    {
-            //        model.throttle++;
-            //        throttle = model.throttle;
-                    
-            //        if (model.SurfaceVel.y < 50)
-            //        {
-            //            SASProgram(DesiredRotationRate(.20 * Mathd.PI));
-            //        }
-            //        else
-            //        {
-            //            SASProgram(DesiredRotationRate(.30 * Mathd.PI));
-            //        }
-            //    }
-            //}
-            //else
-            //{
-            //    model.throttle = 0;
-            //    throttle = model.throttle;
-            //}
-
-            //Manually update model forces
-
-            Vector3d addedForce = Forces.Rotate(new Vector3d(translationH, translationV + throttle), (model.Rotation)); //forces located to local orientation
-
-            model.LocalVelocity += Forces.ForceToVelocity(model, addedForce);
-            model.position = Forces.VelocityToPosition(model);
-            Vector3d surfVel = model.SurfaceVel;
-
-            //Update reference point
-            model.sol.Model.localReferencePoint = model.LocalPosition;
-            model.sol.Model.localReferenceVel = model.LocalVelocity;
-            model.sol.Model.localReferenceForce = model.force;
-
-            
-        }
-        else
-        {
-            if (model.state != ObjectState.Landed)
+            //If not close to reference settings
+            if (!closeToReference)
             {
-                
-                Vector3 force = (Vector3)Forces.Rotate(model.force - model.sol.Model.localReferenceForce, model.reference.Model.Rotation);
-                rgb.AddForce(force * Time.deltaTime * 50);
+                //if (model.alt < 100 * Units.km)
+                //{
+                //    model.throttle = 100;
+                //    throttle = model.throttle;
+                //    if (model.alt < 4.5 * Units.km)
+                //    {
+                //        SASProgram(DesiredRotationRate(0 * Mathd.PI));
+                //    }
+                //    else if (model.alt < 60 * Units.km)
+                //    {
+                //        SASProgram(DesiredRotationRate(.15 * Mathd.PI));
+                //    }
+                //    else
+                //    {
+                //        SASProgram(DesiredRotationRate(.20 * Mathd.PI));
+                //    }
+                //}
+                //else if (model.Ecc.sqrMagnitude > .0001)
+                //{
 
-                rgb.AddRelativeForce(new Vector2(translationH, translationV + model.throttle));
+                //    if ( model.SurfaceVel.y > 100)
+                //    {
+                //        model.throttle--;
+                //        throttle = model.throttle;
+                //        ProgradeProgram();
+                //    }
+                //    else if (model.SurfaceVel.y < 100)
+                //    {
+                //        model.throttle++;
+                //        throttle = model.throttle;
 
-                
+                //        if (model.SurfaceVel.y < 50)
+                //        {
+                //            SASProgram(DesiredRotationRate(.20 * Mathd.PI));
+                //        }
+                //        else
+                //        {
+                //            SASProgram(DesiredRotationRate(.30 * Mathd.PI));
+                //        }
+                //    }
+                //}
+                //else
+                //{
+                //    model.throttle = 0;
+                //    throttle = model.throttle;
+                //}
+
+                //Manually update model forces
+
+                Vector3d addedForce = Forces.Rotate(new Vector3d(translationH, translationV + throttle), (model.Rotation)); //forces located to local orientation
+
+                model.LocalVelocity += Forces.ForceToVelocity(model, addedForce);
+                model.position = Forces.VelocityToPosition(model);
+                Vector3d surfVel = model.SurfaceVel;
+
+                //Update reference point
+                model.sol.Model.localReferencePoint = model.LocalPosition;
+                model.sol.Model.localReferenceVel = model.LocalVelocity;
+                model.sol.Model.localReferenceForce = model.force;
+
 
             }
             else
             {
-                rgb.velocity = Vector2.zero;
+                if (model.state != ObjectState.Landed)
+                {
+
+                    Vector3 force = (Vector3)Forces.Rotate(model.force - model.sol.Model.localReferenceForce, model.reference.Model.Rotation);
+                    rgb.AddForce(force * Time.deltaTime * 50);
+
+                    rgb.AddRelativeForce(new Vector2(translationH, translationV + model.throttle));
+
+
+
+                }
+                else
+                {
+                    rgb.velocity = Vector2.zero;
+                }
+                Vector3d newlocPosDiff = Forces.Rotate((Vector3d)transform.position, model.reference.Model.Rotation);
+                model.LocalPosition = newlocPosDiff + model.sol.Model.localReferencePoint;
+                model.LocalVelocity = Forces.Rotate((Vector3d)(Vector2d)rgb.velocity, model.polar.angle - .5 * Mathd.PI + model.reference.Model.Rotation) + model.sol.Model.localReferenceVel; //TODO: Check / update this to be more accurate
+
             }
-            Vector3d newlocPosDiff = Forces.Rotate((Vector3d)transform.position, model.reference.Model.Rotation);
-            model.LocalPosition = newlocPosDiff + model.sol.Model.localReferencePoint;
-            model.LocalVelocity = Forces.Rotate((Vector3d)(Vector2d)rgb.velocity, model.polar.angle - .5 * Mathd.PI + model.reference.Model.Rotation) + model.sol.Model.localReferenceVel; //TODO: Check / update this to be more accurate
 
+            rgb.AddTorque(rotation);
+            model.Rotation = transform.rotation.eulerAngles.z * Mathf.Deg2Rad;
+            model.LocalRotationRate += rgb.angularVelocity * Mathd.Deg2Rad;
         }
-
-        rgb.AddTorque(rotation);
-        model.Rotation = transform.rotation.eulerAngles.z * Mathf.Deg2Rad;
-        model.LocalRotationRate += rgb.angularVelocity * Mathd.Deg2Rad;
-
     }
     void OnCollisionEnter2D(Collision2D coll)
     {
@@ -372,7 +392,7 @@ public class CraftController : Controller<CraftModel> {
     }
     void OnEnterBodyProximity()
     {
-        referenceController = Controller.Instantiate<PlanetController>(model.reference.Model.type.ToString(), model.reference.Model);
+        referenceController = Controller.Instantiate<PlanetController>(model.referenceBody.Model.type.ToString(), model.referenceBody.Model);
     }
     void OnExitBodyProximity()
     {

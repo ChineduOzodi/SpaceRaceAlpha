@@ -247,11 +247,11 @@ public class CameraController : MonoBehaviour {
             solarSytemView = false;
 
             distanceModifier = Units.km;
-            targetModel.sol.Model.mapViewReference = targetModel.reference; //Set the reference model for the map view
+            targetModel.sol.Model.mapViewReference = new ModelRef<SolarBodyModel>((SolarBodyModel)targetModel.reference.Model); //Set the reference model for the map view
 
             Controller.Instantiate<PlanetIconController>("planetIcon", targetModel.reference.Model);
 
-            foreach (SolarBodyModel body in targetModel.reference.Model.solarBodies)
+            foreach (SolarBodyModel body in targetModel.sol.Model.mapViewReference.Model.solarBodies)
             {
                 if (body.type == ObjectType.Planet)
                 {
@@ -264,7 +264,7 @@ public class CameraController : MonoBehaviour {
 
             }
 
-            foreach (CraftModel body in targetModel.reference.Model.crafts)
+            foreach (CraftModel body in targetModel.sol.Model.mapViewReference.Model.crafts)
             {
                 Controller.Instantiate<CraftIconController>("craftIcon", body);
             }
