@@ -20,7 +20,7 @@ public class CraftModel : BaseModel
     public float throttle = 0;
 
     //----------Public Variables---------------//
-    public bool isRoot = true;
+    public bool isRoot = false;
     public float cost;
     public float dragCo = 1;
     public CraftComponents[] components;

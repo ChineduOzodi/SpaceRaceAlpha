@@ -51,7 +51,7 @@ public class CraftController : Controller<CraftModel> {
 
         //Set physics
         rgb = GetComponent<Rigidbody2D>();
-        rgb.mass = (float)model.mass;
+        rgb.mass = model.mass;
 
         if (model.isRoot)
         {
@@ -67,10 +67,10 @@ public class CraftController : Controller<CraftModel> {
             transform.localEulerAngles = new Vector3(0, 0, (float)model.LocalRotation);
         }
 
-        foreach (CraftModel craft in model.craftParts)
-        {
-            Controller.Instantiate<CraftController>(craft.spriteName, craft, this.transform);
-        }
+        //foreach (CraftModel craft in model.craftParts)
+        //{
+        //    Controller.Instantiate<CraftController>(craft.spriteName, craft, this.transform);
+        //}
         //set.add to reference object list
         //model.reference.Model.crafts.Add(model);
         
