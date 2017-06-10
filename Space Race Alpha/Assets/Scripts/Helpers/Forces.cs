@@ -18,10 +18,10 @@ public class Forces
             foreach (SolarBodyModel body in solarBodies)
             {
                 //TODO: Make more efficient so that they don't have to check force for themselves
-                Vector3d m2Pos = body.position;
+                Vector3d m2Pos = body.SystemPosition;
                 double m2 = body.mass;
 
-                Vector3d distance = m2Pos - self.position;
+                Vector3d distance = m2Pos - self.SystemPosition;
                 force += univGrav(m1, m2, distance);
 
             }
@@ -39,10 +39,10 @@ public class Forces
         if (self.reference.Model != null)
         {
             //TODO: Make more efficient so that they don't have to check force for themselves
-            Vector3d m2Pos = self.reference.Model.position;
+            Vector3d m2Pos = self.reference.Model.SystemPosition;
             double m2 = self.reference.Model.mass;
 
-            Vector3d distance = m2Pos - self.position;
+            Vector3d distance = m2Pos - self.SystemPosition;
             force = univGrav(m1, m2, distance);
         }
 
@@ -110,7 +110,7 @@ public class Forces
     public static double AngularVelocity(SolarBodyModel model)
     {
         //return Mathd.Sqrt((G * m2) / (Mathd.Pow(R + r, 2) * r));
-        return model.velocity.magnitude / (model.position - model.reference.Model.position).magnitude;
+        return model.velocity.magnitude / (model.SystemPosition - model.reference.Model.SystemPosition).magnitude;
     }
     /// <summary>
     /// Rotate a vector by an angle in radias
@@ -146,14 +146,14 @@ public class Forces
         return (body.force / body.mass) * Time.deltaTime;
     }
 
-    internal static Vector3d ForceToVelocity(BaseModel body, Vector3d addedForce)
+    internal static Vector3d ForceToVelocity(BaseModel body, Vector3d addedForce, double deltaTime)
     {
-        return ((body.force + addedForce) / body.mass) * Time.deltaTime;
+        return ((body.force + addedForce) / body.mass) * deltaTime;
     }
-    internal static Vector3d ForceToVelocity(Vector3d force, double mass)
+    internal static Vector3d ForceToVelocity(Vector3d force, double mass, double deltaTime)
     {
         Vector3d acc = force / mass;
-        Vector3d vel = acc * Time.deltaTime;
+        Vector3d vel = acc * deltaTime;
         return vel;
     }
     /// <summary>
@@ -178,32 +178,24 @@ public class Forces
         return force / mass * time;
     }
     /// <summary>
-    /// returns it in world position
+    /// change in position
     /// </summary>
     /// <param name="body">the base model</param>
     /// <returns></returns>
-    internal static Vector3d VelocityToPosition(BaseModel body)
+    internal static Vector3d VelocityToPosition(BaseModel body, double deltaTime)
     {
-        return body.position + body.velocity * Time.deltaTime ;
-    }
-    internal static Vector3d VelocityToLocalPosition(BaseModel body)
-    {
-        return body.LocalPosition + body.LocalVelocity * Time.deltaTime;
-    }
-    internal static Vector3d VelocityToPosition(Vector3d pos, Vector3d vel)
-    {
-        return pos + vel * Time.deltaTime;
+        return body.velocity * deltaTime ;
     }
     /// <summary>
     /// Returns the position after a velocity has been applied for a certain amount of time
     /// </summary>
-    /// <param name="pos">current position</param>
-    /// <param name="vel"> velocity</param>
-    /// <param name="time">durration of velocity applied</param>
+    /// <param name="pos"></param>
+    /// <param name="vel"></param>
+    /// <param name="deltaTime"></param>
     /// <returns></returns>
-    internal static Vector3d VelocityToPosition(Vector3d pos, Vector3d vel, double time)
+    internal static Vector3d VelocityToPosition(Vector3d pos, Vector3d vel, double deltaTime)
     {
-        return pos + vel * time;
+        return pos + vel * deltaTime;
     }
 
     internal static Vector3 VelocityToPosition(Vector3 pos, Vector3 vel, float time)

@@ -7,22 +7,22 @@ using CodeControl;
 public class ContainerComponent : CraftComponents {
 
     public ContainerTypes containerType;
-    public float massEmpty;
+    public double massEmpty;
     /// <summary>
     /// mass per cubic m in kg
     /// </summary>
-    public float massPerUnit;
+    public double massPerUnit;
 
     /// <summary>
     /// units
     /// </summary>
-    public float maxAmount;
+    public double maxAmount;
     /// <summary>
     /// units
     /// </summary>
-    public float currentAmount;
+    public double currentAmount;
 
-    public new float mass
+    public new double mass
     {
         get
         {
@@ -35,7 +35,7 @@ public class ContainerComponent : CraftComponents {
 
     }
 
-    public ContainerComponent(ContainerTypes _type, float _massEmpty, float _massPerUnit, float _maxAmount, float _currentAmount)
+    public ContainerComponent(ContainerTypes _type, double _massEmpty, double _massPerUnit, double _maxAmount, double _currentAmount)
     {
         containerType = _type;
         massEmpty = _massEmpty;
@@ -45,7 +45,7 @@ public class ContainerComponent : CraftComponents {
     }
     //-------------Defualt Models------------------//
 
-    public static ContainerComponent fuelContainer
+    public static ContainerComponent FuelContainer
     {
         get
         {

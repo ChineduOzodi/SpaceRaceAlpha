@@ -9,7 +9,7 @@ public class SunController : Controller<SunModel> {
     protected override void OnInitialize()
     {
         //setup initial location and rotation
-        transform.position = (Vector3) model.position;
+        transform.position = (Vector3) model.SystemPosition;
         transform.eulerAngles = new Vector3(0,0,(float)( model.Rotation * Mathd.Rad2Deg));
 
         Model = model;

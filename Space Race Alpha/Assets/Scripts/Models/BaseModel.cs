@@ -2,30 +2,75 @@
 using System.Collections;
 using CodeControl;
 
-public class BaseModel : Model {
-
-    //name, state, and type info
+public class BaseModel : Model
+{
+    //-----------Public Properties---------------//
     public string name;
-    public ObjectType type;
-    public ObjectState state;
-    public string spriteName;
-
+    /// <summary>
+    /// reference to the current solar system
+    /// </summary>
     public ModelRef<SolarSystemModel> sol;
 
-    //Public Properties
+    //parent object
+    public ModelRef<BaseModel> reference;
+    public ModelRef<SolarBodyModel> referenceBody;
+
+    public double radius;
+    public double deltaTime;
+    //basic physics info
+    public double mass;
+    public double density;
+    /// <summary>
+    /// force acting on object relative to reference object. In m/s
+    /// </summary>
+    public Vector3d force = Vector3d.zero;
+
+    //-----------Private properties-------------//
+    private ObjectType type;
+    private ObjectState state;
+
+    //------------Public fields-----------------//
+
+    public ObjectType Type
+    {
+        get
+        {
+            return type;
+        }
+
+        set
+        {
+            type = value;
+        }
+    }
+
+    public ObjectState State
+    {
+        get
+        {
+            return state;
+        }
+
+        set
+        {
+            state = value;
+        }
+    }
+
+    //----------Position
 
     /// <summary>
     /// world position of model
     /// </summary>
-    public Vector3d position
-    {
-        get { return worldPosition; }
-        set {
-            worldPosition = value;
+    public Vector3d SystemPosition
 
-            localPosition = - reference.Model.position + worldPosition;
+    {
+        get { return solarPosition; }
+        set {
+            solarPosition = value;
+
+            localPosition = solarPosition  - reference.Model.SystemPosition;
             pol = new Polar2(localPosition);
-            surfPol = new Polar2(pol.radius, pol.angle - reference.Model.rotation);
         }
     }
     /// <summary>
@@ -38,13 +83,12 @@ public class BaseModel : Model {
         {
             localPosition = value;
 
-            worldPosition = reference.Model.position + localPosition;
+            solarPosition = reference.Model.SystemPosition + localPosition;
             pol = new Polar2(localPosition);
-            surfPol = new Polar2(pol.radius, pol.angle - reference.Model.rotation);
         }
     }
     /// <summary>
-    /// Polar position in relation to the reference object with the angle in radians
+    /// Local Polar position in relation to the reference object with the angle in radians
     /// </summary>
     public Polar2 polar
     {
@@ -52,27 +96,27 @@ public class BaseModel : Model {
         set
         {
             pol = value;
-            surfPol = new Polar2(pol.radius, pol.angle - reference.Model.rotation);
 
             localPosition = Polar2.PolarToCartesian(pol);
-            worldPosition = reference.Model.position + localPosition;
+            solarPosition = reference.Model.SystemPosition + localPosition;
         }
     }
     /// <summary>
     /// Polar position in relationship to the surface of the body. Can be used to get position or above body
     /// </summary>
     public Polar2 surfacePolar {
-        get { return surfPol; }
+        get { return new Polar2(pol.radius, pol.angle - reference.Model.rotation); }
         set
         {
-            surfPol = value;
-
-            pol = new Polar2(surfPol.radius, reference.Model.rotation);
+            pol = new Polar2(value.radius, reference.Model.rotation + value.angle);
 
             localPosition = Polar2.PolarToCartesian(pol);
-            worldPosition = reference.Model.position + localPosition;
+            solarPosition = reference.Model.SystemPosition + localPosition;
         }
     }
+
+    //-------------Velocity
+
     /// <summary>
     /// world space velocity of model
     /// </summary>
@@ -108,7 +152,7 @@ public class BaseModel : Model {
         }
     }
     /// <summary>
-    /// velocity relative to the surface of body
+    /// velocity relative to the surface of reference body
     /// </summary>
     public Vector3d SurfaceVel
     {
@@ -123,22 +167,27 @@ public class BaseModel : Model {
         }
 
     }
+
+    //-----------Forces
+
     /// <summary>
-    /// Force relative to reference position
+    /// Force relative to reference position. Make sure you are updating the deltaTime variable. TODO: Need to make
+    /// sure it is working
     /// </summary>
     public Vector3d relativeForce //TODO: correct this, need to calculated theoretical force for the reference point of meshes
     {
         get
         {
-            Vector3d velAhead = LocalVelocity + Forces.ForceToVelocity(force, mass);
-            Vector3d posAhead = Forces.VelocityToPosition(localPosition, velAhead);
+            Vector3d velAhead = LocalVelocity + Forces.ForceToVelocity(force, mass, deltaTime);
+            Vector3d posAhead = Forces.VelocityToPosition(localPosition, velAhead, deltaTime);
             Vector3d forceAhead = Forces.Rotate(Forces.Force(mass, reference.Model.mass, posAhead), new Polar2(posAhead).angle - pol.angle);
 
             Vector3d changeInForce = -forceAhead - force;
-            return changeInForce / Time.deltaTime;
+            return changeInForce / deltaTime;
         }
     }
-    //----------------Public fields------------------------------//
+
+    //----------------Rotation
 
     /// <summary>
     /// z axis rotation of object in global parameters (in radians)
@@ -151,8 +200,7 @@ public class BaseModel : Model {
         }
         set
         {
-            rotation = value % (2 * Mathd.PI);
-            localRotation = (rotation - reference.Model.rotation) % (2 * Mathd.PI);           
+            rotation = value % (2 * Mathd.PI);         
         }
     }
     /// <summary>
@@ -162,16 +210,15 @@ public class BaseModel : Model {
     {
         get
         {
-            return localRotation;
+            return (rotation - reference.Model.rotation) % (2 * Mathd.PI);
         }
         set
         {
-            localRotation = value % (2 * Mathd.PI);
-            rotation = (localRotation + reference.Model.rotation) % (2 * Mathd.PI);
+            rotation = (value + reference.Model.rotation) % (2 * Mathd.PI);
         }
     }
     /// <summary>
-    /// global rotation rate in radians per second
+    /// global rotation rate in degrees per second. NOT rotation rate of orbit
     /// </summary>
     public double RotationRate
     {
@@ -187,7 +234,8 @@ public class BaseModel : Model {
         }
     }
     /// <summary>
-    /// local rotation rate of object in reference to reference object. NOT rotation rate of orbit
+    /// local rotation rate of object in reference to reference object in radians per second.
+    /// NOT rotation rate of orbit
     /// </summary>
     public double LocalRotationRate
     {
@@ -208,19 +256,10 @@ public class BaseModel : Model {
         }
     }
 
-
-    //basic physics info
-    public double mass;
-    public double density;
-    /// <summary>
-    /// force considered relative to reference object;
-    /// </summary>
-    public Vector3d force = Vector3d.zero;
-
     //---------------------Orbital Info--------------------------------//
 
     /// <summary>
-    /// get altitude above body radius
+    /// get altitude above body radius. in m
     /// </summary>
     public double alt
     {
@@ -234,7 +273,6 @@ public class BaseModel : Model {
     {
         get { return (Vector3d.Cross(LocalVelocity, Vector3d.Cross(localPosition, LocalVelocity)) / (reference.Model.mass * Forces.G) - (localPosition / pol.radius)); }
     }
-
     public Vector2d PerApo
     {
         get {
@@ -334,24 +372,18 @@ public class BaseModel : Model {
         }
     }
 
-    //parent object
-    public ModelRef<BaseModel> reference;
-    public ModelRef<SolarBodyModel> referenceBody;
-
-    public double radius;
-
     //--------------------Private fields------------------------------//
 
     private Vector3d localPosition;
-    private Vector3d worldPosition;
+    private Vector3d solarPosition;
     private Polar2 pol;
-    private Polar2 surfPol;
     
     private double rotation = 0;
-    private double localRotation = 0;
     private double rotationRate = 0;
     private double localRotationRate = 0;
 
-    protected Vector3d vel = Vector3d.zero;
-    
+    private Vector3d vel = Vector3d.zero;
+
+    //------------Constructors-----------------------//
+
 }

@@ -8,7 +8,6 @@ public class PlanetController : Controller<PlanetModel> {
 
     public Material planetMaterial;
     public PhysicsMaterial2D physicsMaterial;
-    Transform rect;
     internal Rigidbody2D rgb;
     //internal float[] LOD1 = { 1, 45, 10 }; //level of detail for making the planet mesh
     internal List<int> createdMeshes = new List<int>();
@@ -20,36 +19,33 @@ public class PlanetController : Controller<PlanetModel> {
 
     double circumference;
     double meshAngleStep;
+    double units = Units.km * 10;
 
-    //Model reference
-    public PlanetModel Model;
+    public BaseModel Model { get; internal set; }
 
     private void Awake()
     {
 
         planetMeshObjs = new List<GameObject>();
-        //rgb = GetComponent<Rigidbody2D>();
-        //rgb.mass = 10000000000000000000000000f;
-        rect = transform; //GetComponent<RectTransform>();
-
     }
 
     protected override void OnInitialize()
     {
-        //setup initial location and rotation
-        rect.position = Vector3.zero;
-        rect.rotation = Quaternion.identity; //eulerAngles = new Vector3(0,0,(float) ( model.rotation * Mathd.Rad2Deg)); //Set Model rotation
+        Model = model;
 
-        circumference = model.radius * Mathf.PI * .002f; //circumference in km
-        meshAngleStep = 2 * Mathf.PI / circumference; //angle distance for each km in radians
+        //setup initial location and rotation
+        transform.position = Vector3.zero;
+        transform.rotation = Quaternion.identity; //eulerAngles = new Vector3(0,0,(float) ( model.rotation * Mathd.Rad2Deg)); //Set Model rotation
+
+        circumference = (model.radius * Mathf.PI * 2) / units; //circumference in units
+        meshAngleStep = 2 * Mathf.PI / circumference; //angle distance for each units in radians
 
         //Set rigibody
         //rgb.angularVelocity = (float)(model.RotationRate * Mathd.Rad2Deg);
 
         //MakeTerrain(65000,model.radius);
 
-        //Set Model
-        Model = model;
+        //Set name
         name = model.name;
 
         SetMeshes();
@@ -174,7 +170,7 @@ public class PlanetController : Controller<PlanetModel> {
         poly.sharedMaterial = physicsMaterial;
         List<Vector2> polyPoints = new List<Vector2>();
 
-        int numVert = 1000;
+        int numVert = 10000;
         
         
         double angleStep = -meshAngleStep / numVert;
@@ -285,8 +281,8 @@ public class PlanetController : Controller<PlanetModel> {
     {
 
         List<int> list = new List<int>();
-        double circumference = model.radius * Mathd.PI * .002; //circumference in km
-        double angleStep = meshAngleStep; //angle distance for each km in radians
+        double circumference = (model.radius * Mathd.PI * 2) / units; //circumference in units
+        double angleStep = meshAngleStep; //angle distance for each units in radians
 
         Polar2 targetPolar = model.sol.Model.controlModel.Model.polar;
 

@@ -44,14 +44,21 @@ public class InfoPanel : MonoBehaviour {
 
     private string GetInfo()
     {
-        if (model.type == ObjectType.Spacecraft)
+        if (model.Type == ObjectType.Spacecraft)
         {
             Vector2d apoPeri = Forces.TimeToApoPeri(model);
+            double mass = model.mass;
 
             return string.Format("Mass: {0} kg\nGravity: {1} m/s^2\n Velocity: {6} m/s\nAlt: {2} km\nApo: {3} km\nPer: {4} km\nEcc: {5}\nOrbitalPeriod: {7} min\nTime to Apo: {8} min\nTime to Peri: {9} min",
-            model.mass, (model.force.magnitude / model.mass).ToString("0.00"), (model.alt * .001f).ToString("0.000"), ((model.PerApo[1] - model.reference.Model.radius) * .001f).ToString("0.00"),
-            ((model.PerApo[0] - model.reference.Model.radius) * .001f).ToString("0.00"), model.Ecc.magnitude.ToString("0.00"), model.LocalVelocity.magnitude.ToString("0.00"), //6
-            (model.OrbitalPeriod / Date.Minute).ToString("0.0"), (apoPeri.x / Date.Minute).ToString("0.0"), (apoPeri.y / Date.Minute).ToString("0.0"));
+            mass, 
+            (model.force.magnitude / mass).ToString("0.00"), 
+            (model.alt * .001f).ToString("0.000"), 
+            ((model.PerApo[1] - model.reference.Model.radius) * .001f).ToString("0.00"),
+            ((model.PerApo[0] - model.reference.Model.radius) * .001f).ToString("0.00"),
+            model.Ecc.magnitude.ToString("0.00"), model.LocalVelocity.magnitude.ToString("0.00"), //6
+            (model.OrbitalPeriod / Date.Minute).ToString("0.0"),
+            (apoPeri.x / Date.Minute).ToString("0.0"),
+            (apoPeri.y / Date.Minute).ToString("0.0"));
         }
         else
         {

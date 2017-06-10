@@ -69,22 +69,8 @@ public class LoadSaveScript: MonoBehaviour {
 
     private void CreateRandomSolarSytem(string name)
     {
-        SolarSystemModel sol = new SolarSystemModel();
+        SolarSystemModel sol = new SolarSystemModel(9);
         SolarSystemController solCont = Controller.Instantiate<SolarSystemController>(sol);
-        var sun = SolarSystemCreator.AddSun(sol, Units.Mm, .25, "Sun");
-
-        int numberPlants = UnityEngine.Random.Range(4, 10);
-        float minPlantRadius = 500; // in km
-        float maxSolarDistance = 100000000; // in GM
-
-        for (int i = 0; i < numberPlants; i++)
-        {
-            double planetsize = UnityEngine.Random.Range(minPlantRadius, (float) sun.radius * .5f + minPlantRadius); //in km
-            Vector3d planetLocation = new Vector3d(UnityEngine.Random.Range(-maxSolarDistance, maxSolarDistance), UnityEngine.Random.Range(-maxSolarDistance, maxSolarDistance), 0); //in gm
-            double density = UnityEngine.Random.Range(.1f, 10);
-
-            SolarSystemCreator.AddPlanet(sol, sun, planetsize * Units.km, planetLocation * Units.Mm, 1, "Planet " + i.ToString());
-        }
     }
 
     public void OnLoadButtonClicked()

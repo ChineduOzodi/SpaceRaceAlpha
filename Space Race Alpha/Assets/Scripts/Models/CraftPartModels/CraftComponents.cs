@@ -3,14 +3,14 @@
 public class CraftComponents
 {
     public CraftComponentType componentType;
-    public Vector2 dimensions;
+    public Vector2d dimensions;
 
     /// in kg
     /// </summary>
-    public float mass;
-    public Vector3 localPosition;
+    public double mass;
+    public Vector3d localPosition;
 
-    public float LocalRotation
+    public double LocalRotation
     {
         get
         {
@@ -22,6 +22,6 @@ public class CraftComponents
         }
     }
 
-    private float localRotation;
+    private double localRotation;
 
 }

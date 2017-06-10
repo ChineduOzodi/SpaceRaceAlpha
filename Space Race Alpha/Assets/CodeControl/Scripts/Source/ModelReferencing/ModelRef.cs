@@ -98,7 +98,6 @@ namespace CodeControl {
         private void OnModelDelete() {
             model = null;
         }
-
     }
 
 }

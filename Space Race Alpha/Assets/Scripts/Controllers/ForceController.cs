@@ -54,7 +54,7 @@ public class ForceController : Controller<ForceArrowModel> {
         model.rotation = Quaternion.AngleAxis((float) polar.angle * Mathf.Rad2Deg, new Vector3(0,0,1));
         model.scale.x = (float) polar.radius * .001f;
 
-        model.position = model.parent.Model.position;
+        model.position = model.parent.Model.SystemPosition;
 
         model.NotifyChange();
 

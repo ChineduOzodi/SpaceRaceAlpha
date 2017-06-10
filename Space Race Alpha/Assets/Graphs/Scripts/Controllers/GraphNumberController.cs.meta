@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 6b5a1c27045d8e84185b0072451b6638
+timeCreated: 1467431720
+licenseType: Free
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - graphNumTransform: {fileID: 11474960, guid: 0258fe5aa9d7e08488f9d2b652820827,
+      type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

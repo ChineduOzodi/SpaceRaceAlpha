@@ -46,7 +46,7 @@ public class SunIconController : Controller<SunModel> {
 	
 	// Update is called once per frame
 	void Update () {
-        transform.position = (Vector3)((model.position - model.sol.Model.mapViewReference.Model.position) / distanceModifier);
+        transform.position = (Vector3)((model.SystemPosition - model.sol.Model.mapViewReference.Model.SystemPosition) / distanceModifier);
 
         if (mapMode)
         {

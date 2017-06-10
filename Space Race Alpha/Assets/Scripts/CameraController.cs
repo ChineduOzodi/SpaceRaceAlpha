@@ -16,9 +16,6 @@ public class CameraController : MonoBehaviour {
     public ControlMode controlMode = ControlMode.Free;
     public ControlMode mapCamperaMode = ControlMode.Free;
 
-    //List of spawnd icon controllers
-    internal List<GameObject> spawnedControllers = new List<GameObject>();
-
     bool initialized = false;
 
     //Cameras
@@ -236,9 +233,6 @@ public class CameraController : MonoBehaviour {
     /// </summary>
     private void ToggleMapView()
     {
-        Delete(spawnedControllers);
-
-        spawnedControllers = new List<GameObject>();
         transform.parent = null;
         mapCam.transform.parent = null;
 
@@ -248,27 +242,6 @@ public class CameraController : MonoBehaviour {
 
             distanceModifier = Units.km;
             targetModel.sol.Model.mapViewReference = new ModelRef<SolarBodyModel>((SolarBodyModel)targetModel.reference.Model); //Set the reference model for the map view
-
-            Controller.Instantiate<PlanetIconController>("planetIcon", targetModel.reference.Model);
-
-            foreach (SolarBodyModel body in targetModel.sol.Model.mapViewReference.Model.solarBodies)
-            {
-                if (body.type == ObjectType.Planet)
-                {
-                    Controller.Instantiate<PlanetIconController>("planetIcon", body);
-                }
-                else if (body.type == ObjectType.Sun)
-                {
-                    Controller.Instantiate<SunIconController>("sunIcon", body);
-                }
-
-            }
-
-            foreach (CraftModel body in targetModel.sol.Model.mapViewReference.Model.crafts)
-            {
-                Controller.Instantiate<CraftIconController>("craftIcon", body);
-            }
-
         }
         else
         {
@@ -276,40 +249,10 @@ public class CameraController : MonoBehaviour {
 
             distanceModifier = Units.Mm;
             targetModel.sol.Model.mapViewReference = targetModel.sol.Model.centerObject; //Set the reference model for the map view
-
-            foreach (SolarBodyModel body in targetModel.sol.Model.centerObject.Model.solarBodies)
-            {
-                if (body.type == ObjectType.Planet)
-                {
-                    Controller.Instantiate<PlanetIconController>("planetIcon", body);
-                }
-                else if (body.type == ObjectType.Sun)
-                {
-                    Controller.Instantiate<SunIconController>("sunIcon", body);
-                }
-
-            }
-
-            foreach (CraftModel body in targetModel.sol.Model.centerObject.Model.crafts)
-            {
-                Controller.Instantiate<CraftIconController>("craftIcon", body);
-            }
         }
         ToggleMapMode();
         ToggleMapMode();
     }
-    /// <summary>
-    /// Deletes the controllers in list
-    /// </summary>
-    /// <param name="spawnedControllers"></param>
-    private void Delete(List<GameObject> spawnedControllers)
-    {
-        foreach( GameObject controller in spawnedControllers)
-        {
-            Destroy(controller);
-        }
-    }
-
     public void SetTarget(CraftController targetController)
     {
         target = targetController.gameObject;

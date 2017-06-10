@@ -12,7 +12,7 @@ public class ShipPartsPanel : MonoBehaviour {
     public Sprite[] sprites;
     internal Image buttonImage;
 
-    internal CraftModel[] craftModels;
+    internal CraftPartModel[] craftModels;
 
     // Use this for initialization
     void Awake () {
@@ -20,9 +20,9 @@ public class ShipPartsPanel : MonoBehaviour {
         //Model.Load("CraftParts", OnLoadStart, OnLoadProgresss, OnLoadDone, OnLoadError);
         sprites = Resources.LoadAll("Sprites") as Sprite[];
 
-        craftModels = new CraftModel[] { CraftModel.spaceEngine, CraftModel.liquidFuelContainer };
+        craftModels = new CraftPartModel[] { CraftPartModel.SpaceEngine, CraftPartModel.LiquidFuelContainer };
 
-        foreach (CraftModel craftPart in craftModels)
+        foreach (CraftPartModel craftPart in craftModels)
         {
             GameObject obj = Instantiate(craftPartButton, content) as GameObject;
 
@@ -44,16 +44,16 @@ public class ShipPartsPanel : MonoBehaviour {
 
     }
 
-    private void OnLoadProgresss(float obj)
+    private void OnLoadProgresss(double obj)
     {
         
     }
 
     private void OnLoadDone()
     {
-        craftModels = Model.GetAll<CraftModel>().ToArray();
+        craftModels = Model.GetAll<CraftPartModel>().ToArray();
 
-        foreach (CraftModel craftPart in craftModels)
+        foreach (CraftPartModel craftPart in craftModels)
         {
             GameObject obj = Instantiate(craftPartButton, content) as GameObject;
 

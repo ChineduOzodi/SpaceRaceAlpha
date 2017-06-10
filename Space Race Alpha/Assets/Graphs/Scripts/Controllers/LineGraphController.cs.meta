@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: 09af16c19d3a14944a95ab49191ccea7
+timeCreated: 1467429313
+licenseType: Free
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - toggeButton: {fileID: 196440, guid: b6cdca31efe468f45ab1c51e4ce8f7ec, type: 2}
+  - GraphNumber: {fileID: 125630, guid: 0258fe5aa9d7e08488f9d2b652820827, type: 2}
+  - YAxisNumber: {fileID: 197878, guid: 6bd33e92016f65549a8340d0ac3147cf, type: 2}
+  - XAxisNumber: {fileID: 137304, guid: d9f3155a838510b4ab1b0bd3c0fbc8ef, type: 2}
+  - yAxisParent: {instanceID: 0}
+  - xAxisParent: {instanceID: 0}
+  - graphParent: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

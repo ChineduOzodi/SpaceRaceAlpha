@@ -1,117 +1,181 @@
 ﻿using UnityEngine;
 using System.Collections;
 using CodeControl;
+using System.Collections.Generic;
 
 public class CraftModel : BaseModel
 {
-    public string craftName;
-    public ModelRef<CraftModel> rootCraft;
-    /// <summary>
-    /// Craft parts attached by either seperation parts or docking parts
-    /// </summary>
-    public ModelRefs<CraftModel> craftParts = new ModelRefs<CraftModel>();
-    /// <summary>
-    /// Set whether craft has been spawned into surface view
-    /// </summary>
+
+    //----------Public Variables---------------//
+    public ModelRef<CraftPartModel> rootCraft;
+    public Vector3d centerOfMassPosition;
+    public bool playerControlled = false;
     public bool spawned = false;
+    public bool closeToReference = false;
     /// <summary>
     /// throttle power from 0 to 100
     /// </summary>
-    public float throttle = 0;
-
-    //----------Public Variables---------------//
-    public bool isRoot = false;
-    public float cost;
-    public float dragCo = 1;
-    public CraftComponents[] components;
+    public double throttle = 0;
+    public double torque;
 
     //----------Private Variables-------------//
 
-    private float Mass;
 
     //---------Public Fields------------------//
 
-    public new float mass
-    {
-        get
-        {
-            return Mass;
-        }
-    }
+    //--------------------Constructors-----------//
+    public CraftModel() { }
 
-    public CraftModel()
+    public CraftModel(string _name, CraftPartModel craftPart)
     {
+        Type = ObjectType.Spacecraft;
 
-    }
-
-    public CraftModel(string _name, string _spriteName, CraftComponents[] _components)
-    {
-        rootCraft = new ModelRef<CraftModel>(this);
+        rootCraft = new ModelRef<CraftPartModel>(craftPart);
         name = _name;
-        spriteName = _spriteName;
-        components = _components;
+
+        CalculateMassPosition();
     }
 
-
-    private float CalculateMass()
+    private void CalculateMassPosition()
     {
-        float mass = 0;
-        foreach (CraftComponents component in components)
-        {
-            mass += component.mass;
-        }
-
-        return mass;
+        mass = rootCraft.Model.totalMass();
+        centerOfMassPosition = rootCraft.Model.CalculateMassPosition();
     }
-
-    //------------Possible part properties------------------//
-
-
-    public double TWR
-    {
-        get
-        {
-            float totalThrust = 0;
-            foreach (CraftComponents comp in components)
-            {
-                if (comp.componentType == CraftComponentType.Engine)
-                    totalThrust += ((EngineComponent)comp).thrust;
-            }
-            return totalThrust / (mass * force.magnitude);
-        }
-    }
+    //------------Functions------------------//
 
     /// <summary>
-    /// 
+    /// Thrust/(m * force)
     /// </summary>
-    /// <param name="model"></param>
-    /// <param name="location"></param>
-    /// <param name="rotation">z axis rotation in radians</param>
-    public void AddCraftModal(CraftModel model, Vector3 location, double rotation)
+    public double TWR()
     {
-        model.rootCraft = rootCraft;
-        model.isRoot = false;
-        model.reference = new ModelRef<BaseModel>(this);
-        model.LocalPosition = (Vector3d)location;
-        model.LocalRotation = model.LocalRotation = rotation;
-        craftParts.Add(model);
-    }
+        double totalThrust = rootCraft.Model.TotalThrust();
+        return totalThrust / (mass * force.magnitude);
+    }   
 
-    //-------------Defualt Models------------------//
-    public static CraftModel liquidFuelContainer
+    public Vector3d LowestPosition()
+    {
+        return rootCraft.Model.LowestPosition() - centerOfMassPosition; 
+    }
+    //---------------------Defualt Crafts----------------//
+    public static CraftModel BasicCraft
     {
         get
         {
-            return new CraftModel("Liquid Fuel Container", "ship_fueltank", new CraftComponents[] { ContainerComponent.fuelContainer });
+            CraftModel craft = new CraftModel("Basic Craft", CraftPartModel.BasicCapsule);
+            craft.rootCraft.Model.craft = new ModelRef<CraftModel>(craft);
+            craft.rootCraft.Model.AddCraftPartModel(CraftPartModel.LiquidFuelContainer, Vector3d.down, 0);
+            craft.rootCraft.Model.craftParts[0].AddCraftPartModel(CraftPartModel.SpaceEngine, Vector3d.down, 0);
+
+            return craft;
         }
     }
-
-    public static CraftModel spaceEngine
+    
+    //--------------------Craft Control-----------//
+    public void CraftControl(double thrust, Vector2d translation, double rotatiton, double deltaTime)
     {
-        get
+        CraftControl(deltaTime);
+        Vector3d addedForce = Forces.Rotate(new Vector3d(translation.x, translation.y + throttle), (Rotation)); //forces located to local orientation
+        torque = rotatiton;
+
+        if (!playerControlled)
         {
-            return new CraftModel("Space Engine", "space_engine", new CraftComponents[] { EngineComponent.spaceEngine });
+            velocity += Forces.ForceToVelocity(this, addedForce, deltaTime);
+            SystemPosition += velocity * deltaTime;
+            //Rotation += LocalRotationRate;
+
+            if (!closeToReference)
+            {
+                //Update reference point
+                sol.Model.localReferencePoint = LocalPosition;
+                sol.Model.localReferenceVel = LocalVelocity;
+                sol.Model.localReferenceForce = force;
+            }
+        }
+
+        
+    }
+
+    public void CraftControl(double deltaTime)
+    {
+        force = Forces.Force(this, sol.Model.allSolarBodies);
+
+        if (!spawned) //Sets craft that are not spawned
+        {
+            if (State != ObjectState.Landed)
+            {
+                velocity += Forces.ForceToVelocity(force, mass, deltaTime);
+                SystemPosition += velocity * deltaTime;
+            }
+            else
+            {
+                surfacePolar = surfacePolar; //Used to keep world position and velocity updated using, while not moving them on the surface
+                SurfaceVel = SurfaceVel;
+                LocalRotation = LocalRotation;
+            }
+        }
+
+        //Check for SOI change
+        double closestBody = (SystemPosition - reference.Model.SystemPosition).magnitude;
+
+        for (int i = 0; i < sol.Model.allSolarBodies.Count; i++)
+        {
+            SolarBodyModel solarMod = sol.Model.allSolarBodies[i];
+            double distance = (SystemPosition - solarMod.SystemPosition).magnitude;
+            if (distance < closestBody && solarMod.SOI > distance)
+            {
+                reference = new ModelRef<BaseModel>(solarMod);
+                SystemPosition = SystemPosition; //update the new local positions and rotations
+                velocity = velocity;
+                Rotation = Rotation;
+            }
         }
     }
 
+    //--------------------------Autopilot--------------------//
+    //if (model.alt < 100 * Units.km)
+    //{
+    //    model.throttle = 100;
+    //    throttle = model.throttle;
+    //    if (model.alt < 4.5 * Units.km)
+    //    {
+    //        SASProgram(DesiredRotationRate(0 * Mathd.PI));
+    //    }
+    //    else if (model.alt < 60 * Units.km)
+    //    {
+    //        SASProgram(DesiredRotationRate(.15 * Mathd.PI));
+    //    }
+    //    else
+    //    {
+    //        SASProgram(DesiredRotationRate(.20 * Mathd.PI));
+    //    }
+    //}
+    //else if (model.Ecc.sqrMagnitude > .0001)
+    //{
+
+    //    if ( model.SurfaceVel.y > 100)
+    //    {
+    //        model.throttle--;
+    //        throttle = model.throttle;
+    //        ProgradeProgram();
+    //    }
+    //    else if (model.SurfaceVel.y < 100)
+    //    {
+    //        model.throttle++;
+    //        throttle = model.throttle;
+
+    //        if (model.SurfaceVel.y < 50)
+    //        {
+    //            SASProgram(DesiredRotationRate(.20 * Mathd.PI));
+    //        }
+    //        else
+    //        {
+    //            SASProgram(DesiredRotationRate(.30 * Mathd.PI));
+    //        }
+    //    }
+    //}
+    //else
+    //{
+    //    model.throttle = 0;
+    //    throttle = model.throttle;
+    //}
 }

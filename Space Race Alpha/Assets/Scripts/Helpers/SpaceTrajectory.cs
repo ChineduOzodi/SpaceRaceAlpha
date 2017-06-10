@@ -64,9 +64,9 @@ public class SpaceTrajectory : MonoBehaviour
 
             distance = model.LocalPosition / distanceModifier;
 
-            Vector3d PositionFromCenter = model.reference.Model.position - model.sol.Model.mapViewReference.Model.position;
+            Vector3d PositionFromCenter = model.reference.Model.SystemPosition - model.sol.Model.mapViewReference.Model.SystemPosition;
 
-            if (distance.magnitude != 0 && model.state != ObjectState.Landed)
+            if (distance.magnitude != 0 && model.State != ObjectState.Landed)
             {
                 DrawTraject(PositionFromCenter);
             }

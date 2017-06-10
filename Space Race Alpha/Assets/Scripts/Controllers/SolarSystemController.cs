@@ -7,9 +7,37 @@ using UnityEngine.UI;
 
 public class SolarSystemController : Controller<SolarSystemModel>
 {
+
+    Camera mainCam;
+    CameraController cam;
     protected override void OnInitialize()
     {
         //Message.AddListener<AddSolarBodyMessage>();
+
+        mainCam = Camera.main;
+        cam = mainCam.GetComponent<CameraController>();
+
+        cam.controlMode = ControlMode.Free;
+        cam.mapCamperaMode = ControlMode.Free;
+
+        //-----------Instantiate all solar and craft icons----------//
+
+        foreach (SolarBodyModel body in model.mapViewReference.Model.solarBodies)
+        {
+            if (body.Type == ObjectType.Planet)
+            {
+                Controller.Instantiate<PlanetIconController>("planetIcon", body);
+            }
+            else if (body.Type == ObjectType.Sun)
+            {
+                Controller.Instantiate<SunIconController>("sunIcon", body);
+            }
+        }
+
+        foreach (CraftModel body in model.mapViewReference.Model.crafts)
+        {
+            Controller.Instantiate<CraftIconController>("craftIcon", body);
+        }
     }
 
     void Update()
@@ -31,7 +59,7 @@ public class SolarSystemController : Controller<SolarSystemModel>
             Vector3d force = Forces.Force(body,model.allSolarBodies);
             body.force = force;
             body.velocity += Forces.ForceToVelocity(body);
-            body.position = Forces.VelocityToPosition(body);
+            body.SystemPosition = Forces.VelocityToPosition(body, Time.deltaTime);
 
             body.Rotation += body.RotationRate * Time.deltaTime; //Rotate the planet
 
@@ -50,47 +78,12 @@ public class SolarSystemController : Controller<SolarSystemModel>
         }
         foreach (CraftModel body in model.allCrafts)                                            //set craft forces and locations when applicable
         {
-            Vector3d force = Forces.Force(body, model.allSolarBodies);
-            body.force = force;
-            if (!body.spawned) //Sets craft that are not spawned
-            {
-                if (body.state != ObjectState.Landed)
-                {
-                    body.velocity += Forces.ForceToVelocity(force, body.mass);
-                    body.position = Forces.VelocityToPosition(body);
-                }
-                else
-                {
-                    body.surfacePolar = body.surfacePolar; //Used to keep world position and velocity updated using, while not moving them on the surface
-                    body.SurfaceVel = body.SurfaceVel;
-
-                }
-            }
-            else //Spwned craft are controlled by the rigidbody2D system
-            {
-
-            }
-
-            //Check for SOI change
-            double closestBody = (body.position - body.reference.Model.position).magnitude;
-
-            for (int i = 0; i < model.allSolarBodies.Count; i++)
-            {
-                SolarBodyModel solarMod = model.allSolarBodies[i];
-                double distance = (body.position - solarMod.position).magnitude;
-                if ( distance < closestBody && solarMod.SOI > distance)
-                {
-                    body.reference.Delete();
-                    body.reference = new ModelRef<BaseModel>(solarMod);
-                    body.position = body.position;
-                    body.velocity = body.velocity;
-                }
-            }
+            body.CraftControl(Time.deltaTime);
         }
 
         if (model.localReferencePoint != null)
         {
-            transform.position = (Vector3) (model.localReferencePoint / Units.km);
+            transform.position = (Vector3) (model.localReferencePoint / (Units.km));
         }
     }
 
