@@ -10,9 +10,10 @@ public class GameController : MonoBehaviour {
     public SolarSystemModel system;
 
     public SettingsModel settings;
+    public bool setup = true;
 
 	// Use this for initialization
-	void Start () {
+	void Awake () {
         instance = this;
         DontDestroyOnLoad(this);
 
@@ -24,10 +25,12 @@ public class GameController : MonoBehaviour {
         //system.controlModel = new ModelRef<CraftModel>(craft);
         //CraftController craftC = Controller.Instantiate<CraftController>(craft);
 
-        //var cam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<CameraController>();
+        var cam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<CameraController>();
+        cam.SetCameraView(CameraView.System);
+
         //cam.SetTarget(craftC);
         //cam.SetViewMode(CameraViewMode.Reference);
-
+        setup = false;
     }
 	
 	// Update is called once per frame

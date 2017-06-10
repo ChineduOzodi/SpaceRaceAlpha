@@ -26,7 +26,8 @@ public class throttleSlider : MonoBehaviour {
 
         if (target == null)
         {
-            target = camContr.target.GetComponent<CraftController>();
+            if (camContr.target != null)
+                target = camContr.target.GetComponent<CraftController>();
         }
         else
         {

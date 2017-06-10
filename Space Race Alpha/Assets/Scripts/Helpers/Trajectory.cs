@@ -12,29 +12,24 @@ public class Trajectory : MonoBehaviour
     internal BaseModel model;
     internal Rigidbody2D rgb;
 
-    bool mapMode = false;
 
     Camera mainCam;
-    Camera mapCam;
+
 
     // Use this for initialization
     void Start()
     {
         //Add listeners
-        Message.AddListener<ToggleMapMessage>(ToggleMapMode);
+
 
         rgb = GetComponent<Rigidbody2D>();
         model = GetComponent<CraftController>().Model;
 
         //Set Cameras
         mainCam = Camera.main;
-        mapCam = GameObject.FindGameObjectWithTag("MapCamera").GetComponent<Camera>();
 
     }
-    private void ToggleMapMode(ToggleMapMessage m)
-    {
-        mapMode = m.mapMode;
-    }
+
 
     // Update is called once per frame
     void Update()
@@ -59,12 +54,7 @@ public class Trajectory : MonoBehaviour
 
         var line = gameObject.GetComponent<LineRenderer>();
         line.SetVertexCount(verts);
-        if (!mapMode)
-        {
-            line.SetWidth(width * mainCam.orthographicSize * .02f, width * mainCam.orthographicSize * .02f);
-        }
-        else
-            line.SetWidth(width * mapCam.orthographicSize * .02f, width * mapCam.orthographicSize * .02f);
+        line.SetWidth(width * mainCam.orthographicSize * .02f, width * mainCam.orthographicSize * .02f);
         //line.SetColors(c1, c2);
 
         line.SetPositions(vectPos);

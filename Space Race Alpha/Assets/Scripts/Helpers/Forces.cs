@@ -141,9 +141,9 @@ public class Forces
     }
 
 
-    internal static Vector3d ForceToVelocity(BaseModel body)
+    internal static Vector3d ForceToVelocity(BaseModel body, double deltaTime)
     {
-        return (body.force / body.mass) * Time.deltaTime;
+        return (body.force / body.mass) * deltaTime;
     }
 
     internal static Vector3d ForceToVelocity(BaseModel body, Vector3d addedForce, double deltaTime)

@@ -9,17 +9,21 @@ public class PlanetIconController : Controller<PlanetModel> {
     public Sprite defaultSprite;
     public Material planetIconMaterial;
 
-    bool mapMode = false;
     double distanceModifier;
-    internal bool dynamicSize = false;
+    internal bool dynamicSize = true;
+    private float zoomMod = .5f;
 
+    /// <summary>
+    /// Used to scale for bigger planet icons if needed
+    /// </summary>
     internal float iconSize = 1;
 
     //Model reference
-    public PlanetModel Model;
+    internal PlanetModel Model;
 
     Camera mainCam;
-    Camera mapCam;
+    CameraController cam;
+
     internal bool isReference = false;
 
     GameObject SOI;
@@ -27,7 +31,7 @@ public class PlanetIconController : Controller<PlanetModel> {
     protected override void OnInitialize()
     {
         //Add listeners
-        Message.AddListener<ToggleMapMessage>(ToggleMapMode);
+        Message.AddListener<SetCameraView>(CameraViewChanged);
 
         //Set Model
         Model = model;
@@ -35,15 +39,12 @@ public class PlanetIconController : Controller<PlanetModel> {
 
         //Set Cameras
         mainCam = Camera.main;
-        mapCam = GameObject.FindGameObjectWithTag("MapCamera").GetComponent<Camera>();
-
+        cam = mainCam.GetComponent<CameraController>();
         //Get Relevant information
         distanceModifier = mainCam.GetComponent<CameraController>().distanceModifier;
 
         //Set Collider
         GetComponent<CircleCollider2D>().radius = (float) (model.radius / distanceModifier);
-
-        
 
         //Set Icon Size
         iconSize = (float)(model.radius / distanceModifier);
@@ -51,58 +52,55 @@ public class PlanetIconController : Controller<PlanetModel> {
         gameObject.AddComponent<SpaceTrajectory>().model = model;
 
         //SOI Initiate
-        SOI = Instantiate(Resources.Load("SOI"), transform) as GameObject;
-        SOI.transform.localScale = Vector3.one * (float)(model.SOI / distanceModifier);
-        SOI.transform.localPosition = Vector3.zero;
+        SOI = Instantiate(Resources.Load("SOI")) as GameObject;
+        SOI.transform.localScale = Vector3.one * (float)(model.SOI / distanceModifier * zoomMod);
+        SOI.transform.position = transform.position;
         SOI.transform.rotation = Quaternion.identity;
 
-        if (dynamicSize)
+        //Set Icon View Mode
+        SetIconMode(cam.cameraView, cam.distanceModifier);
+
+    }
+
+    private void CameraViewChanged(SetCameraView m)
+    {
+        SetIconMode(m.cameraView, m.distanceModifier);
+    }
+
+    private void SetIconMode(CameraView cameraView, double distanceModifier)
+    {
+        this.distanceModifier = distanceModifier;
+        if (cameraView == CameraView.System)
         {
+            dynamicSize = true;
             GetComponent<SpriteRenderer>().sprite = defaultSprite;
             GetComponent<SpriteRenderer>().color = model.color;
             GetComponent<CircleCollider2D>().radius = 1;
             SOI.transform.localScale = Vector3.one * (float)(model.SOI / distanceModifier);
 
-            if (mapMode)
-            {
-                transform.localScale = Vector3.one * (Mathf.Pow(iconSize * mainCam.orthographicSize, .8f));
-            }
-            else
-                transform.localScale = Vector3.one * Mathf.Pow(iconSize * mapCam.orthographicSize, .8f);
+            transform.localScale = Vector3.one * (Mathf.Pow(iconSize * mainCam.orthographicSize, .8f));
         }
-        else
+        else if (cameraView == CameraView.Planet)
         {
-            transform.localScale = Vector2.one;
-            GetComponent<SpriteRenderer>().sprite = null;
-            MakeTerrain(1000, (float)model.radius);
+            if (isReference)
+            {
+                transform.localScale = Vector2.one;
+                GetComponent<SpriteRenderer>().sprite = null;
+                MakeTerrain(1000, (float)model.radius);
+            }
+            
         }
-
-
     }
-
-    private void ToggleMapMode(ToggleMapMessage m)
-    {
-        mapMode = m.mapMode;
-    }
-    // Use this for initialization
-    void Start () {
-	
-	}
 	
 	// Update is called once per frame
 	void Update () {
 
-        transform.position = (Vector3)((model.SystemPosition - model.sol.Model.mapViewReference.Model.SystemPosition) / distanceModifier);
+        transform.position = (Vector3)((model.SystemPosition - cam.reference.SystemPosition) / distanceModifier);
 
         if (dynamicSize)
         {
-                
-            if (mapMode)
-            {
-                transform.localScale = Vector3.one * Mathf.Pow(iconSize * mainCam.orthographicSize, .8f);
-            }
-            else
-                transform.localScale = Vector3.one * Mathf.Pow(iconSize * mapCam.orthographicSize, .8f);
+            transform.localScale = Vector3.one * Mathf.Pow(iconSize * mainCam.orthographicSize * zoomMod, .8f);
+            SOI.transform.position = transform.position;
         }
         else
         {
@@ -110,9 +108,6 @@ public class PlanetIconController : Controller<PlanetModel> {
         }
 
         transform.eulerAngles = new Vector3(0,0,(float)(model.Rotation * Mathd.Rad2Deg));
-        
-        
-
     }
 
     /// <summary>
@@ -180,21 +175,5 @@ public class PlanetIconController : Controller<PlanetModel> {
         obj.transform.localPosition = Vector3.zero;
 
         meshF.mesh = mesh;
-    }
-    public void SetReference(bool val)
-    {
-        isReference = val;
-        
-        //initiate orbital trajectory
-        if (!isReference)
-        {
-            
-            
-        }
-        else
-        {
-            
-
-        }
     }
 }

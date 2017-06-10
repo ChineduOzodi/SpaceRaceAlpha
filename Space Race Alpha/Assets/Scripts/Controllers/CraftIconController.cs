@@ -4,52 +4,51 @@ using CodeControl;
 using System;
 
 public class CraftIconController : Controller<CraftModel> {
-    bool mapMode = false;
 
     //width of icon
     internal float iconSize = .05f;
-
+    public float zoomMod = 1;
     Camera mainCam;
-    Camera mapCam;
+    CameraController cam;
 
     double distanceModifier;
 
     protected override void OnInitialize()
     {
+        name = model.name + " Icon";
+
         //Add listeners
-        Message.AddListener<ToggleMapMessage>(ToggleMapMode);
+        Message.AddListener<SetCameraView>(CameraViewChanged);
 
         //Set Cameras
         mainCam = Camera.main;
-        mapCam = GameObject.FindGameObjectWithTag("MapCamera").GetComponent<Camera>();
+        cam = mainCam.GetComponent<CameraController>();
 
         //Instantiate space trajectory
         gameObject.AddComponent<SpaceTrajectory>().model = model;
-        name = model.name + " Icon";
-
+        
         //Get Relevant information
-        distanceModifier = mainCam.GetComponent<CameraController>().distanceModifier;
+        distanceModifier = cam.distanceModifier;
     }
 
-    private void ToggleMapMode(ToggleMapMessage m)
+    private void CameraViewChanged(SetCameraView m)
     {
-        mapMode = m.mapMode;
+        SetIconMode(m.cameraView, m.distanceModifier);
     }
-    // Use this for initialization
-    void Start () {
-	
-	}
+
+    private void SetIconMode(CameraView cameraView, double distanceModifier)
+    {
+        this.distanceModifier = distanceModifier;
+        if (cameraView == CameraView.System)
+        {
+            //Currently Does nothing because the icon does nothing
+        }
+    }
 	
 	// Update is called once per frame
 	void Update () {
-        transform.position = (Vector3)((model.SystemPosition - model.sol.Model.mapViewReference.Model.SystemPosition) / distanceModifier);
-
-        if (mapMode)
-        {
-            transform.localScale = Vector3.one * (Mathf.Pow(iconSize * mainCam.orthographicSize, .8f));
-        }
-        else
-            transform.localScale = Vector3.one * Mathf.Pow(iconSize * mapCam.orthographicSize, .8f);
+        transform.position = (Vector3)((model.SystemPosition - cam.reference.SystemPosition) / distanceModifier);
+        transform.localScale = Vector3.one * Mathf.Pow(iconSize * mainCam.orthographicSize * zoomMod, .8f);
         transform.eulerAngles = new Vector3(0, 0, (float)(model.Rotation * Mathd.Rad2Deg));
     }
 }

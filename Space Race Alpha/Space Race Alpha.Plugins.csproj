@@ -85,6 +85,9 @@
     <Reference Include="UnityEditor.iOS.Extensions.Common">
       <HintPath>Library\UnityAssemblies\UnityEditor.iOS.Extensions.Common.dll</HintPath>
     </Reference>
+    <Reference Include="BehaviorBricks">
+      <HintPath>Assets\BehaviorBricks\Runtime\BehaviorBricks.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Standard Assets\Scripts\AI\FSM\FSM.cs" />

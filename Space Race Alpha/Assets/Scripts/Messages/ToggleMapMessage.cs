@@ -2,7 +2,8 @@
 using System.Collections;
 using CodeControl;
 
-public class ToggleMapMessage : Message {
+public class SetCameraView : Message {
 
-    public bool mapMode;
+    public CameraView cameraView;
+    public double distanceModifier;
 }

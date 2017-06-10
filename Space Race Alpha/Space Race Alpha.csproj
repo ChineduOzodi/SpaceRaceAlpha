@@ -85,6 +85,9 @@
     <Reference Include="UnityEditor.iOS.Extensions.Common">
       <HintPath>Library\UnityAssemblies\UnityEditor.iOS.Extensions.Common.dll</HintPath>
     </Reference>
+    <Reference Include="BehaviorBricks">
+      <HintPath>Assets\BehaviorBricks\Runtime\BehaviorBricks.dll</HintPath>
+    </Reference>
     <Reference Include="Assembly-UnityScript-firstpass">
       <HintPath>Library\ScriptAssemblies\Assembly-UnityScript-firstpass.dll</HintPath>
     </Reference>
@@ -96,6 +99,47 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\BehaviorBricks\Actions\System\Animation\PlayAnimation.cs" />
+    <Compile Include="Assets\BehaviorBricks\Actions\System\Audio\PlaySound.cs" />
+    <Compile Include="Assets\BehaviorBricks\Actions\System\Basic\SetBool.cs" />
+    <Compile Include="Assets\BehaviorBricks\Actions\System\Basic\SetFloat.cs" />
+    <Compile Include="Assets\BehaviorBricks\Actions\System\Basic\SetInt.cs" />
+    <Compile Include="Assets\BehaviorBricks\Actions\System\Basic\SetVector3.cs" />
+    <Compile Include="Assets\BehaviorBricks\Actions\System\Basic\WaitForSeconds.cs" />
+    <Compile Include="Assets\BehaviorBricks\Actions\System\Basic\toggleBool.cs" />
+    <Compile Include="Assets\BehaviorBricks\Actions\System\GameObject\AddComponent.cs" />
+    <Compile Include="Assets\BehaviorBricks\Actions\System\GameObject\ClosestGameObjectFromList.cs" />
+    <Compile Include="Assets\BehaviorBricks\Actions\System\GameObject\ClosestGameObjectWithTag.cs" />
+    <Compile Include="Assets\BehaviorBricks\Actions\System\GameObject\Destroy.cs" />
+    <Compile Include="Assets\BehaviorBricks\Actions\System\GameObject\FindGameObjectByName.cs" />
+    <Compile Include="Assets\BehaviorBricks\Actions\System\GameObject\FindGameObjectByTag.cs" />
+    <Compile Include="Assets\BehaviorBricks\Actions\System\GameObject\GetComponent.cs" />
+    <Compile Include="Assets\BehaviorBricks\Actions\System\GameObject\Instantiate.cs" />
+    <Compile Include="Assets\BehaviorBricks\Actions\System\GameObject\LookAt.cs" />
+    <Compile Include="Assets\BehaviorBricks\Actions\System\GameObject\SendMessage.cs" />
+    <Compile Include="Assets\BehaviorBricks\Actions\System\GameObject\SetActive.cs" />
+    <Compile Include="Assets\BehaviorBricks\Actions\System\Navigation\MoveToGameObject.cs" />
+    <Compile Include="Assets\BehaviorBricks\Actions\System\Navigation\MoveToPosition.cs" />
+    <Compile Include="Assets\BehaviorBricks\Actions\System\Navigation\MoveToRandomPosition.cs" />
+    <Compile Include="Assets\BehaviorBricks\Actions\System\Physics\ApplyForce.cs" />
+    <Compile Include="Assets\BehaviorBricks\Actions\System\Physics\FromMouseToWorld.cs" />
+    <Compile Include="Assets\BehaviorBricks\Actions\System\Physics\SetVelocity.cs" />
+    <Compile Include="Assets\BehaviorBricks\Actions\System\Vector3\GetRandomInArea.cs" />
+    <Compile Include="Assets\BehaviorBricks\BehaviorExecutor.cs" />
+    <Compile Include="Assets\BehaviorBricks\BrickAsset.cs" />
+    <Compile Include="Assets\BehaviorBricks\Conditions\System\Basic\CheckBool.cs" />
+    <Compile Include="Assets\BehaviorBricks\Conditions\System\Basic\CheckButton.cs" />
+    <Compile Include="Assets\BehaviorBricks\Conditions\System\Basic\CheckKey.cs" />
+    <Compile Include="Assets\BehaviorBricks\Conditions\System\Basic\CheckMouseButton.cs" />
+    <Compile Include="Assets\BehaviorBricks\Conditions\System\Perception\IsTargetClose.cs" />
+    <Compile Include="Assets\BehaviorBricks\Conditions\System\Perception\IsTargetCloseAndInSight.cs" />
+    <Compile Include="Assets\BehaviorBricks\Conditions\System\Perception\IsTargetInSight.cs" />
+    <Compile Include="Assets\BehaviorBricks\Samples\ProgrammersQuickStartGuide\Done\DoneBulletScript.cs" />
+    <Compile Include="Assets\BehaviorBricks\Samples\ProgrammersQuickStartGuide\Done\DoneDayNightCycle.cs" />
+    <Compile Include="Assets\BehaviorBricks\Samples\ProgrammersQuickStartGuide\Done\DoneIsNight.cs" />
+    <Compile Include="Assets\BehaviorBricks\Samples\ProgrammersQuickStartGuide\Done\DoneShoot.cs" />
+    <Compile Include="Assets\BehaviorBricks\Samples\ProgrammersQuickStartGuide\Done\DoneShootOnce.cs" />
+    <Compile Include="Assets\BehaviorBricks\Samples\ProgrammersQuickStartGuide\Done\DoneSleepForever.cs" />
     <Compile Include="Assets\CodeControl\Scripts\Source\Controller.cs" />
     <Compile Include="Assets\CodeControl\Scripts\Source\Coroutiner.cs" />
     <Compile Include="Assets\CodeControl\Scripts\Source\Helpers\ListHelper.cs" />

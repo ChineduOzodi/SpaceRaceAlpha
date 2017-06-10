@@ -10,6 +10,7 @@ public class SolarSystemController : Controller<SolarSystemModel>
 
     Camera mainCam;
     CameraController cam;
+
     protected override void OnInitialize()
     {
         //Message.AddListener<AddSolarBodyMessage>();
@@ -18,11 +19,10 @@ public class SolarSystemController : Controller<SolarSystemModel>
         cam = mainCam.GetComponent<CameraController>();
 
         cam.controlMode = ControlMode.Free;
-        cam.mapCamperaMode = ControlMode.Free;
 
         //-----------Instantiate all solar and craft icons----------//
 
-        foreach (SolarBodyModel body in model.mapViewReference.Model.solarBodies)
+        foreach (SolarBodyModel body in model.allSolarBodies)
         {
             if (body.Type == ObjectType.Planet)
             {
@@ -34,7 +34,7 @@ public class SolarSystemController : Controller<SolarSystemModel>
             }
         }
 
-        foreach (CraftModel body in model.mapViewReference.Model.crafts)
+        foreach (CraftModel body in model.allCrafts)
         {
             Controller.Instantiate<CraftIconController>("craftIcon", body);
         }
@@ -58,8 +58,8 @@ public class SolarSystemController : Controller<SolarSystemModel>
         {
             Vector3d force = Forces.Force(body,model.allSolarBodies);
             body.force = force;
-            body.velocity += Forces.ForceToVelocity(body);
-            body.SystemPosition = Forces.VelocityToPosition(body, Time.deltaTime);
+            body.velocity += Forces.ForceToVelocity(body, Time.deltaTime);
+            body.SystemPosition += Forces.VelocityToPosition(body, Time.deltaTime);
 
             body.Rotation += body.RotationRate * Time.deltaTime; //Rotate the planet
 

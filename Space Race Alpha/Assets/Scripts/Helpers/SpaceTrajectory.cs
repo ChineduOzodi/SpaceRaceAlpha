@@ -27,27 +27,21 @@ public class SpaceTrajectory : MonoBehaviour
     double distanceModifier;
 
     Camera mainCam;
-    Camera mapCam;
+    CameraController cam;
 
     // Use this for initialization
     void Start()
     {
         //Add listeners
-        Message.AddListener<ToggleMapMessage>(ToggleMapMode);
 
         //Set Cameras
         mainCam = Camera.main;
-        mapCam = GameObject.FindGameObjectWithTag("MapCamera").GetComponent<Camera>();
+        cam = mainCam.GetComponent<CameraController>();
 
         //Get Relevant information
         distanceModifier = mainCam.GetComponent<CameraController>().distanceModifier;
 
         verts = new Vector3[vertsCount];
-    }
-
-    private void ToggleMapMode(ToggleMapMessage m)
-    {
-        mapMode = m.mapMode;
     }
 
     // Update is called once per frame
@@ -64,7 +58,7 @@ public class SpaceTrajectory : MonoBehaviour
 
             distance = model.LocalPosition / distanceModifier;
 
-            Vector3d PositionFromCenter = model.reference.Model.SystemPosition - model.sol.Model.mapViewReference.Model.SystemPosition;
+            Vector3d PositionFromCenter = (model.reference.Model.SystemPosition - cam.reference.SystemPosition) / (distanceModifier); 
 
             if (distance.magnitude != 0 && model.State != ObjectState.Landed)
             {
@@ -81,24 +75,17 @@ public class SpaceTrajectory : MonoBehaviour
 
         //print("radius: " + distance.magnitude + " Es: " + eVect.magnitude);
         //print("Radial start: " + CartToAngle(distance));
-
         for (int i = 0; i < vertsCount; i++)
         {
             double rad = Ellipse(model.SemiMajorAxis / distanceModifier, model.Ecc.magnitude, i * increment + new Polar2(distance).angle); //Figures out the radius of the next angle step in trajectory
 
-            Vector2 disp = (Vector2)(Polar2.PolarToCartesian(new Polar2((float)rad, i * (float)increment + (float)new Polar2(distance).angle + (float)new Polar2(model.Ecc).angle + Mathf.PI)) - (Vector2d) positionFromCenter);
+            Vector2 disp = (Vector2)(Polar2.PolarToCartesian(new Polar2((float)rad, i * (float)increment + (float)new Polar2(distance).angle + (float)new Polar2(model.Ecc).angle + Mathf.PI)) - (Vector2d)positionFromCenter);
 
-            verts[i] = new Vector3(-disp.x,-disp.y) + (Vector3) m2Pos;
+            verts[i] = new Vector3(-disp.x, -disp.y) + (Vector3)m2Pos;
         }
-
         var line = gameObject.GetComponent<LineRenderer>();
         line.SetVertexCount(vertsCount);
-        if (mapMode)
-        {
-            line.SetWidth(Mathf.Pow(width * mainCam.orthographicSize, .8f), Mathf.Pow(width * mainCam.orthographicSize, .8f));
-        }
-        else
-            line.SetWidth(Mathf.Pow(width * mapCam.orthographicSize, .8f), Mathf.Pow(width * mapCam.orthographicSize, .8f));
+        line.SetWidth(Mathf.Pow(width * mainCam.orthographicSize, .8f), Mathf.Pow(width * mainCam.orthographicSize, .8f));
 
         //line.SetColors(c1, c1);
 

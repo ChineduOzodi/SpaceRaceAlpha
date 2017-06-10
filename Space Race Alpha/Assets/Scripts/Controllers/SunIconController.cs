@@ -4,13 +4,12 @@ using CodeControl;
 using System;
 
 public class SunIconController : Controller<SunModel> {
-    bool mapMode = false;
 
     internal float width = 1;
 
+    public float zoomMod = .01f;
     Camera mainCam;
-    Camera mapCam;
-
+    CameraController cam;
     double distanceModifier;
 
     //Model reference
@@ -19,7 +18,7 @@ public class SunIconController : Controller<SunModel> {
     protected override void OnInitialize()
     {
         //Add listeners
-        Message.AddListener<ToggleMapMessage>(ToggleMapMode);
+        Message.AddListener<SetCameraView>(CameraViewChanged);
 
         //Set Model
         Model = model;
@@ -27,7 +26,7 @@ public class SunIconController : Controller<SunModel> {
 
         //Set Cameras
         mainCam = Camera.main;
-        mapCam = GameObject.FindGameObjectWithTag("MapCamera").GetComponent<Camera>();
+        cam = mainCam.GetComponent<CameraController>();
 
         //Get Relevant information
         distanceModifier = mainCam.GetComponent<CameraController>().distanceModifier;
@@ -35,25 +34,28 @@ public class SunIconController : Controller<SunModel> {
         width =(float) (model.radius / distanceModifier);
     }
 
-    private void ToggleMapMode(ToggleMapMessage m)
+    private void CameraViewChanged(SetCameraView m)
     {
-        mapMode = m.mapMode;
+        SetIconMode(m.cameraView, m.distanceModifier);
     }
-    // Use this for initialization
-    void Start () {
-	
-	}
+
+    private void SetIconMode(CameraView cameraView, double distanceModifier)
+    {
+        this.distanceModifier = distanceModifier;
+        if (cameraView == CameraView.System)
+        {
+            transform.localScale = Vector3.one * (Mathf.Pow(width * mainCam.orthographicSize * zoomMod, .8f));
+            transform.localScale = Vector3.one * width;
+        }
+        else if (cameraView == CameraView.Planet)
+        {
+
+        }
+    }
 	
 	// Update is called once per frame
 	void Update () {
-        transform.position = (Vector3)((model.SystemPosition - model.sol.Model.mapViewReference.Model.SystemPosition) / distanceModifier);
-
-        if (mapMode)
-        {
-            transform.localScale = Vector3.one * (Mathf.Pow(width * mainCam.orthographicSize, .8f));
-        }
-        else
-            transform.localScale = Vector3.one * Mathf.Pow(width * mapCam.orthographicSize, .8f);
-
+        transform.position = (Vector3)((model.SystemPosition - cam.reference.SystemPosition) / distanceModifier);
+        transform.localScale = Vector3.one * (Mathf.Pow(width * mainCam.orthographicSize * zoomMod, .8f));
     }
 }
