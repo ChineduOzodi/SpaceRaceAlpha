@@ -19,14 +19,16 @@ public class PlanetController : Controller<PlanetModel> {
 
     double circumference;
     double meshAngleStep;
-    double units = Units.km * 10;
+    double units = Units.km * 100;
 
     public BaseModel Model { get; internal set; }
+    public CameraController cam;
 
     private void Awake()
     {
 
         planetMeshObjs = new List<GameObject>();
+        cam = Camera.main.GetComponentInChildren<CameraController>();
     }
 
     protected override void OnInitialize()
@@ -50,8 +52,7 @@ public class PlanetController : Controller<PlanetModel> {
 
         SetMeshes();
 
-        model.sol.Model.controlModel.Model.NotifyChange(); //TODO: Should send a message instead, that is picked up by all spawned local objects
-
+        Message.Send("SurfaceReferencesUpdated");
 
     }
 
@@ -62,7 +63,10 @@ public class PlanetController : Controller<PlanetModel> {
 
         UpdateReferencePointData();
         //rect.eulerAngles = new Vector3(0, 0, (float)(model.rotation * Mathd.Rad2Deg)); //Set Model rotation
-
+        if (cam.cameraView != CameraView.Surface)
+        {
+            Destroy(gameObject);
+        }
     }
 
     /// <summary>
@@ -186,7 +190,7 @@ public class PlanetController : Controller<PlanetModel> {
 
         
 
-        float displacement = -5000 + FresNoise.GetTerrian(model.name, polarRadius);
+        float displacement = -(float)units + FresNoise.GetTerrian(model.name, polarRadius);
         Polar2 polarPosition = new Polar2(polarRadius.radius + displacement, polarRadius.angle);
 
         // Make first triangle.
@@ -208,7 +212,7 @@ public class PlanetController : Controller<PlanetModel> {
         vertexColor.Add(VertexColor(displacement)); //Add Color
         polyPoints.Add((Vector2)(polarPosition.cartesian - referencePol.cartesian)); //add collider point
 
-        displacement = -5000 + FresNoise.GetTerrian(model.name, polarRadius);
+        displacement = -(float)units + FresNoise.GetTerrian(model.name, polarRadius);
         polarPosition = new Polar2(polarRadius.radius + displacement, polarRadius.angle);
         vertexList.Add((Vector2)(polarPosition.cartesian - referencePol.cartesian));     // 4. vertex on circle outline rotated by angle and down one)
         vertexColor.Add(VertexColor(displacement)); //Add Color
@@ -239,7 +243,7 @@ public class PlanetController : Controller<PlanetModel> {
             vertexColor.Add(VertexColor(displacement)); //Add Color
             polyPoints.Add((Vector2)(polarPosition.cartesian - referencePol.cartesian)); //add collider point
 
-            displacement = -5000 + FresNoise.GetTerrian(model.name, polarRadius);
+            displacement = -(float)units + FresNoise.GetTerrian(model.name, polarRadius);
             polarPosition = new Polar2(polarRadius.radius + displacement, polarRadius.angle);
             vertexList.Add((Vector2)(polarPosition.cartesian - referencePol.cartesian));    // 3. vertex on circle outline rotated by angle and down one)
             vertexColor.Add(VertexColor(displacement)); //Add Color
@@ -284,7 +288,7 @@ public class PlanetController : Controller<PlanetModel> {
         double circumference = (model.radius * Mathd.PI * 2) / units; //circumference in units
         double angleStep = meshAngleStep; //angle distance for each units in radians
 
-        Polar2 targetPolar = model.sol.Model.controlModel.Model.polar;
+        Polar2 targetPolar = Polar2.CartesianToPolar(cam.cameraPosition);
 
         if (targetPolar.radius > .01f){ //avoid unspawned cameras
 
@@ -313,7 +317,7 @@ public class PlanetController : Controller<PlanetModel> {
 
                         createdMeshes = new List<int>(); //Clear created meshes list
 
-                        UpdateControlModel();
+                        Message.Send("SurfaceReferencesUpdated");
                     }
                     else
                     {
@@ -343,10 +347,6 @@ public class PlanetController : Controller<PlanetModel> {
         
 
         return list;
-    }
-
-    private void UpdateControlModel() {
-        model.sol.Model.controlModel.Model.NotifyChange();
     }
 
     public void MakeCircle(int numOfPoints, float radius)

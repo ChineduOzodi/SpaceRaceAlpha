@@ -4,6 +4,7 @@ using System.Collections;
 public enum ControlMode {
 
 	Craft,
+    Follow,
     Free
 }
 

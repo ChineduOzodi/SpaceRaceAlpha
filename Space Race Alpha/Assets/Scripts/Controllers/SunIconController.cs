@@ -31,17 +31,18 @@ public class SunIconController : Controller<SunModel> {
         //Get Relevant information
         distanceModifier = mainCam.GetComponent<CameraController>().distanceModifier;
 
-        width =(float) (model.radius / distanceModifier);
+        width =(float) (model.radius / (Units.Mm * 10));
     }
 
     private void CameraViewChanged(SetCameraView m)
     {
-        SetIconMode(m.cameraView, m.distanceModifier);
+        SetIconMode(m.cameraView, m.distanceModifier, m.reference);
     }
 
-    private void SetIconMode(CameraView cameraView, double distanceModifier)
+    private void SetIconMode(CameraView cameraView, double distanceModifier, SolarBodyModel refer)
     {
         this.distanceModifier = distanceModifier;
+
         if (cameraView == CameraView.System)
         {
             transform.localScale = Vector3.one * (Mathf.Pow(width * mainCam.orthographicSize * zoomMod, .8f));
@@ -49,13 +50,16 @@ public class SunIconController : Controller<SunModel> {
         }
         else if (cameraView == CameraView.Planet)
         {
-
+            //Don't really need to change anything because the layer mask should be set to only visible in solar system view
         }
     }
 	
 	// Update is called once per frame
 	void Update () {
-        transform.position = (Vector3)((model.SystemPosition - cam.reference.SystemPosition) / distanceModifier);
-        transform.localScale = Vector3.one * (Mathf.Pow(width * mainCam.orthographicSize * zoomMod, .8f));
+        if (cam.cameraView == CameraView.System)
+        {
+            transform.position = (Vector3)((model.SystemPosition - cam.reference.SystemPosition) / distanceModifier);
+            transform.localScale = Vector3.one * (Mathf.Pow(width * mainCam.orthographicSize * zoomMod, .8f));
+        }   
     }
 }

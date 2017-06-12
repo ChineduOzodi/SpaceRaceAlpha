@@ -27,7 +27,8 @@ public struct Polar2 {
     public Polar2( Vector3d point)
     {
         Polar2 polar = CartesianToPolar(point);
-
+        if (double.IsNaN(polar.angle))
+            polar.angle = 0;
         angle = polar.angle;
         radius = polar.radius;
     }

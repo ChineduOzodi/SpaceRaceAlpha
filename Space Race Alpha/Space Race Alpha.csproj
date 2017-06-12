@@ -204,10 +204,9 @@
     <Compile Include="Assets\Scripts\LoadSaveScript.cs" />
     <Compile Include="Assets\Scripts\Messages\InfoPanelMessage.cs" />
     <Compile Include="Assets\Scripts\Messages\MessagePanelMessage.cs" />
-    <Compile Include="Assets\Scripts\Messages\ShowForceMessage.cs" />
+    <Compile Include="Assets\Scripts\Messages\Messages.cs" />
     <Compile Include="Assets\Scripts\Messages\ToggleMapMessage.cs" />
     <Compile Include="Assets\Scripts\Models\BaseModel.cs" />
-    <Compile Include="Assets\Scripts\Models\CameraModel.cs" />
     <Compile Include="Assets\Scripts\Models\CraftModel.cs" />
     <Compile Include="Assets\Scripts\Models\CraftPartModel.cs" />
     <Compile Include="Assets\Scripts\Models\CraftPartModels\CapsuleComponent.cs" />
@@ -234,6 +233,7 @@
     <Compile Include="Assets\Scripts\Types\ObjectType.cs" />
     <Compile Include="Assets\Scripts\UI\AltPanel.cs" />
     <Compile Include="Assets\Scripts\UI\Compass.cs" />
+    <Compile Include="Assets\Scripts\UI\GameCanvas.cs" />
     <Compile Include="Assets\Scripts\UI\InfoPanel.cs" />
     <Compile Include="Assets\Scripts\UI\MessagePanel.cs" />
     <Compile Include="Assets\Scripts\UI\NewGameManager.cs" />

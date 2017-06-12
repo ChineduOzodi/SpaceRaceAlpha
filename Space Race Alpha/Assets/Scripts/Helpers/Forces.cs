@@ -6,36 +6,113 @@ using System;
 public class Forces
 {
 
-    public static double G = .0000000667; //universal gravity constant
-
+    public static double G = .0000000000667; //universal gravity constant
+    /// <summary>
+    /// Calculates accumulative force from solar system acting on object.
+    /// Also changes the bodies reference if needed so another foreach call doesn't have to be made
+    /// </summary>
+    /// <param name="self"></param>
+    /// <param name="solarBodies"></param>
+    /// <returns></returns>
     public static Vector3d Force(BaseModel self, ModelRefs<SolarBodyModel> solarBodies)
     {
-        Vector3d force = Vector3d.zero;
-
+        Vector3d totalForce = Vector3d.zero;
         double m1 = self.mass;
+
+        Vector3d referenceDistance = self.reference.Model.SystemPosition - self.SystemPosition;
+        Vector3d referenceForce = univGrav(m1, self.reference.Model.mass, referenceDistance);
+
+        
         if (solarBodies != null)
         {
             foreach (SolarBodyModel body in solarBodies)
             {
-                //TODO: Make more efficient so that they don't have to check force for themselves
-                Vector3d m2Pos = body.SystemPosition;
-                double m2 = body.mass;
+                if (body.name != self.name)
+                {
+                    Vector3d m2Pos = body.SystemPosition;
+                    double m2 = body.mass;
+                    Vector3d distance = m2Pos - self.SystemPosition;
 
-                Vector3d distance = m2Pos - self.SystemPosition;
-                force += univGrav(m1, m2, distance);
+                    Vector3d force = univGrav(m1, m2, distance);
+                    totalForce += force;
+
+                    CheckReference(self, force, referenceForce, referenceDistance, body, distance);
+                }
+
+
+
 
             }
         }
 
 
-        return force;
+        return totalForce;
     }
 
-    public static Vector3d Force(BaseModel self)
+    private static void CheckReference(BaseModel self, Vector3d newForce, Vector3d referenceForce, Vector3d referenceDistance, SolarBodyModel potentialBody, Vector3d potentialBodyDistance)
     {
-        Vector3d force = Vector3d.zero;
+        //-------------Changes Reference if needed-----------------//
+        if (newForce.sqrMagnitude > referenceForce.sqrMagnitude && potentialBody.mass > self.mass
+            && (((SolarBodyModel)self.reference.Model).SOI < referenceDistance.magnitude ||
+            potentialBody.SOI > potentialBodyDistance.magnitude))
+        {
+            if (self.Type != ObjectType.Spacecraft)
+            {
+                ((SolarBodyModel)self.reference.Model).solarBodies.Remove((SolarBodyModel)self);
+                potentialBody.solarBodies.Add((SolarBodyModel)self);
 
+                self.reference = new ModelRef<BaseModel>(potentialBody);
+                self.referenceBody = new ModelRef<SolarBodyModel>(potentialBody);
+
+                ((SolarBodyModel)self).CalculateSOI();
+            }
+        }
+    }
+
+    public static Vector3d Force(BaseModel self, bool considerReferenceBodies)
+    {
+        Vector3d totalForce = Vector3d.zero;
         double m1 = self.mass;
+
+        Vector3d referenceDistance = self.reference.Model.SystemPosition - self.SystemPosition;
+        Vector3d referenceForce = univGrav(m1, self.reference.Model.mass, referenceDistance);
+
+        if (considerReferenceBodies)
+        {
+            if (self.reference.Model.reference.Model.name != self.reference.Model.name)
+            {
+                Vector3d m2Pos = self.reference.Model.reference.Model.SystemPosition;
+                Vector3d distance = m2Pos - self.SystemPosition;
+                double m2 = self.reference.Model.reference.Model.mass;
+                Vector3d force = univGrav(m1, m2, distance);
+                totalForce += force;
+
+                CheckReference(self, force, referenceForce, referenceDistance, (SolarBodyModel) self.reference.Model.reference.Model, distance);
+            }
+            
+
+            foreach (SolarBodyModel body in ((SolarBodyModel)self.reference.Model).solarBodies)
+            {
+                
+
+
+                if (body.name != self.name)
+                {
+                    Vector3d m2Pos = body.SystemPosition;
+                    double m2 = body.mass;
+                    Vector3d distance = m2Pos - self.SystemPosition;
+
+                    Vector3d force = univGrav(m1, m2, distance);
+                    totalForce += force;
+
+                    CheckReference(self, force, referenceForce, referenceDistance, body, distance);
+
+                }
+            }
+
+            
+        }
+
         if (self.reference.Model != null)
         {
             //TODO: Make more efficient so that they don't have to check force for themselves
@@ -43,11 +120,12 @@ public class Forces
             double m2 = self.reference.Model.mass;
 
             Vector3d distance = m2Pos - self.SystemPosition;
-            force = univGrav(m1, m2, distance);
+
+            Vector3d force = univGrav(m1, m2, distance);
+            totalForce += force;
         }
 
-
-        return force;
+        return totalForce;
     }
 
     public static Vector3d Force(double m1, double m2, Vector3d distance)
@@ -198,11 +276,6 @@ public class Forces
         return pos + vel * deltaTime;
     }
 
-    internal static Vector3 VelocityToPosition(Vector3 pos, Vector3 vel, float time)
-    {
-        return pos + vel * Time.deltaTime * 50 * time;
-    }
-
     internal static double CircleArea(double radius)
     {
         return Mathd.PI * radius * radius;
@@ -210,7 +283,7 @@ public class Forces
 
     internal static double SphereVolume(double radius)
     {
-        return (4.0d * Mathd.PI * radius * radius * radius) / 3.0d;
+        return (4.0d/3.0d) * Mathd.PI * Mathd.Pow(radius,3);
     }
 
     internal static Vector2d TimeToApoPeri (BaseModel model)

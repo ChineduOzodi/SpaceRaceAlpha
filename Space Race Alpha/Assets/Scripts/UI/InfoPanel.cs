@@ -49,22 +49,31 @@ public class InfoPanel : MonoBehaviour {
             Vector2d apoPeri = Forces.TimeToApoPeri(model);
             double mass = model.mass;
 
-            return string.Format("Mass: {0} kg\nGravity: {1} m/s^2\n Velocity: {6} m/s\nAlt: {2} km\nApo: {3} km\nPer: {4} km\nEcc: {5}\nOrbitalPeriod: {7} min\nTime to Apo: {8} min\nTime to Peri: {9} min",
+            return string.Format("Mass: {0} kg\nGravity: {1} m/s^2\n Velocity: {6} m/s\nAlt: {2}\nApo: {3}\nPer: {4}\nEcc: {5}\nOrbitalPeriod: {7}\nTime to Apo: {8}\nTime to Peri: {9}",
             mass, 
             (model.force.magnitude / mass).ToString("0.00"), 
-            (model.alt * .001f).ToString("0.000"), 
-            ((model.PerApo[1] - model.reference.Model.radius) * .001f).ToString("0.00"),
-            ((model.PerApo[0] - model.reference.Model.radius) * .001f).ToString("0.00"),
-            model.Ecc.magnitude.ToString("0.00"), model.LocalVelocity.magnitude.ToString("0.00"), //6
-            (model.OrbitalPeriod / Date.Minute).ToString("0.0"),
-            (apoPeri.x / Date.Minute).ToString("0.0"),
-            (apoPeri.y / Date.Minute).ToString("0.0"));
+            Units.ReadDistance(model.alt),
+            Units.ReadDistance(model.PerApo[1] - model.reference.Model.radius),
+            Units.ReadDistance(model.PerApo[0] - model.reference.Model.radius),
+            model.Ecc.magnitude.ToString("0.00"), 
+            model.LocalVelocity.magnitude.ToString("0.00"), //6
+            Date.ReadTime(model.OrbitalPeriod),
+            Date.ReadTime(apoPeri.x),
+            Date.ReadTime(apoPeri.y));
         }
         else
         {
             PlanetModel pmodel = (PlanetModel) model;
-            return string.Format("Radius: {1} km\nSurface Gravity: {0} m/s^2\n Orbital Period: {6} yrs\nAlt: {2} km\nApo: {3} Gm\nPer: {4} Gm\nRotaion Period: {5} hrs",
-            Forces.Force(1,model.mass,pmodel.radius).ToString("0.00"), (pmodel.radius * .001f).ToString("0.00"), (model.alt * .001f).ToString("0.000"), (model.PerApo[1] / Units.Gm).ToString("0.00"), (model.PerApo[0] / Units.Gm).ToString("0.00"), (2 * Mathd.PI / model.LocalRotationRate / Date.Hour).ToString("0.00"), (model.OrbitalPeriod / Date.Year).ToString("0.00"));
+            return string.Format("Radius: {1}\nMass: {7}kg\nDensity: {8}\nSurface Gravity: {0} m/s^2\nOrbital Period: {6}\nAlt: {2}\nApo: {3}\nPer: {4}\nRotaion Period: {5}",
+            Forces.Force(1,model.mass,pmodel.radius).ToString("0.00"),
+            Units.ReadDistance(pmodel.radius),
+            Units.ReadDistance(model.alt),
+            Units.ReadDistance(model.PerApo[1]),
+            Units.ReadDistance(model.PerApo[0]),
+            Date.ReadTime(2 * Mathd.PI / model.LocalRotationRate),
+            Date.ReadTime(model.OrbitalPeriod), //6
+            pmodel.mass,
+            pmodel.density); //7
 
         }
     }

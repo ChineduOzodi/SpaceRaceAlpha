@@ -163,13 +163,13 @@ public class CraftController : Controller<CraftModel> {
 
         if (model.playerControlled)
         {
-            double translationV = Input.GetAxis("Vertical") * translationSpeed * Time.deltaTime;
-            double translationH = Input.GetAxis("Horizontal") * translationSpeed * Time.deltaTime;
+            double translationV = Input.GetAxis("Vertical") * translationSpeed * model.sol.Model.date.deltaTime;
+            double translationH = Input.GetAxis("Horizontal") * translationSpeed * model.sol.Model.date.deltaTime;
             double rotation = 0; //rotation torque to add
 
             if (Input.GetKey(KeyCode.Q))
             {
-                rotation = -1 * rotationSpeed * Time.deltaTime;
+                rotation = -1 * rotationSpeed * model.sol.Model.date.deltaTime;
                 if (model.State == ObjectState.Landed)
                 {
                     model.State = ObjectState.SubOrbit;
@@ -178,7 +178,7 @@ public class CraftController : Controller<CraftModel> {
             }
             else if (Input.GetKey(KeyCode.E))
             {
-                rotation = 1 * rotationSpeed * Time.deltaTime;
+                rotation = 1 * rotationSpeed * model.sol.Model.date.deltaTime;
                 if (model.State == ObjectState.Landed)
                 {
                     model.State = ObjectState.SubOrbit;
@@ -199,8 +199,8 @@ public class CraftController : Controller<CraftModel> {
                 RetrogradeProgram();
             }
 
-            model.throttle += (Input.GetKey(KeyCode.LeftShift)) ? 10 * Time.deltaTime : 0;
-            model.throttle -= (Input.GetKey(KeyCode.LeftControl)) ? 10 * Time.deltaTime : 0;
+            model.throttle += (Input.GetKey(KeyCode.LeftShift)) ? 10 * model.sol.Model.date.deltaTime : 0;
+            model.throttle -= (Input.GetKey(KeyCode.LeftControl)) ? 10 * model.sol.Model.date.deltaTime : 0;
 
             if (Input.GetKeyDown(KeyCode.X))
             {
@@ -227,7 +227,7 @@ public class CraftController : Controller<CraftModel> {
                     OnStateChanged(null);
                 }
             }
-            model.CraftControl(model.throttle, new Vector2d(0, translationV), rotation, Time.deltaTime);
+            model.CraftControl(model.throttle, new Vector2d(0, translationV), rotation, model.sol.Model.date.deltaTime);
 
         }
 
@@ -236,7 +236,7 @@ public class CraftController : Controller<CraftModel> {
         {
 
             Vector3 force = (Vector3)Forces.Rotate(model.force - model.sol.Model.localReferenceForce, model.reference.Model.Rotation);
-            rgb.AddForce(force * Time.deltaTime * 50);
+            rgb.AddForce(force * model.sol.Model.date.deltaTime * 50);
 
             Vector3d newlocPosDiff = Forces.Rotate((Vector3d)transform.position, model.reference.Model.Rotation);
             model.LocalPosition = newlocPosDiff + model.sol.Model.localReferencePoint;
@@ -308,11 +308,11 @@ public class CraftController : Controller<CraftModel> {
         {
             if (model.RotationRate > desiredRotationRate)
             {
-                rotation = rotationSpeed * Time.deltaTime;
+                rotation = rotationSpeed * model.sol.Model.date.deltaTime;
             }
             else
             {
-                rotation = -rotationSpeed * Time.deltaTime;
+                rotation = -rotationSpeed * model.sol.Model.date.deltaTime;
             }
 
             rgb.AddTorque((float) rotation);

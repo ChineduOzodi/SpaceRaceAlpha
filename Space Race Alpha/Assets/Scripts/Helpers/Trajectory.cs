@@ -48,7 +48,7 @@ public class Trajectory : MonoBehaviour
         for (int i = 1; i < verts; i++)
         {
             vel += (Vector3) Forces.ForceToVelocity(Forces.Rotate(model.force - model.sol.Model.localReferenceForce, model.reference.Model.Rotation), model.mass, Time.deltaTime);
-            vectPos[i] = Forces.VelocityToPosition(vectPos[i - 1],vel, Time.deltaTime);
+            vectPos[i] = (Vector3) Forces.VelocityToPosition((Vector3d) vectPos[i - 1], (Vector3d) vel, Time.deltaTime);
             //vectPos[i] = (Vector3) Porabola(model.force / model.mass, (Vector3d) vel, (Vector3d) transform.position, i * 1 * Time.deltaTime);
         }
 

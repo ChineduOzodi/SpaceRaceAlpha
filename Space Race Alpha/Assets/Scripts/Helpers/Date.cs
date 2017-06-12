@@ -7,12 +7,13 @@ public class Date
     private static int Days = 360;
     private static int Hours = 24;
     private static int Minutes = 60;
+    private static int Seconds = 60;
 
     /// <summary>
     /// seconds in year (3156000)
     /// </summary>
-    public static int Year = 3156000; //Seconds in a year 14400
-    public static int Season = 789000;
+    public static int Year = 31536000; //Seconds in a year 14400
+    public static int Season = Year/4;
     public static int Day = 86400;
     /// <summary>
     /// 3600s
@@ -26,21 +27,12 @@ public class Date
     public int season;
     public int day;
     public int hour;
-    private float minute;
+    public int minute;
+    private float seconds;
 
     public Date(float _time)
     {
-        time = _time;
-        deltaTime = 0;
-
-        year = Mathf.FloorToInt(_time / Year);
-        _time = _time % Year;
-        season = Mathf.FloorToInt(_time / Season);
-        day = Mathf.FloorToInt(_time / Day);
-        _time = _time % Day;
-        hour = Mathf.FloorToInt(_time / Hour);
-        _time = _time % Hour;
-        minute = _time;
+        UpdateDate(_time);
     }
 
     public void AddTime(float _time)
@@ -48,27 +40,34 @@ public class Date
         deltaTime = _time;
         time += _time;
 
-        minute += _time;
-        if (minute > Minutes) //Setting the Add Time parts
+        seconds += _time;
+        if (seconds > Seconds)
         {
-            hour += Mathf.FloorToInt(minute / Minutes);
-            minute = minute % Minutes;
+            minute += Mathf.FloorToInt(seconds / Seconds);
+            seconds = seconds % Seconds;
 
-            if (hour > Hours)
+            if (minute > Minutes) //Setting the Add Time parts
             {
-                day += Mathf.FloorToInt(hour / Hours);
-                hour = hour % Hours;
+                hour += Mathf.FloorToInt(minute / Minutes);
+                minute = minute % Minutes;
 
-                season = Mathf.FloorToInt(day / 10f);
-
-                if (day > Days)
+                if (hour > Hours)
                 {
-                    year += Mathf.FloorToInt(day / Days);
-                    day = day % Days;
-                    
+                    day += Mathf.FloorToInt(hour / Hours);
+                    hour = hour % Hours;
+
+                    season = Mathf.FloorToInt(day / (Days/4));
+
+                    if (day > Days)
+                    {
+                        year += Mathf.FloorToInt(day / Days);
+                        day = day % Days;
+
+                    }
                 }
             }
         }
+        
 
 
 
@@ -86,6 +85,9 @@ public class Date
         _time = _time % Day;
         hour = Mathf.FloorToInt(_time / Hour);
         _time = _time % Hour;
+        minute = Mathf.FloorToInt(_time / Minute);
+        _time = _time % Minute;
+        seconds = _time;
     }
 
     public string GetDate()
@@ -95,7 +97,14 @@ public class Date
 
     public string GetDateTime()
     {
-        return GetSeason() + " - " + hour.ToString().PadLeft(2, '0') + " h " + Mathf.FloorToInt(minute).ToString().PadLeft(2, '0') + " m\n" + "Day " + (day + 1) + ", Year " + year;
+        string dateTime = String.Format("{0} - {1}:{2}:{3}\nDay {4}, year {5}",
+            GetSeason(),
+            hour.ToString().PadLeft(2, '0'),
+            minute.ToString().PadLeft(2, '0'),
+            seconds.ToString("0").PadLeft(2, '0'),
+            day + 1,
+            year);
+        return dateTime;
     }
     //public string GetDate(float _time)
     //{
@@ -109,7 +118,35 @@ public class Date
 
     //    return year.ToString() + "/" + season.ToString() + "/" + day.ToString() + " " + hour.ToString() + " h";
     //}
+    /// <summary>
+    /// Returns a human readable version of duration of time
+    /// </summary>
+    /// <param name="time">Given in seconds</param>
+    /// <returns></returns>
+    public static string ReadTime(double time)
+    {
+        if (time < 90)
+        {
+            return time + " s";
+        }
+        else if (time < Date.Hour)
+        {
+            return (time / Date.Minute).ToString("0.0") + " minutes";
+        }
 
+        else if (time < Date.Day)
+        {
+            return (time / Date.Hour).ToString("0.00") + " hours";
+        }
+        else if (time < Date.Year)
+        {
+            return (time / Date.Day).ToString("0.0") + " days";
+        }
+        else
+        {
+            return (time / Date.Year).ToString("0.00") + " years";
+        }
+    }
     private string GetSeason()
     {
         string[] seasonNames = new string[4] { "Spring", "Summer", "Fall", "Winter" };
@@ -129,8 +166,6 @@ public class Date
     public static bool operator >(Date date1, Date date2)
     {
         return (date1.time > date2.time) ? true:false;
-
-
     }
 
     public static bool operator <(Date date1, Date date2)

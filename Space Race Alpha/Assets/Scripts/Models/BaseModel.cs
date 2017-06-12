@@ -292,11 +292,19 @@ public class BaseModel : Model
     public double SemiMajorAxis
     {
         get {
+            Vector2d pA = PerApo;
+            double semiMA = (pA.x + pA.y) / 2f;
 
-            double sEnergy = ((Mathd.Pow(LocalVelocity.magnitude, 2) * .5f) - ((reference.Model.mass * Forces.G) / pol.radius));
+            return semiMA;
 
-            return -((reference.Model.mass * Forces.G) / (2 * sEnergy));
-
+        }
+    }
+    public double SemiMinorAxis
+    {
+        get
+        {
+            Vector2d pA = PerApo;
+            return Mathd.Sqrt(pA.x * pA.y);
         }
     }
     /// <summary>
@@ -351,27 +359,13 @@ public class BaseModel : Model
     {
         get
         {
-            return Mathd.Sqrt((Forces.G * reference.Model.mass) / Mathd.Pow(SemiMajorAxis, 3));
+            //double sEnergy = ((Mathd.Pow(LocalVelocity.magnitude, 2) * .5f) - ((reference.Model.mass * Forces.G) / pol.radius));
+            //double energy = -((reference.Model.mass * Forces.G) / (2 * sEnergy));
+            //return Mathd.Sqrt((Forces.G * reference.Model.mass) / Mathd.Pow(energy, 3)); //energy could be semiMajorAxis
+
+            return (2 * Mathd.PI) / OrbitalPeriod;
         }
     }
-
-    public double TrueAnomly
-    {
-        get
-        {
-            //time past perigee
-            double t = OrbitalPeriod * .5;
-            double MeanAnomaly = MeanMotion * t;
-            double E0 = MeanAnomaly;
-
-            for (int i = 0; i < 10; i++)
-            {
-                E0 = E0 - ((E0 - Mathd.Epsilon * Mathd.Sin(E0) - MeanAnomaly) / (1 - Mathd.Epsilon * Mathd.Cos(E0)));
-            }
-            return E0;
-        }
-    }
-
     //--------------------Private fields------------------------------//
 
     private Vector3d localPosition;
@@ -385,5 +379,97 @@ public class BaseModel : Model
     private Vector3d vel = Vector3d.zero;
 
     //------------Constructors-----------------------//
+
+    //-----------Public Functions----------------------//
+
+    public Vector3d LocalPositionKeplar(double deltaTime) //TODO: Fix this so it solar bodies can move to a solar orbit when time is accelerated
+    {
+        Vector3d localPosition = Vector3d.zero;
+        double ecc = Ecc.magnitude;
+        if (LocalPosition.sqrMagnitude < .01)
+            return LocalPosition;
+
+        if (ecc < 1) //Cuurently catches all orbits and makes them circular
+        {
+            polar = new Polar2(polar.radius, polar.angle + MeanMotion * deltaTime);
+            velocity = SolarSystemModel.VelocityFromOrbit(this);
+            return LocalPosition;
+        }
+        double trueAnom = TrueAnomaly(LocalPosition.magnitude, ecc);
+
+        double E0 = EccentricAnomaly(trueAnom, ecc);
+
+        //localPosition.x = (Mathd.Cos(E0) - ecc) * SemiMajorAxis;
+        //localPosition.y = Mathd.Sin(E0) * SemiMinorAxis; //* Mathd.Sqrt(1.0 - ecc * ecc);
+
+        //localPosition = new Polar2(localPosition.magnitude, Polar2.CartesianToPolar(localPosition).angle + Polar2.CartesianToPolar(Ecc).angle + Mathd.PI).cartesian;
+
+        double E = EccentricAnomaly(E0, ecc, deltaTime, 10);
+        localPosition.x = (Mathd.Cos(E) - ecc) * SemiMajorAxis;
+        localPosition.y = Mathd.Sin(E) * SemiMinorAxis; //* Mathd.Sqrt(1.0 - ecc * ecc);
+        localPosition = new Polar2(localPosition.magnitude, Polar2.CartesianToPolar(localPosition).angle + Polar2.CartesianToPolar(Ecc).angle + Mathd.PI).cartesian;
+
+        LocalPosition = localPosition;
+        double vel = Mathd.Sqrt(Forces.G * reference.Model.mass * (2 / localPosition.magnitude - 1 / SemiMajorAxis));
+        double flightAngle = FlightAngle();
+        Polar2 velAngle = Polar2.CartesianToPolar(localPosition.normalized);
+        velAngle.angle += flightAngle - (.5 * Mathd.PI); //To get it facing the same way as the velocity should
+        LocalVelocity = velAngle.cartesian * vel;
+
+        return localPosition;
+    }
+
+    //------------Private Functions-----------------//
+
+    private double TrueAnomaly(double r, double ecc) //Checked and should be accurate
+    {
+        //double trueAnom = Mathd.Acos((SemiMajorAxis * (1 - Mathd.Pow(ecc, 2)) - r) / (ecc * r));
+        //if (FlightAngle() < 0)
+        //    trueAnom *= -1;
+        //return trueAnom;
+        double dot = Vector3d.Dot(Ecc, LocalPosition);
+        double trueA = Mathd.Acos(dot / (Ecc.magnitude * LocalPosition.magnitude));
+        if (dot < 0)
+            return 2 * Mathd.PI - trueA;
+        else return trueA;
+
+
+
+    }
+
+    private double EccentricAnomaly(double trueAnomaly, double ecc) //Checked, should be accurate
+    {
+        
+        double eccentr = Mathd.Acos((ecc + Mathd.Cos(trueAnomaly)) / (1 + ecc * Mathd.Cos(trueAnomaly)));
+        if (trueAnomaly > Mathd.PI)
+            return 2 * Mathd.PI - eccentr;
+        else return eccentr;
+    }
+    /// <summary>
+    /// Eccentric anomaly at a future time given the current eccentric anomaly
+    /// </summary>
+    /// <param name="E0">current eccentric anomaly</param>
+    /// <param name="ecc">eccentricity</param>
+    /// <param name="deltaTime">change in time</param>
+    /// <param name="n">number of iterations</param>
+    /// <returns></returns>
+    private double EccentricAnomaly(double E0, double ecc, double deltaTime, double n)
+    {
+        double M0 = E0 - ecc * Mathd.Sin(E0);
+        double M = M0 + MeanMotion * deltaTime;
+        double E = M;
+        for (int i = 0; i < n; i++)
+        {
+            E = M + ecc * Mathd.Sin(E);
+        }
+        return E;
+    }
+    private double FlightAngle()
+    {
+        double Y = polar.angle - Polar2.CartesianToPolar(LocalVelocity).angle;
+
+        return (.5 * Mathd.PI - Y);
+    }
+
 
 }

@@ -6,9 +6,7 @@ using CodeControl;
 public class SpaceTrajectory : MonoBehaviour
 {
     public double G = 50;
-
-    public Color c1 = Color.red;//colors for orbit
-    public Color c2 = Color.yellow;
+    public float alphaMod = 1;
     internal float width = .02f;
     public int vertsCount = 200;
 
@@ -20,9 +18,6 @@ public class SpaceTrajectory : MonoBehaviour
     internal Vector3d m2Pos;
     internal Vector3d m2Vel;
     internal double m2;
-
-    //MapMode variables
-    bool mapMode = false;
 
     double distanceModifier;
 
@@ -38,8 +33,7 @@ public class SpaceTrajectory : MonoBehaviour
         mainCam = Camera.main;
         cam = mainCam.GetComponent<CameraController>();
 
-        //Get Relevant information
-        distanceModifier = mainCam.GetComponent<CameraController>().distanceModifier;
+        
 
         verts = new Vector3[vertsCount];
     }
@@ -56,6 +50,9 @@ public class SpaceTrajectory : MonoBehaviour
             m2 = model.referenceBody.Model.mass;
             SOI = model.referenceBody.Model.SOI;
 
+            //Get Relevant information
+            distanceModifier = cam.distanceModifier;
+
             distance = model.LocalPosition / distanceModifier;
 
             Vector3d PositionFromCenter = (model.reference.Model.SystemPosition - cam.reference.SystemPosition) / (distanceModifier); 
@@ -64,7 +61,7 @@ public class SpaceTrajectory : MonoBehaviour
             {
                 DrawTraject(PositionFromCenter);
             }
-            else gameObject.GetComponent<LineRenderer>().SetVertexCount(0);
+            else gameObject.GetComponent<LineRenderer>().positionCount = 0;
 
         }
     }
@@ -84,10 +81,11 @@ public class SpaceTrajectory : MonoBehaviour
             verts[i] = new Vector3(-disp.x, -disp.y) + (Vector3)m2Pos;
         }
         var line = gameObject.GetComponent<LineRenderer>();
-        line.SetVertexCount(vertsCount);
-        line.SetWidth(Mathf.Pow(width * mainCam.orthographicSize, .8f), Mathf.Pow(width * mainCam.orthographicSize, .8f));
-
-        //line.SetColors(c1, c1);
+        line.positionCount = vertsCount;
+        line.widthMultiplier = Mathf.Pow(width * mainCam.orthographicSize, .8f);
+        Color color = new Color(1, 1, 1, line.widthMultiplier / (float) (line.widthMultiplier + Math.Pow(model.radius / Units.Mm, alphaMod)));
+        line.startColor = color;
+        line.endColor = color;
 
         line.SetPositions(verts);
     }

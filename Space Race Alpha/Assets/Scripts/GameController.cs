@@ -12,20 +12,22 @@ public class GameController : MonoBehaviour {
     public SettingsModel settings;
     public bool setup = true;
 
-	// Use this for initialization
-	void Awake () {
+    CameraController cam;
+
+    // Use this for initialization
+    void Awake () {
         instance = this;
         DontDestroyOnLoad(this);
 
-        system = new SolarSystemModel(9);
+        system = new SolarSystemModel(5);
         SolarSystemController solCont = Controller.Instantiate<SolarSystemController>(system);
 
         //AddCraft
-        CraftModel craft = system.allSolarBodies[2].AddCraft(CraftModel.BasicCraft, 0);
+        //CraftModel craft = system.allSolarBodies[2].AddCraft(CraftModel.BasicCraft, 0);
         //system.controlModel = new ModelRef<CraftModel>(craft);
         //CraftController craftC = Controller.Instantiate<CraftController>(craft);
 
-        var cam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<CameraController>();
+        cam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<CameraController>();
         cam.SetCameraView(CameraView.System);
 
         //cam.SetTarget(craftC);
@@ -45,22 +47,24 @@ public class GameController : MonoBehaviour {
                 Debug.Log(hit.transform.gameObject.name);
 
                 InfoPanelMessage m = new InfoPanelMessage();
-                try
+
+                cam.SetTarget(hit.transform.gameObject);
+
+                if (hit.transform.tag == "craftIcon")
                 {
                     m.model = hit.transform.GetComponent<CraftController>().Model;
                 }
-                catch (Exception e)
+                else if (hit.transform.tag == "planet")
                 {
-                    try
-                    {
-                        print(e);
-                        m.model = hit.transform.parent.GetComponent<PlanetController>().Model;
-                    }
-                    catch (Exception b)
-                    {
-                        print(b);
-                        m.model = hit.transform.GetComponent<PlanetIconController>().Model;
-                    }
+                    m.model = hit.transform.parent.GetComponent<PlanetController>().Model;
+                }
+                else if (hit.transform.tag == "planetIcon")
+                {
+                    m.model = hit.transform.GetComponent<PlanetIconController>().Model;
+                }
+                else if (hit.transform.tag == "sun")
+                {
+                    m.model = hit.transform.GetComponent<SunIconController>().Model;
                 }
 
                 Message.Send(m);

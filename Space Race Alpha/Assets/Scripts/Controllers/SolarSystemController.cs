@@ -10,6 +10,8 @@ public class SolarSystemController : Controller<SolarSystemModel>
 
     Camera mainCam;
     CameraController cam;
+    Text dateTime;
+    public float accel = 1;
 
     protected override void OnInitialize()
     {
@@ -17,7 +19,7 @@ public class SolarSystemController : Controller<SolarSystemModel>
 
         mainCam = Camera.main;
         cam = mainCam.GetComponent<CameraController>();
-
+        dateTime = GameObject.FindGameObjectWithTag("date").GetComponent<Text>();
         cam.controlMode = ControlMode.Free;
 
         //-----------Instantiate all solar and craft icons----------//
@@ -45,26 +47,31 @@ public class SolarSystemController : Controller<SolarSystemModel>
         //Update timeScale
         if (Input.GetKeyDown(KeyCode.Period))
         {
-            Time.timeScale += 10;
-            MessagePanel.SendMessage("Time Accel: " + Time.timeScale.ToString(), 5, Color.yellow);
+            accel *= 2;
+            MessagePanel.SendMessage("Time Accel: " + accel, 5, Color.yellow);
         }
         else if (Input.GetKeyDown(KeyCode.Comma))
         {
-            Time.timeScale = 1f;
-            MessagePanel.SendMessage("Time Accel: " + Time.timeScale.ToString(), 5, Color.white);
+            accel = 1f;
+            MessagePanel.SendMessage("Time Accel: " + accel, 5, Color.white);
         }
+
+        //Update Date
+        model.date.AddTime(Time.deltaTime * accel);
+        dateTime.text = model.date.GetDateTime();
         //Update Forces
         foreach (SolarBodyModel body in model.allSolarBodies)
         {
-            Vector3d force = Forces.Force(body,model.allSolarBodies);
+            Vector3d force = Forces.Force(body, true);
             body.force = force;
-            body.velocity += Forces.ForceToVelocity(body, Time.deltaTime);
-            body.SystemPosition += Forces.VelocityToPosition(body, Time.deltaTime);
+            body.velocity += Forces.ForceToVelocity(body, model.date.deltaTime);
+            body.SystemPosition += Forces.VelocityToPosition(body, model.date.deltaTime);
+            //body.LocalPositionKeplar(model.date.deltaTime);
 
-            body.Rotation += body.RotationRate * Time.deltaTime; //Rotate the planet
+
+            body.Rotation += body.RotationRate * model.date.deltaTime; //Rotate the planet
 
             body.NotifyChange();
-            //rb2D.AddForce(force * Time.deltaTime);
 
             if (model.showForce)
             {
@@ -78,7 +85,7 @@ public class SolarSystemController : Controller<SolarSystemModel>
         }
         foreach (CraftModel body in model.allCrafts)                                            //set craft forces and locations when applicable
         {
-            body.CraftControl(Time.deltaTime);
+            body.CraftControl(model.date.deltaTime);
         }
 
         if (model.localReferencePoint != null)

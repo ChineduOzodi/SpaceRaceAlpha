@@ -7,6 +7,7 @@ public class SolarSystemModel : Model
     //------------Public Variables-----------------------//
     public string name;
     public string seed;
+    public Date date = new Date(0);
     //Solarsystem Centerobject
     public ModelRef<SolarBodyModel> centerObject = new ModelRef<SolarBodyModel>();
 
@@ -36,12 +37,12 @@ public class SolarSystemModel : Model
     public SolarSystemModel(int planets)
     {
 
-        SunModel sun = AddSun(Units.Mm * 700, 1.25, "Sun");
+        SunModel sun = AddSun(Units.Gm * .7d, 1410, "Sun");
 
         int numberPlants = UnityEngine.Random.Range(4, 10);
 
         float minPlanetRadius = 100; //in km 
-        float maxSolarDistance = 150; //in Gm
+        float maxSolarDistance = 6000; //in Gm //Tested 150
         float minSolarDistance = 10; //in Gm
         float maxMoonSize = 1000; //in Km
         for (int i = 0; i < planets; i++)
@@ -49,11 +50,11 @@ public class SolarSystemModel : Model
             double planetsize = UnityEngine.Random.Range(minPlanetRadius, 10000) * Units.km;
             Polar2 planetPol = new Polar2(UnityEngine.Random.Range(minSolarDistance, maxSolarDistance) * Units.Gm, 
                 UnityEngine.Random.Range(0, 2 * Mathf.PI));
-            double density = UnityEngine.Random.Range(.1f, 10);
+            double density = UnityEngine.Random.Range(4000f,6000f);
 
             PlanetModel planet = AddPlanet(sun, planetPol, planetsize, density, "Planet " + i.ToString());
 
-            int numberMoons = UnityEngine.Random.Range(0, 10);
+            int numberMoons = UnityEngine.Random.Range(0, 3);
 
             for (int b = 0; b < numberMoons; b++)
             {
@@ -62,9 +63,9 @@ public class SolarSystemModel : Model
                 {
                     moonSize = UnityEngine.Random.Range(10, (float)(minPlanetRadius)) * Units.km; //in km
                 }
-                Polar2 moonPol = new Polar2(UnityEngine.Random.Range(10, (float) (planet.SOI / Units.km)) * Units.km,
+                Polar2 moonPol = new Polar2(UnityEngine.Random.Range((float) planet.radius / Units.km + 10, (float) (planet.SOI / Units.km)) * Units.km,
                     UnityEngine.Random.Range(0, 2 * Mathf.PI));
-                density = UnityEngine.Random.Range(.1f, 10);
+                density = UnityEngine.Random.Range(2000f, 6000);
 
                 AddPlanet(planet, moonPol, moonSize, density, "Planet " + i.ToString() + ": Moon " + b.ToString());
             }

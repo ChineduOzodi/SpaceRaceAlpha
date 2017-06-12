@@ -21,8 +21,8 @@ public class CameraController : MonoBehaviour {
     internal GameObject target; //target object
     internal BaseModel targetModel; //targetModel
 
-    internal BaseModel reference;
-    internal double distanceModifier = Units.Mm * 10;
+    internal SolarBodyModel reference;
+    internal double distanceModifier = Units.Gm;
 
     bool initialized = false;
     
@@ -36,8 +36,8 @@ public class CameraController : MonoBehaviour {
     public float maxCamSize = 10000;
     public float minMapSize = 350; //the minmum size of the map view
 
-    internal float planetViewSize = 500;
-    internal float surfaceViewSize = 500;
+    internal float planetViewSize = 5000;
+    internal float surfaceViewSize = 10000;
     internal float systemViewSize = 500;
     //Background
     public GameObject stars;
@@ -50,6 +50,15 @@ public class CameraController : MonoBehaviour {
         mainCam = GetComponent<Camera>();
         //initialize star background
         stars = Instantiate(Resources.Load("stars")) as GameObject;
+
+        //Add listeners
+        Message.AddListener("SurfaceReferencesUpdated", OnSurfaceReferenceUpdated);
+    }
+
+    private void OnSurfaceReferenceUpdated()
+    {
+        transform.position = (Vector3)Forces.Rotate((cameraPosition - reference.sol.Model.localReferencePoint) / distanceModifier, -reference.Rotation); //position in relationship to reference point
+        transform.position = new Vector3(transform.position.x, transform.position.y, -1);
     }
 
     public void SetCameraView(CameraView view)
@@ -57,7 +66,14 @@ public class CameraController : MonoBehaviour {
         if (view == CameraView.System)
         {
             cameraView = CameraView.System;
-            distanceModifier = Units.Mm * 10;
+            distanceModifier = Units.Gm; //Possible 10 * Units.Mm
+
+            if (reference != null)
+            {
+                cameraPosition = reference.SystemPosition + cameraPosition;
+                transform.position = (Vector3)(cameraPosition / distanceModifier);
+                transform.position = new Vector3(transform.position.x, transform.position.y, -1);
+            }
 
             //Camera Settings
             Camera.main.cullingMask = systemViewMask;
@@ -65,11 +81,64 @@ public class CameraController : MonoBehaviour {
 
             reference = GameController.instance.system.centerObject.Model;
         }
+        else if (view == CameraView.Planet)
+        {
+            Vector3d position = reference.SystemPosition + (Vector3d)transform.position * distanceModifier;
+            Vector3d distance = position;
+            cameraView = view;
+            distanceModifier = Units.Mm;
+
+            systemViewSize = Camera.main.orthographicSize + 5;
+
+            //Camera Settings
+            Camera.main.cullingMask = planetViewMask;
+            Camera.main.orthographicSize = planetViewSize;
+
+            foreach (SolarBodyModel body in reference.sol.Model.centerObject.Model.solarBodies)
+            {
+                if ((body.SystemPosition - position).sqrMagnitude < distance.sqrMagnitude)
+                {
+                    distance = body.SystemPosition - position;
+                    reference = body;
+                }
+            }
+        }
+        else if (view == CameraView.Surface)
+        {
+            Vector3d position = reference.SystemPosition + (Vector3d)transform.position * distanceModifier;
+            Vector3d distance = (Vector3d)transform.position * distanceModifier;
+            cameraView = view;
+            distanceModifier = 1;
+
+            planetViewSize = Camera.main.orthographicSize + 5;
+
+            //Camera Settings
+            Camera.main.cullingMask = surfaceViewMask;
+            Camera.main.orthographicSize = surfaceViewSize;
+
+            foreach (SolarBodyModel body in reference.solarBodies)
+            {
+                if ((body.SystemPosition - position).sqrMagnitude < distance.sqrMagnitude)
+                {
+                    distance = body.SystemPosition - position;
+                    reference = body;
+                }
+            }
+
+            //Instantiate planet controller for the reference, which will take care of terrain generation
+            Controller.Instantiate<PlanetController>(reference.Type.ToString(), reference);
+
+        }
+        else
+        {
+            print(view + " does not exist");
+        }
 
         //Send Message
         SetCameraView m = new SetCameraView();
         m.cameraView = cameraView;
         m.distanceModifier = distanceModifier;
+        m.reference = reference;
         Message.Send(m);
     }
 
@@ -82,6 +151,30 @@ public class CameraController : MonoBehaviour {
             float moveModifier = camMoveSpeed * mainCam.orthographicSize;
             mainCam.orthographicSize += Input.GetAxis("Mouse ScrollWheel") * -zoomSpeed * moveModifier;
 
+            //Switch between the different views
+            if ( cameraView == CameraView.System)
+            {
+                if ( mainCam.orthographicSize < 5)
+                {
+                    SetCameraView(CameraView.Planet);
+                }
+            }
+            else if (cameraView == CameraView.Planet)
+            {
+                if (mainCam.orthographicSize > 10000)
+                {
+                    SetCameraView(CameraView.System);
+                }
+                else if (mainCam.orthographicSize < .001)
+                {
+                    SetCameraView(CameraView.Surface);
+                }
+            }
+            else if (cameraView == CameraView.Surface)
+            {
+
+            }
+
             if (controlMode == ControlMode.Free)
             {
                 //camera movement
@@ -89,8 +182,18 @@ public class CameraController : MonoBehaviour {
                 float transY = Input.GetAxis("Vertical") * moveModifier * Time.deltaTime;
 
                 Camera.main.transform.Translate(new Vector3(transX, transY));
-                cameraPosition = (Vector3d) (Camera.main.transform.position) * distanceModifier;
             }
+            else if(controlMode == ControlMode.Follow && target != null)
+            {
+                Camera.main.transform.position = new Vector3(target.transform.position.x,
+                    target.transform.position.y, -1);
+                
+            }
+
+            //Setting Camera localPosition
+            if (cameraView != CameraView.Surface)
+                cameraPosition = (Vector3d)(Camera.main.transform.position) * distanceModifier;
+            else cameraPosition = (Vector3d)(Camera.main.transform.position) * distanceModifier + reference.sol.Model.localReferencePoint;
 
             //Camera Zoom
             if (Input.GetKey(KeyCode.Equals))
@@ -113,6 +216,12 @@ public class CameraController : MonoBehaviour {
                 SetViewMode((viewMode.GetHashCode() + 1 > 2) ? 0 : viewMode + 1);
             }
 
+            //Set Follow
+            if (Input.GetKeyDown(KeyCode.F))
+            {
+                ToggleFollow();
+            }
+
             //camera rotation
             if (viewMode == CameraViewMode.Absolute)
             {
@@ -131,6 +240,15 @@ public class CameraController : MonoBehaviour {
         } 
     }
 
+    private void ToggleFollow()
+    {
+        if (controlMode == ControlMode.Follow)
+        {
+            controlMode = ControlMode.Free;
+        }
+        else { controlMode = ControlMode.Follow; }
+    }
+
     public void ToggleMapMode()
     {
         if (cameraView == CameraView.Surface)
@@ -143,12 +261,13 @@ public class CameraController : MonoBehaviour {
         }
     }
 
+    public void SetTarget(GameObject obj)
+    {
+        target = obj;
+    }
+
     void FixedUpdate()
     {
-        
-
-        
-
         //if (mapMode)
         //{
         //    transform.position = new Vector3(0, 0, -1);

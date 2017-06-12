@@ -59,7 +59,7 @@ public class SolarBodyModel : BaseModel {
         this.density = density;
         this.name = name;
         System.Random seed = new System.Random(name.GetHashCode());
-        this.LocalRotationRate = 2 * Mathd.PI / ((double)seed.Next(10, 50) * Date.Hour);
+        this.RotationRate = 2 * Mathd.PI / ((double)seed.Next(10, 50) * Date.Hour);
         this.color = new Color(seed.Next(0, 100) / 100f, seed.Next(0, 100) / 100f, seed.Next(0, 100) / 100f);
 
         if (sol.centerObject.Model == null)                                //set first center of mass object if not alreaady set
@@ -73,11 +73,11 @@ public class SolarBodyModel : BaseModel {
 
             foreach (SolarBodyModel m in sol.allSolarBodies)
             {
-                m.SOI = CalculateSOI(m);
+                m.CalculateSOI();
             }
         }
         sol.allSolarBodies.Add(this);
-        this.SOI = CalculateSOI(this);
+        CalculateSOI();
     }
     //-----------------------Funcitons------------------------------------//
 
@@ -150,10 +150,10 @@ public class SolarBodyModel : BaseModel {
     /// </summary>
     /// <param name="m"> solar body to calculate SOI for</param>
     /// <returns>SOI radial distance</returns>
-    private static double CalculateSOI(SolarBodyModel m)
+    public void CalculateSOI()
     {
-        double r = Vector3d.Distance(m.SystemPosition, m.reference.Model.SystemPosition);
-        double rSOI = r * Mathd.Pow(m.mass / m.reference.Model.mass, 0.4f);
-        return rSOI;
+        double r = Vector3d.Distance(SystemPosition, reference.Model.SystemPosition);
+        double rSOI = r * Mathd.Pow(mass / reference.Model.mass, 0.4f);
+        SOI =  rSOI;
     }
 }
