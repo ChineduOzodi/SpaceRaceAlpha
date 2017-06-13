@@ -54,7 +54,7 @@ public class SolarSystemModel : Model
 
             PlanetModel planet = AddPlanet(sun, planetPol, planetsize, density, "Planet " + i.ToString());
 
-            int numberMoons = UnityEngine.Random.Range(0, 3);
+            int numberMoons = UnityEngine.Random.Range(0, 5);
 
             for (int b = 0; b < numberMoons; b++)
             {

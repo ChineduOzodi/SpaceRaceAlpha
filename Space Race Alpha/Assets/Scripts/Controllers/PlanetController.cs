@@ -61,6 +61,8 @@ public class PlanetController : Controller<PlanetModel> {
 
         SetMeshes(); //Needs a lot more work
 
+        //transform.eulerAngles = new Vector3(0, 0, (float)(model.Rotation * Mathd.Rad2Deg));
+
         UpdateReferencePointData();
         //rect.eulerAngles = new Vector3(0, 0, (float)(model.rotation * Mathd.Rad2Deg)); //Set Model rotation
         if (cam.cameraView != CameraView.Surface)
@@ -336,7 +338,7 @@ public class PlanetController : Controller<PlanetModel> {
                 list.Add(meshID);
             }
 
-            meshID = (referenceID - 1 < 0) ? Mathd.CeilToInt(circumference) - 1 : referenceID - 1;
+            meshID = (referenceID - 1 < 0) ? Mathd.CeilToInt(circumference) - 2 : referenceID - 1;
 
             if (!list.Contains(meshID))
             {

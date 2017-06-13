@@ -235,6 +235,7 @@
     <Compile Include="Assets\Scripts\UI\Compass.cs" />
     <Compile Include="Assets\Scripts\UI\GameCanvas.cs" />
     <Compile Include="Assets\Scripts\UI\InfoPanel.cs" />
+    <Compile Include="Assets\Scripts\UI\LabelCanvas.cs" />
     <Compile Include="Assets\Scripts\UI\MessagePanel.cs" />
     <Compile Include="Assets\Scripts\UI\NewGameManager.cs" />
     <Compile Include="Assets\Scripts\UI\ProgradeCompass.cs" />

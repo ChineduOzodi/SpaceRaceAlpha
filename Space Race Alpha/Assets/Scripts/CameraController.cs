@@ -10,7 +10,7 @@ public class CameraController : MonoBehaviour {
     public LayerMask planetViewMask;
     public LayerMask systemViewMask;
 
-    public CameraViewMode viewMode = CameraViewMode.Absolute;
+    public CameraRotationMode rotationMode = CameraRotationMode.Absolute;
     public ControlMode controlMode = ControlMode.Free;
 
     /// <summary>
@@ -36,8 +36,8 @@ public class CameraController : MonoBehaviour {
     public float maxCamSize = 10000;
     public float minMapSize = 350; //the minmum size of the map view
 
-    internal float planetViewSize = 5000;
-    internal float surfaceViewSize = 10000;
+    internal float planetViewSize = 1000;
+    internal float surfaceViewSize = 20000;
     internal float systemViewSize = 500;
     //Background
     public GameObject stars;
@@ -57,7 +57,10 @@ public class CameraController : MonoBehaviour {
 
     private void OnSurfaceReferenceUpdated()
     {
-        transform.position = (Vector3)Forces.Rotate((cameraPosition - reference.sol.Model.localReferencePoint) / distanceModifier, -reference.Rotation); //position in relationship to reference point
+        Vector3d pos = (cameraPosition - reference.sol.Model.localReferencePoint) / distanceModifier;
+        pos.z = 0;
+        Polar2 newPol = Polar2.CartesianToPolar(pos);
+        transform.position = (Vector3) (Vector3d) (new Polar2(newPol.radius, newPol.angle -reference.Rotation).cartesian); //position in relationship to reference point
         transform.position = new Vector3(transform.position.x, transform.position.y, -1);
     }
 
@@ -65,7 +68,7 @@ public class CameraController : MonoBehaviour {
     {
         if (view == CameraView.System)
         {
-            cameraView = CameraView.System;
+            
             distanceModifier = Units.Gm; //Possible 10 * Units.Mm
 
             if (reference != null)
@@ -75,6 +78,14 @@ public class CameraController : MonoBehaviour {
                 transform.position = new Vector3(transform.position.x, transform.position.y, -1);
             }
 
+            //Set Preset Camera Sizes
+            if (cameraView == CameraView.Planet)
+                planetViewSize = Camera.main.orthographicSize - 1;
+            else if (cameraView == CameraView.Surface)
+                surfaceViewSize = Camera.main.orthographicSize;
+
+            cameraView = CameraView.System;
+
             //Camera Settings
             Camera.main.cullingMask = systemViewMask;
             Camera.main.orthographicSize = systemViewSize;
@@ -83,12 +94,20 @@ public class CameraController : MonoBehaviour {
         }
         else if (view == CameraView.Planet)
         {
-            Vector3d position = reference.SystemPosition + (Vector3d)transform.position * distanceModifier;
+            Vector3d position = reference.SystemPosition + cameraPosition;
+            position.z = 0;
             Vector3d distance = position;
-            cameraView = view;
+            distance.z = 0;
+
             distanceModifier = Units.Mm;
 
-            systemViewSize = Camera.main.orthographicSize + 5;
+            //Set Preset Camera Sizes
+            if (cameraView == CameraView.System)
+                systemViewSize = Camera.main.orthographicSize + .1f;
+            else if (cameraView == CameraView.Surface)
+                surfaceViewSize = Camera.main.orthographicSize - 5;
+
+            cameraView = view;
 
             //Camera Settings
             Camera.main.cullingMask = planetViewMask;
@@ -98,19 +117,34 @@ public class CameraController : MonoBehaviour {
             {
                 if ((body.SystemPosition - position).sqrMagnitude < distance.sqrMagnitude)
                 {
-                    distance = body.SystemPosition - position;
+                    distance = position - body.SystemPosition;
                     reference = body;
                 }
             }
+
+            //Camera Position
+
+            cameraPosition = distance;
+            transform.position = (Vector3)(cameraPosition / distanceModifier);
+            transform.position = new Vector3(transform.position.x, transform.position.y, -1);
         }
         else if (view == CameraView.Surface)
         {
             Vector3d position = reference.SystemPosition + (Vector3d)transform.position * distanceModifier;
+            position.z = 0;
             Vector3d distance = (Vector3d)transform.position * distanceModifier;
-            cameraView = view;
+            distance.z = 0;
+            
             distanceModifier = 1;
 
-            planetViewSize = Camera.main.orthographicSize + 5;
+            //Set Preset Camera Sizes
+            if (cameraView == CameraView.Planet)
+                planetViewSize = Camera.main.orthographicSize + .001f;
+            else if (cameraView == CameraView.System)
+                systemViewSize = Camera.main.orthographicSize;
+
+            cameraView = view;
+
 
             //Camera Settings
             Camera.main.cullingMask = surfaceViewMask;
@@ -120,8 +154,9 @@ public class CameraController : MonoBehaviour {
             {
                 if ((body.SystemPosition - position).sqrMagnitude < distance.sqrMagnitude)
                 {
-                    distance = body.SystemPosition - position;
+                    distance = position - body.SystemPosition;
                     reference = body;
+                    cameraPosition = distance;
                 }
             }
 
@@ -154,25 +189,28 @@ public class CameraController : MonoBehaviour {
             //Switch between the different views
             if ( cameraView == CameraView.System)
             {
-                if ( mainCam.orthographicSize < 5)
+                if ( mainCam.orthographicSize < 1)
                 {
                     SetCameraView(CameraView.Planet);
                 }
             }
             else if (cameraView == CameraView.Planet)
             {
-                if (mainCam.orthographicSize > 10000)
+                if (mainCam.orthographicSize > 1000)
                 {
                     SetCameraView(CameraView.System);
                 }
-                else if (mainCam.orthographicSize < .001)
+                else if (mainCam.orthographicSize < .01)
                 {
                     SetCameraView(CameraView.Surface);
                 }
             }
             else if (cameraView == CameraView.Surface)
             {
-
+                if (mainCam.orthographicSize > 20000)
+                {
+                    SetCameraView(CameraView.Planet);
+                }
             }
 
             if (controlMode == ControlMode.Free)
@@ -192,9 +230,48 @@ public class CameraController : MonoBehaviour {
 
             //Setting Camera localPosition
             if (cameraView != CameraView.Surface)
+            {
                 cameraPosition = (Vector3d)(Camera.main.transform.position) * distanceModifier;
-            else cameraPosition = (Vector3d)(Camera.main.transform.position) * distanceModifier + reference.sol.Model.localReferencePoint;
+                cameraPosition.z = 0;
+            }
 
+            else
+            {
+                cameraPosition = (Vector3d)(Camera.main.transform.position) * distanceModifier + reference.sol.Model.localReferencePoint;
+                cameraPosition.z = 0;
+            }
+
+            //Settings for Camera Rotation
+
+            if (rotationMode == CameraRotationMode.Absolute)
+            {
+                if (cameraView == CameraView.Surface)
+                {
+                    transform.eulerAngles = new Vector3(0, 0, (float)(-reference.Rotation * Mathd.Rad2Deg));
+                }
+                else
+                {
+                    transform.localRotation = Quaternion.identity;
+                }
+            }
+            else if (rotationMode == CameraRotationMode.Reference)
+            {
+                if (cameraView == CameraView.Surface)
+                {
+                    transform.eulerAngles = new Vector3(0, 0, (float)((new Polar2(cameraPosition).angle - reference.Rotation) * Mathd.Rad2Deg - 90));
+                }
+                else
+                {
+                    transform.eulerAngles = new Vector3(0, 0, (float)((new Polar2(cameraPosition).angle) * Mathd.Rad2Deg - 90));
+                }
+            }
+            else if (rotationMode == CameraRotationMode.Relative)
+            {
+                if (target)
+                {
+                    transform.rotation = target.transform.rotation;
+                }
+            }
             //Camera Zoom
             if (Input.GetKey(KeyCode.Equals))
             {
@@ -213,24 +290,13 @@ public class CameraController : MonoBehaviour {
             //Set View Mode
             if (Input.GetKeyDown(KeyCode.V))
             {
-                SetViewMode((viewMode.GetHashCode() + 1 > 2) ? 0 : viewMode + 1);
+                SetRotationMode((rotationMode.GetHashCode() + 1 > 2) ? 0 : rotationMode + 1);
             }
 
             //Set Follow
             if (Input.GetKeyDown(KeyCode.F))
             {
                 ToggleFollow();
-            }
-
-            //camera rotation
-            if (viewMode == CameraViewMode.Absolute)
-            {
-                transform.rotation = Quaternion.identity;
-            }
-            else if (viewMode == CameraViewMode.Reference && targetModel != null)
-            {
-                //rot.eulerAngles = new Vector3(0, 0, new Polar2(targetModel.LocalPosition).angle * Mathf.Rad2Deg);
-                transform.eulerAngles = new Vector3(0, 0, (float)((new Polar2(targetModel.LocalPosition).angle + targetModel.reference.Model.Rotation) * Mathd.Rad2Deg - 90)); //set rotation of compass needle
             }
 
             //Update Background
@@ -285,24 +351,21 @@ public class CameraController : MonoBehaviour {
         target = targetController.gameObject;
         targetModel = targetController.Model;
 
-        SetViewMode(viewMode);
+        SetRotationMode(rotationMode);
     }
     public void SetControlMode(ControlMode mode)
     {
         if (mode == ControlMode.Craft)
         {
             
-            SetViewMode(viewMode);
+            SetRotationMode(rotationMode);
         }
 
         controlMode = mode;
     }
-    public void SetViewMode(CameraViewMode mode)
+    public void SetRotationMode(CameraRotationMode mode)
     {
-        viewMode = mode;
-
-        transform.parent = target.transform;
-        transform.localPosition = new Vector3(0, 0, -1);
-        transform.localRotation = Quaternion.identity;
+        rotationMode = mode;
+        MessagePanel.SendMessage("Rotation Mode: " + rotationMode.ToString(), 3, Color.blue);
     }
 }

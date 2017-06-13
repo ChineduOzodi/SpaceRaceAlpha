@@ -19,13 +19,16 @@ public class GameController : MonoBehaviour {
         instance = this;
         DontDestroyOnLoad(this);
 
-        system = new SolarSystemModel(5);
-        SolarSystemController solCont = Controller.Instantiate<SolarSystemController>(system);
+        system = new SolarSystemModel(9);
+        
 
         //AddCraft
-        //CraftModel craft = system.allSolarBodies[2].AddCraft(CraftModel.BasicCraft, 0);
+        CraftModel craft = system.allSolarBodies[2].AddCraft(CraftModel.BasicCraft, 0);
         //system.controlModel = new ModelRef<CraftModel>(craft);
         //CraftController craftC = Controller.Instantiate<CraftController>(craft);
+        craft = system.allSolarBodies[3].AddCraft(CraftModel.BasicCraft, new Polar2(Units.Mm, 1));
+
+        SolarSystemController solCont = Controller.Instantiate<SolarSystemController>(system);
 
         cam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<CameraController>();
         cam.SetCameraView(CameraView.System);

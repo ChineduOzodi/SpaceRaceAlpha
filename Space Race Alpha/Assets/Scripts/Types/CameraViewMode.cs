@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public enum CameraViewMode  {
+public enum CameraRotationMode  {
 
     Absolute,
     Relative,

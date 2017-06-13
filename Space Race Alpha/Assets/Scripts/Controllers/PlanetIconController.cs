@@ -10,12 +10,6 @@ public class PlanetIconController : Controller<PlanetModel> {
     public Sprite defaultSprite;
     public Material planetIconMaterial;
 
-    public Canvas labelCanvas;
-    public Text label;
-
-    private float labelZoomScale = .2f;
-    private float minLabeLocalScale = .5f;
-
     double distanceModifier;
     internal bool dynamicSize = true;
     private float zoomMod = .5f;
@@ -49,9 +43,6 @@ public class PlanetIconController : Controller<PlanetModel> {
         //Set Model
         Model = model;
         name = model.name + " Icon";
-        label.text = model.name;
-
-        labelCanvas.gameObject.SetActive(false);
 
         //Set Cameras
         mainCam = Camera.main;
@@ -114,17 +105,6 @@ public class PlanetIconController : Controller<PlanetModel> {
             transform.localScale = Vector3.one * (Mathf.Pow(iconSize * mainCam.orthographicSize, .8f));
 
             DeleteTerrain();
-
-            //Set Labels for planets
-            if (model.reference.Model.name == model.sol.Model.centerObject.Model.name)
-            {
-                labelCanvas.gameObject.SetActive(true);
-                labelCanvas.transform.localScale = Vector3.one;
-            }
-            else
-            {
-                labelCanvas.gameObject.SetActive(false);
-            }
         }
         else if (cameraView == CameraView.Planet)
         {
@@ -133,23 +113,20 @@ public class PlanetIconController : Controller<PlanetModel> {
 
             if (refer.name == model.name || refer.name == model.reference.Model.name)
             {
+                sprite.enabled = true;
+
                 if (refer.name == model.name)
                 {
                     line.enabled = false;
                     spaceT.enabled = false;
                 }
 
-                labelCanvas.gameObject.SetActive(true);
-
                 nearReference = true;
-                col.radius = (float) (model.radius / distanceModifier);
                 transform.localScale = Vector2.one;
                 MakeTerrain(5000, (float)model.radius);
             }
             else
             {
-                labelCanvas.gameObject.SetActive(false);
-
                 line.enabled = false;
                 spaceT.enabled = false;
             }
@@ -159,7 +136,6 @@ public class PlanetIconController : Controller<PlanetModel> {
         {
             sprite.enabled = false;
             SOI.SetActive(false);
-            labelCanvas.gameObject.SetActive(false);
             nearReference = false;
             line.enabled = false;
             spaceT.enabled = false;
@@ -186,41 +162,8 @@ public class PlanetIconController : Controller<PlanetModel> {
 
             if (dynamicSize)
             {
-                transform.localScale = Vector3.one * Mathf.Pow(iconSize * mainCam.orthographicSize * zoomMod, .8f);
-                SOI.transform.position = transform.position;
-                
-                if (model.reference.Model.name == model.sol.Model.centerObject.Model.name)
-                {
-                    float localScale = Mathf.Pow(labelZoomScale * mainCam.orthographicSize * .05f * iconSize, -.3f);
-
-                    if (mainCam.orthographicSize > 20)
-                    {
-                        labelCanvas.gameObject.SetActive(true);
-                        labelCanvas.transform.localScale = Vector3.one * localScale;
-                        labelCanvas.transform.eulerAngles = Vector3.zero;
-                    }
-                    else
-                    {
-                        labelCanvas.gameObject.SetActive(false);
-                    }
-                }
-                else
-                {
-                    float localScale = Mathf.Pow(labelZoomScale * mainCam.orthographicSize * .05f * iconSize, -.3f);
-
-
-                    if (mainCam.orthographicSize < 20)
-                    {
-                        labelCanvas.gameObject.SetActive(true);
-                        labelCanvas.transform.localScale = Vector3.one * localScale;
-                        labelCanvas.transform.eulerAngles = Vector3.zero;
-                    }
-                    else
-                    {
-                        labelCanvas.gameObject.SetActive(false);
-                    }
-                }
-                
+                transform.localScale = Vector3.one * Mathf.Pow(iconSize * mainCam.orthographicSize * zoomMod, .7f);
+                SOI.transform.position = transform.position;                
             }
             else
             {
@@ -233,22 +176,12 @@ public class PlanetIconController : Controller<PlanetModel> {
         {
             if (nearReference)
             {
+                transform.localScale = Vector3.one * Mathf.Pow(iconSize * mainCam.orthographicSize * zoomMod * 10, .5f);
                 transform.position = (Vector3)((model.SystemPosition - cam.reference.SystemPosition) / distanceModifier);
                 transform.eulerAngles = new Vector3(0, 0, (float)(model.Rotation * Mathd.Rad2Deg));
-
-                float localScale = Mathf.Pow(labelZoomScale * mainCam.orthographicSize, .8f);
-                if (localScale > minLabeLocalScale)
-                {
-                    labelCanvas.gameObject.SetActive(true);
-                    labelCanvas.transform.localScale = Vector3.one * localScale;
-                    labelCanvas.transform.eulerAngles = Vector3.zero;
-                }
-                else
-                {
-                    labelCanvas.gameObject.SetActive(false);
-                }
-
-                
+                //terrain resize
+                terrain.transform.position = transform.position;
+                terrain.transform.rotation = transform.rotation;
             }
         }
 
@@ -316,9 +249,17 @@ public class PlanetIconController : Controller<PlanetModel> {
         MeshFilter meshF = terrain.AddComponent<MeshFilter>();
         rend.material = planetIconMaterial;
         terrain.layer = 11;
-        terrain.transform.parent = transform;
-        terrain.transform.localPosition = Vector3.zero;
+        terrain.transform.position = transform.position;
 
         meshF.mesh = mesh;
+    }
+
+    public void OnMouseEnter()
+    {
+        LabelCanvas.instance.SetLabel(gameObject, model.name);
+    }
+    public void OnMouseExit()
+    {
+        LabelCanvas.instance.CancelLabel();
     }
 }

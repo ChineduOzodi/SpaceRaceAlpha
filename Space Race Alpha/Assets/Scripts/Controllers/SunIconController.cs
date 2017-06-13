@@ -62,4 +62,13 @@ public class SunIconController : Controller<SunModel> {
             transform.localScale = Vector3.one * (Mathf.Pow(width * mainCam.orthographicSize * zoomMod, .8f));
         }   
     }
+
+    public void OnMouseEnter()
+    {
+        LabelCanvas.instance.SetLabel(gameObject, model.name);
+    }
+    public void OnMouseExit()
+    {
+        LabelCanvas.instance.CancelLabel();
+    }
 }
