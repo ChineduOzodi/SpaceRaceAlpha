@@ -63,8 +63,8 @@ public class CraftModel : BaseModel
         {
             CraftModel craft = new CraftModel("Basic Craft", CraftPartModel.BasicCapsule);
             craft.rootCraft.Model.craft = new ModelRef<CraftModel>(craft);
-            craft.rootCraft.Model.AddCraftPartModel(CraftPartModel.LiquidFuelContainer, Vector3d.down, 0);
-            craft.rootCraft.Model.craftParts[0].AddCraftPartModel(CraftPartModel.SpaceEngine, Vector3d.down, 0);
+            craft.rootCraft.Model.AddCraftPartModel(CraftPartModel.LiquidFuelContainer, Vector3d.down * 1.08f, 0);
+            craft.rootCraft.Model.craftParts[0].AddCraftPartModel(CraftPartModel.SpaceEngine, Vector3d.down * .805f, 0);
 
             return craft;
         }
@@ -97,7 +97,7 @@ public class CraftModel : BaseModel
 
     public void CraftControl(double deltaTime)
     {
-        force = Forces.Force(this, sol.Model.allSolarBodies);
+        force = Forces.Force(this, true);
 
         if (!spawned) //Sets craft that are not spawned
         {
@@ -114,23 +114,113 @@ public class CraftModel : BaseModel
             }
         }
 
-        //Check for SOI change
-        double closestBody = (SystemPosition - reference.Model.SystemPosition).magnitude;
+        //Check for SOI change. TODO: Change soi change checking to force based checking?
+        double closestBody = (SystemPosition - reference.Model.SystemPosition).sqrMagnitude;
 
         for (int i = 0; i < sol.Model.allSolarBodies.Count; i++)
         {
             SolarBodyModel solarMod = sol.Model.allSolarBodies[i];
-            double distance = (SystemPosition - solarMod.SystemPosition).magnitude;
+            double distance = (SystemPosition - solarMod.SystemPosition).sqrMagnitude;
             if (distance < closestBody && solarMod.SOI > distance)
             {
-                reference = new ModelRef<BaseModel>(solarMod);
+                reference = new ModelRef<SolarBodyModel>(solarMod);
                 SystemPosition = SystemPosition; //update the new local positions and rotations
                 velocity = velocity;
                 Rotation = Rotation;
             }
         }
     }
+    /// <summary>
+    /// returns the appropriate rotation rate for autopilot to turn to an angle (world)
+    /// </summary>
+    /// <param name="desiredRotation">dsired world angle in radians</param>
+    /// <returns></returns>
+    private double DesiredRotationRate(double desiredRotation)
+    {
+        double multiplier = 1.25;
+        double pow = .4;
+        double rotationDifference = RotationDifference(desiredRotation, Rotation);
+        if (rotationDifference > 0)
+        {
+            double desiredRotationRate = Mathd.Pow(rotationDifference * multiplier, pow);
+            return desiredRotationRate;
+        }
+        else
+        {
+            double desiredRotationRate = -Mathd.Pow(-rotationDifference * multiplier, pow);
+            return desiredRotationRate;
+        }
 
+
+    }
+    private void SASProgram(double desiredRotationRate = 0)
+    {
+        double rotation = 0;
+
+        if (RotationRate != desiredRotationRate)
+        {
+            //if (RotationRate > desiredRotationRate)
+            //{
+            //    rotation = rotationSpeed * sol.Model.date.deltaTime;
+            //}
+            //else
+            //{
+            //    rotation = -rotationSpeed * sol.Model.date.deltaTime;
+            //}
+
+            //rgb.AddTorque((float)rotation);
+            //model.LocalRotationRate = rgb.angularVelocity * Mathd.Deg2Rad;
+            //if (Mathd.Abs(rgb.angularVelocity) < .1)
+            //{ //It has reached slow enough speed to stop
+
+            //    rgb.angularVelocity = 0;
+            //    model.RotationRate = 0;
+            //    model.Rotation = transform.rotation.eulerAngles.z * Mathd.Deg2Rad;
+            //}
+        }
+
+    }
+    /// <summary>
+    /// Difference of two angles, in radians
+    /// </summary>
+    /// <param name="desiredRotation"></param>
+    /// <param name="localRotation"></param>
+    /// <returns></returns>
+    private double RotationDifference(double desiredRotation, double localRotation)
+    {
+        double rotationDifference = desiredRotation - localRotation;
+
+        if (rotationDifference > Mathd.PI)
+        {
+            rotationDifference -= 2 * Mathd.PI;
+        }
+        if (rotationDifference < -Mathd.PI)
+        {
+            rotationDifference += 2 * Mathd.PI;
+        }
+        return rotationDifference;
+    }
+
+
+    /// <summary>
+    /// rotates craft to prograde
+    /// </summary>
+    private void ProgradeProgram()
+    {
+        double desiredRotationRate = DesiredRotationRate(new Polar2(LocalVelocity).angle - .5 * Mathd.PI); //Figure out rotation rate wanted
+
+        SASProgram(desiredRotationRate); //Add torque
+
+
+    }
+    private void RetrogradeProgram()
+    {
+        double desiredRotationRate = DesiredRotationRate(new Polar2(LocalVelocity).angle - 1.5 * Mathd.PI); //Figure out rotation rate wanted
+
+        SASProgram(desiredRotationRate); //Add torque
+
+
+    }
     //--------------------------Autopilot--------------------//
     //if (model.alt < 100 * Units.km)
     //{

@@ -49,10 +49,9 @@ public class SolarBodyModel : BaseModel {
     {
         if (reference == null)
             reference = this;
-        this.reference = new ModelRef<BaseModel>(reference);
-        this.referenceBody = new ModelRef<SolarBodyModel>(reference);
+        this.reference = new ModelRef<SolarBodyModel>(reference);
         this.sol = new ModelRef<SolarSystemModel>(sol);
-        this.referenceBody.Model.solarBodies.Add(this);
+        this.reference.Model.solarBodies.Add(this);
         this.SystemPosition = position;                                     //set given info
         this.mass = density * Forces.SphereVolume(radius);
         this.radius = radius;
@@ -93,8 +92,7 @@ public class SolarBodyModel : BaseModel {
         //var body = CraftModel.LiquidFuelContainer; //basic craft info
         //body.AddCraftModal(CraftModel.SpaceEngine, new Vector3(0, -1), 180 * Mathd.Deg2Rad);
 
-        model.reference = new ModelRef<BaseModel>(this);
-        model.referenceBody = new ModelRef<SolarBodyModel>(this);
+        model.reference = new ModelRef<SolarBodyModel>(this);
         model.sol = new ModelRef<SolarSystemModel>(sol.Model);
         model.State = ObjectState.Landed;
 
@@ -128,8 +126,7 @@ public class SolarBodyModel : BaseModel {
     {
 
 
-        model.reference = new ModelRef<BaseModel>(this);
-        model.referenceBody = new ModelRef<SolarBodyModel>(this);
+        model.reference = new ModelRef<SolarBodyModel>(this);
         model.sol = new ModelRef<SolarSystemModel>(sol.Model);
         model.State = ObjectState.Orbit;
 

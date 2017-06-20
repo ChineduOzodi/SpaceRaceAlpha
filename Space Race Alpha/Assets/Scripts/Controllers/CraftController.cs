@@ -17,7 +17,10 @@ public class CraftController : Controller<CraftModel> {
 
     internal Rigidbody2D rgb;
 
-    public BaseModel Model { get; internal set; }
+    internal BaseModel Model { get; private set; }
+
+    private CameraController cam;
+
     public float throttle {
         get
         {
@@ -42,22 +45,35 @@ public class CraftController : Controller<CraftModel> {
         //-------Set Message Spawned ---------//
         model.spawned = true;
 
+        cam = Camera.main.GetComponent<CameraController>();
+
         //Set physics
         rgb = gameObject.AddComponent<Rigidbody2D>();
         rgb.mass = (float)model.mass;
 
         //setup initial location and rotation
-        CheckAltitude();
 
         transform.eulerAngles = new Vector3(0, 0, (float)(model.Rotation * Mathd.Rad2Deg));
-        rgb.angularVelocity = (float)(model.LocalRotationRate * Mathd.Rad2Deg);
+        rgb.angularVelocity = (float)(model.RotationRate * Mathd.Rad2Deg);
 
         Controller.Instantiate<CraftPartController>(model.rootCraft.Model.spriteName, model.rootCraft.Model, this.transform);
 
-        
+        //Set initial position if not targetModel
+        if (cam.closeToReference)
+        {
+            transform.position = (Vector3)Forces.Rotate(model.LocalPosition - model.sol.Model.localReferencePoint, -model.reference.Model.Rotation);
+            transform.eulerAngles = new Vector3(0, 0, (float)model.LocalRotation * Mathf.Rad2Deg);
+            rgb.velocity = (Vector3)Forces.Rotate(model.LocalVelocity - model.sol.Model.localReferenceVel, -model.reference.Model.Rotation);
+        }
+        else if (cam.targetModel != null && model.name != cam.targetModel.name)
+        {
+            transform.position = (Vector3)(model.SystemPosition - cam.targetModel.SystemPosition);
+            transform.eulerAngles = new Vector3(0, 0, (float)model.Rotation * Mathf.Rad2Deg);
+            rgb.velocity = (Vector3)(model.velocity - cam.targetModel.velocity);
+        }
         //set.add to reference object list
         //model.reference.Model.crafts.Add(model);
-        
+
     }
 
     protected override void OnDestroy()
@@ -74,9 +90,9 @@ public class CraftController : Controller<CraftModel> {
         }
 
         //update position location parameters
-        transform.position = (Vector3)Forces.Rotate((model.LocalPosition - model.sol.Model.localReferencePoint), -model.reference.Model.Rotation); //position in relationship to reference point
-        transform.eulerAngles = new Vector3(0, 0, (float)(model.Rotation * Mathd.Rad2Deg));
-        rgb.velocity = (Vector3)Forces.Rotate((model.LocalVelocity - model.sol.Model.localReferenceVel), -model.reference.Model.Rotation - model.polar.angle + .5 * Mathd.PI); //sets the reletive velocity
+        //    transform.position = (Vector3)Forces.Rotate((model.LocalPosition - model.sol.Model.localReferencePoint), -model.reference.Model.Rotation); //position in relationship to reference point
+        //    transform.eulerAngles = new Vector3(0, 0, (float)(model.Rotation * Mathd.Rad2Deg));
+        //    rgb.velocity = (Vector3)Forces.Rotate((model.LocalVelocity - model.sol.Model.localReferenceVel), -model.reference.Model.Rotation - model.polar.angle + .5 * Mathd.PI); //sets the reletive velocity
     }
    
     /// <summary>
@@ -157,47 +173,43 @@ public class CraftController : Controller<CraftModel> {
     // Update is called once per frame
     public void Update () {
 
-        //Check Altitude
-
-        CheckAltitude();
-
         if (model.playerControlled)
         {
             double translationV = Input.GetAxis("Vertical") * translationSpeed * model.sol.Model.date.deltaTime;
             double translationH = Input.GetAxis("Horizontal") * translationSpeed * model.sol.Model.date.deltaTime;
             double rotation = 0; //rotation torque to add
 
-            if (Input.GetKey(KeyCode.Q))
-            {
-                rotation = -1 * rotationSpeed * model.sol.Model.date.deltaTime;
-                if (model.State == ObjectState.Landed)
-                {
-                    model.State = ObjectState.SubOrbit;
-                    OnStateChanged(null);
-                }
-            }
-            else if (Input.GetKey(KeyCode.E))
-            {
-                rotation = 1 * rotationSpeed * model.sol.Model.date.deltaTime;
-                if (model.State == ObjectState.Landed)
-                {
-                    model.State = ObjectState.SubOrbit;
-                    OnStateChanged(null);
-                }
+            //if (Input.GetKey(KeyCode.Q))
+            //{
+            //    rotation = -1 * rotationSpeed * model.sol.Model.date.deltaTime;
+            //    if (model.State == ObjectState.Landed)
+            //    {
+            //        model.State = ObjectState.SubOrbit;
+            //        OnStateChanged(null);
+            //    }
+            //}
+            //else if (Input.GetKey(KeyCode.E))
+            //{
+            //    rotation = 1 * rotationSpeed * model.sol.Model.date.deltaTime;
+            //    if (model.State == ObjectState.Landed)
+            //    {
+            //        model.State = ObjectState.SubOrbit;
+            //        OnStateChanged(null);
+            //    }
 
-            }
-            else if (SAS) //run SAS only when not manuelly controlling rotation
-            {
-                SASProgram();
-            }
-            else if (Prograde)
-            {
-                ProgradeProgram();
-            }
-            else if (Retrograde)
-            {
-                RetrogradeProgram();
-            }
+            //}
+            //else if (SAS) //run SAS only when not manuelly controlling rotation
+            //{
+            //    SASProgram();
+            //}
+            //else if (Prograde)
+            //{
+            //    ProgradeProgram();
+            //}
+            //else if (Retrograde)
+            //{
+            //    RetrogradeProgram();
+            //}
 
             model.throttle += (Input.GetKey(KeyCode.LeftShift)) ? 10 * model.sol.Model.date.deltaTime : 0;
             model.throttle -= (Input.GetKey(KeyCode.LeftControl)) ? 10 * model.sol.Model.date.deltaTime : 0;
@@ -231,18 +243,32 @@ public class CraftController : Controller<CraftModel> {
 
         }
 
-        //If not close to reference settings
-        if (model.State != ObjectState.Landed && model.closeToReference)
+        //Settings to control the system position of a craft once it is spawned
+        if (model.State != ObjectState.Landed)
         {
+            if (model.closeToReference)
+            {
+                Vector3 force = (Vector3)Forces.Rotate(model.force - model.sol.Model.localReferenceForce, model.reference.Model.Rotation);
+                rgb.AddForce(force * model.sol.Model.date.deltaTime * 50);
 
-            Vector3 force = (Vector3)Forces.Rotate(model.force - model.sol.Model.localReferenceForce, model.reference.Model.Rotation);
-            rgb.AddForce(force * model.sol.Model.date.deltaTime * 50);
-
-            Vector3d newlocPosDiff = Forces.Rotate((Vector3d)transform.position, model.reference.Model.Rotation);
-            model.LocalPosition = newlocPosDiff + model.sol.Model.localReferencePoint;
-            model.LocalVelocity = Forces.Rotate((Vector3d)(Vector2d)rgb.velocity, model.polar.angle - .5 * Mathd.PI + model.reference.Model.Rotation) + model.sol.Model.localReferenceVel; //TODO: Check / update this to be more accurate
-
-
+                Vector3d newlocPosDiff = Forces.Rotate((Vector3d)transform.position, model.reference.Model.Rotation);
+                model.LocalPosition = newlocPosDiff + model.sol.Model.localReferencePoint;
+                model.LocalVelocity = Forces.Rotate((Vector3d)(Vector2d)rgb.velocity, model.polar.angle - .5 * Mathd.PI + model.reference.Model.Rotation)
+                    + model.sol.Model.localReferenceVel; //TODO: Check / update this to be more accurate
+            }
+            else
+            {
+                if (model.name == cam.targetModel.name)
+                {
+                    model.velocity += Forces.ForceToVelocity(model.force, model.mass, model.sol.Model.date.deltaTime);
+                    model.SystemPosition += model.velocity * model.sol.Model.date.deltaTime;
+                }
+                else
+                {
+                    model.velocity = (Vector3d)(Vector2d)rgb.velocity * cam.distanceModifier + cam.targetModel.velocity;
+                    model.SystemPosition = cam.targetModel.SystemPosition + (Vector3d)transform.position * cam.distanceModifier;
+                }
+            }
 
         }
         else
@@ -252,7 +278,14 @@ public class CraftController : Controller<CraftModel> {
 
         rgb.AddTorque((float) model.torque);
         model.Rotation = transform.rotation.eulerAngles.z * Mathd.Deg2Rad;
-        model.LocalRotationRate += rgb.angularVelocity * Mathd.Deg2Rad;
+        model.RotationRate += rgb.angularVelocity * Mathd.Deg2Rad;
+
+        //Check if craft controller should be deleted
+        if (transform.position.magnitude > Units.km * 10 || cam.cameraView != CameraView.Surface)
+        {
+            model.spawned = false;
+            Destroy(gameObject);
+        }
     }
     void OnCollisionEnter2D(Collision2D coll)
     {
@@ -287,7 +320,7 @@ public class CraftController : Controller<CraftModel> {
     }
     void OnEnterBodyProximity()
     {
-        referenceController = Controller.Instantiate<PlanetController>(model.referenceBody.Model.Type.ToString(), model.referenceBody.Model);
+        referenceController = Controller.Instantiate<PlanetController>(model.reference.Model.Type.ToString(), model.reference.Model);
     }
     void OnExitBodyProximity()
     {
@@ -300,96 +333,6 @@ public class CraftController : Controller<CraftModel> {
 
         model.NotifyChange(); //update local controller
     }
-    private void SASProgram(double desiredRotationRate = 0)
-    {
-        double rotation = 0;
-
-        if (model.RotationRate != desiredRotationRate)
-        {
-            if (model.RotationRate > desiredRotationRate)
-            {
-                rotation = rotationSpeed * model.sol.Model.date.deltaTime;
-            }
-            else
-            {
-                rotation = -rotationSpeed * model.sol.Model.date.deltaTime;
-            }
-
-            rgb.AddTorque((float) rotation);
-            model.LocalRotationRate = rgb.angularVelocity * Mathd.Deg2Rad;
-            if (Mathd.Abs(rgb.angularVelocity) < .1)
-            { //It has reached slow enough speed to stop
-
-                rgb.angularVelocity = 0;
-                model.RotationRate = 0;
-                model.Rotation = transform.rotation.eulerAngles.z * Mathd.Deg2Rad;
-            }
-        }       
-
-    }
-    /// <summary>
-    /// returns the appropriate rotation rate for autopilot to turn to an angle (world)
-    /// </summary>
-    /// <param name="desiredRotation">dsired world angle in radians</param>
-    /// <returns></returns>
-    private double DesiredRotationRate(double desiredRotation)
-    {
-        double multiplier = 1.25;
-        double pow = .4;
-        double rotationDifference = RotationDifference(desiredRotation, model.Rotation);
-        if (rotationDifference > 0)
-        {
-            double desiredRotationRate = Mathd.Pow(rotationDifference * multiplier, pow);
-            return desiredRotationRate;
-        }
-        else
-        {
-            double desiredRotationRate = -Mathd.Pow(-rotationDifference * multiplier, pow);
-            return desiredRotationRate;
-        }
-        
-        
-    }
-
-    /// <summary>
-    /// Difference of two angles, in radians
-    /// </summary>
-    /// <param name="desiredRotation"></param>
-    /// <param name="localRotation"></param>
-    /// <returns></returns>
-    private double RotationDifference(double desiredRotation, double localRotation)
-    {
-        double rotationDifference = desiredRotation - localRotation;
-
-        if (rotationDifference > Math.PI)
-        {
-            rotationDifference -= 2 * Math.PI;
-        }
-        if (rotationDifference < -Math.PI)
-        {
-            rotationDifference += 2 * Math.PI;
-        }
-        return rotationDifference;
-    }
-
-
-    /// <summary>
-    /// rotates craft to prograde
-    /// </summary>
-    private void ProgradeProgram()
-    {
-        double desiredRotationRate = DesiredRotationRate(new Polar2(model.LocalVelocity).angle - .5 * Mathd.PI); //Figure out rotation rate wanted
-
-        SASProgram(desiredRotationRate); //Add torque
-
-
-    }
-    private void RetrogradeProgram()
-    {
-        double desiredRotationRate = DesiredRotationRate(new Polar2(model.LocalVelocity).angle - 1.5 * Mathd.PI); //Figure out rotation rate wanted
-
-        SASProgram(desiredRotationRate); //Add torque
-
-
-    }
+    
+    
 }

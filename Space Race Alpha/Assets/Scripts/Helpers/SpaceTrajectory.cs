@@ -47,8 +47,8 @@ public class SpaceTrajectory : MonoBehaviour
         {
             m2Pos = Vector3d.zero; //model.reference.Model.position; //position of reference object
             m2Vel = Vector3d.zero;  //model.reference.Model.velocity; //velocity of reference object
-            m2 = model.referenceBody.Model.mass;
-            SOI = model.referenceBody.Model.SOI;
+            m2 = model.reference.Model.mass;
+            SOI = model.reference.Model.SOI;
 
             //Get Relevant information
             distanceModifier = cam.distanceModifier;

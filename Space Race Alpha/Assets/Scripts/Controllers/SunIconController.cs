@@ -27,6 +27,7 @@ public class SunIconController : Controller<SunModel> {
         //Set Cameras
         mainCam = Camera.main;
         cam = mainCam.GetComponent<CameraController>();
+        model.color = Color.yellow;
 
         //Get Relevant information
         distanceModifier = mainCam.GetComponent<CameraController>().distanceModifier;

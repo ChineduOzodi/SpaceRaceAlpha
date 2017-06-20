@@ -23,6 +23,7 @@ public class CameraController : MonoBehaviour {
 
     internal SolarBodyModel reference;
     internal double distanceModifier = Units.Gm;
+    internal bool closeToReference;
 
     bool initialized = false;
     
@@ -36,11 +37,13 @@ public class CameraController : MonoBehaviour {
     public float maxCamSize = 10000;
     public float minMapSize = 350; //the minmum size of the map view
 
+    public float GravityMod = 1;
+
     internal float planetViewSize = 1000;
     internal float surfaceViewSize = 20000;
     internal float systemViewSize = 500;
     //Background
-    public GameObject stars;
+    internal GameObject stars;
 
     internal CameraView cameraView;
 
@@ -160,8 +163,29 @@ public class CameraController : MonoBehaviour {
                 }
             }
 
+            foreach (CraftModel craft in reference.crafts)
+            {
+                if ((craft.SystemPosition - position).sqrMagnitude < distance.sqrMagnitude && craft.State != ObjectState.Landed)
+                {
+                    distance = position - craft.SystemPosition;
+                    targetModel = craft;
+                    reference = craft.reference.Model;
+                }
+            }
+
+            
+
+            
+            if(targetModel != null)
+            {
+                Controller.Instantiate<CraftController>(targetModel);
+                transform.position = new Vector3(0, 0, -1);
+                Camera.main.orthographicSize = 5;
+            }
+            
             //Instantiate planet controller for the reference, which will take care of terrain generation
             Controller.Instantiate<PlanetController>(reference.Type.ToString(), reference);
+
 
         }
         else
@@ -180,11 +204,47 @@ public class CameraController : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
+        if (cameraPosition.magnitude < reference.radius + Units.km * 10)
+        {
+            closeToReference = true;
+        }
+        else closeToReference = false;
 
         if (!GameController.instance.setup)
         {
             float moveModifier = camMoveSpeed * mainCam.orthographicSize;
             mainCam.orthographicSize += Input.GetAxis("Mouse ScrollWheel") * -zoomSpeed * moveModifier;
+
+            //Setting Camera localPosition TODO: Check to make sure it is accurate
+            if (cameraView == CameraView.Surface)
+            {
+                if (closeToReference)
+                {
+                    cameraPosition = (Vector3d)(Camera.main.transform.position) * distanceModifier + reference.sol.Model.localReferencePoint;
+                    cameraPosition.z = 0;
+                }
+                else
+                {
+                    if (targetModel != null)
+                    {
+                        cameraPosition = (Vector3d)(Camera.main.transform.position) * distanceModifier + targetModel.LocalPosition;
+                        cameraPosition.z = 0;
+                    }
+                    else
+                    {
+                        cameraPosition = (Vector3d) transform.position.normalized * (reference.radius + Units.km * 5);
+                        closeToReference = true;
+                    }
+                    
+                }
+
+            }
+
+            else
+            {
+                cameraPosition = (Vector3d)(Camera.main.transform.position) * distanceModifier;
+                cameraPosition.z = 0;
+            }
 
             //Switch between the different views
             if ( cameraView == CameraView.System)
@@ -228,26 +288,16 @@ public class CameraController : MonoBehaviour {
                 
             }
 
-            //Setting Camera localPosition
-            if (cameraView != CameraView.Surface)
-            {
-                cameraPosition = (Vector3d)(Camera.main.transform.position) * distanceModifier;
-                cameraPosition.z = 0;
-            }
-
-            else
-            {
-                cameraPosition = (Vector3d)(Camera.main.transform.position) * distanceModifier + reference.sol.Model.localReferencePoint;
-                cameraPosition.z = 0;
-            }
-
             //Settings for Camera Rotation
 
             if (rotationMode == CameraRotationMode.Absolute)
             {
                 if (cameraView == CameraView.Surface)
                 {
+                    if (closeToReference)
                     transform.eulerAngles = new Vector3(0, 0, (float)(-reference.Rotation * Mathd.Rad2Deg));
+                    else
+                        transform.localRotation = Quaternion.identity;
                 }
                 else
                 {

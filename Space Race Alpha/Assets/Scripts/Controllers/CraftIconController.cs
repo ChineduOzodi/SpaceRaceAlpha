@@ -125,4 +125,9 @@ public class CraftIconController : Controller<CraftModel> {
     {
         LabelCanvas.instance.CancelLabel();
     }
+
+    public CraftModel GetModel()
+    {
+        return model;
+    }
 }

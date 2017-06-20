@@ -61,8 +61,7 @@ public class Forces
                 ((SolarBodyModel)self.reference.Model).solarBodies.Remove((SolarBodyModel)self);
                 potentialBody.solarBodies.Add((SolarBodyModel)self);
 
-                self.reference = new ModelRef<BaseModel>(potentialBody);
-                self.referenceBody = new ModelRef<SolarBodyModel>(potentialBody);
+                self.reference = new ModelRef<SolarBodyModel>(potentialBody);
 
                 ((SolarBodyModel)self).CalculateSOI();
             }

@@ -49,7 +49,7 @@ public class InfoPanel : MonoBehaviour {
             Vector2d apoPeri = Forces.TimeToApoPeri(model);
             double mass = model.mass;
 
-            return string.Format("Mass: {0} kg\nGravity: {1} m/s^2\n Velocity: {6} m/s\nAlt: {2}\nApo: {3}\nPer: {4}\nEcc: {5}\nOrbitalPeriod: {7}\nTime to Apo: {8}\nTime to Peri: {9}",
+            return string.Format("Mass: {0} kg\nGravity: {1} m/s^2\n Velocity: {6} m/s\nAlt: {2}\nApo: {3}\nPer: {4}\nEcc: {5}\nOrbitalPeriod: {7}\nTime to Apo: {8}\nTime to Peri: {9}\nState: {10}",
             mass, 
             (model.force.magnitude / mass).ToString("0.00"), 
             Units.ReadDistance(model.alt),
@@ -59,12 +59,13 @@ public class InfoPanel : MonoBehaviour {
             model.LocalVelocity.magnitude.ToString("0.00"), //6
             Date.ReadTime(model.OrbitalPeriod),
             Date.ReadTime(apoPeri.x),
-            Date.ReadTime(apoPeri.y));
+            Date.ReadTime(apoPeri.y),
+            model.State.ToString()); //10
         }
         else
         {
             PlanetModel pmodel = (PlanetModel) model;
-            return string.Format("Radius: {1}\nMass: {7}kg\nDensity: {8}\nSurface Gravity: {0} m/s^2\nOrbital Period: {6}\nAlt: {2}\nApo: {3}\nPer: {4}\nRotaion Period: {5}",
+            return string.Format("{9}Radius: {1}\nMass: {7}kg\nDensity: {8}\nSurface Gravity: {0} m/s^2\nOrbital Period: {6}\nAlt: {2}\nApo: {3}\nPer: {4}\nRotaion Period: {5}",
             Forces.Force(1,model.mass,pmodel.radius).ToString("0.00"),
             Units.ReadDistance(pmodel.radius),
             Units.ReadDistance(model.alt),
@@ -73,7 +74,8 @@ public class InfoPanel : MonoBehaviour {
             Date.ReadTime(2 * Mathd.PI / model.LocalRotationRate),
             Date.ReadTime(model.OrbitalPeriod), //6
             pmodel.mass,
-            pmodel.density); //7
+            pmodel.density, //8
+            (model.Type == ObjectType.Planet)?"Moons: "+pmodel.solarBodies.Count+"\n":""); //9
 
         }
     }

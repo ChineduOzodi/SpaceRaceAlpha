@@ -63,7 +63,7 @@ public class SolarSystemModel : Model
                 {
                     moonSize = UnityEngine.Random.Range(10, (float)(minPlanetRadius)) * Units.km; //in km
                 }
-                Polar2 moonPol = new Polar2(UnityEngine.Random.Range((float) planet.radius / Units.km + 10, (float) (planet.SOI / Units.km)) * Units.km,
+                Polar2 moonPol = new Polar2(UnityEngine.Random.Range((float) planet.radius + Units.km * 100, (float) (planet.SOI)),
                     UnityEngine.Random.Range(0, 2 * Mathf.PI));
                 density = UnityEngine.Random.Range(2000f, 6000);
 

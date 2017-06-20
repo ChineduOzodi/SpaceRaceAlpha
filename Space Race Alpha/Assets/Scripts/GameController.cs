@@ -26,7 +26,7 @@ public class GameController : MonoBehaviour {
         CraftModel craft = system.allSolarBodies[2].AddCraft(CraftModel.BasicCraft, 0);
         //system.controlModel = new ModelRef<CraftModel>(craft);
         //CraftController craftC = Controller.Instantiate<CraftController>(craft);
-        craft = system.allSolarBodies[3].AddCraft(CraftModel.BasicCraft, new Polar2(Units.Mm, 1));
+        craft = system.allSolarBodies[3].AddCraft(CraftModel.BasicCraft, new Polar2(system.allSolarBodies[3].radius + Units.Mm, 1));
 
         SolarSystemController solCont = Controller.Instantiate<SolarSystemController>(system);
 
@@ -55,7 +55,7 @@ public class GameController : MonoBehaviour {
 
                 if (hit.transform.tag == "craftIcon")
                 {
-                    m.model = hit.transform.GetComponent<CraftController>().Model;
+                    m.model = hit.transform.GetComponent<CraftIconController>().GetModel();
                 }
                 else if (hit.transform.tag == "planet")
                 {

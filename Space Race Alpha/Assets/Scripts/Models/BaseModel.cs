@@ -12,8 +12,7 @@ public class BaseModel : Model
     public ModelRef<SolarSystemModel> sol;
 
     //parent object
-    public ModelRef<BaseModel> reference;
-    public ModelRef<SolarBodyModel> referenceBody;
+    public ModelRef<SolarBodyModel> reference;
 
     public double radius;
     public double deltaTime;

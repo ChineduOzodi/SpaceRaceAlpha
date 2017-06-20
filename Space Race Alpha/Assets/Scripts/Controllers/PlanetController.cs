@@ -50,24 +50,56 @@ public class PlanetController : Controller<PlanetModel> {
         //Set name
         name = model.name;
 
-        SetMeshes();
+        if (cam.closeToReference)
+        {
+            SetMeshes();
 
-        Message.Send("SurfaceReferencesUpdated");
+            UpdateReferencePointData();
+        }
 
     }
 
     void Update()
     {
 
-        SetMeshes(); //Needs a lot more work
+        if (cam.closeToReference)
+        {
+            SetMeshes();
+
+            UpdateReferencePointData();
+        }
+        else
+        {
+            DestroyMeshes();
+        }
 
         //transform.eulerAngles = new Vector3(0, 0, (float)(model.Rotation * Mathd.Rad2Deg));
-
-        UpdateReferencePointData();
+        //Check to see if craft models need to be loaded
+        foreach (CraftModel craft in model.crafts)
+        {
+            if ((craft.LocalPosition - cam.cameraPosition).magnitude < Units.km * 10 && !craft.spawned)
+            {
+                Controller.Instantiate<CraftController>(craft);
+            }
+        }
+        
         //rect.eulerAngles = new Vector3(0, 0, (float)(model.rotation * Mathd.Rad2Deg)); //Set Model rotation
         if (cam.cameraView != CameraView.Surface)
         {
             Destroy(gameObject);
+        }
+    }
+
+    private void DestroyMeshes()
+    {
+        if (planetMeshObjs.Count != 0)
+        {
+            foreach(GameObject mesh in planetMeshObjs)
+            {
+                Destroy(mesh);
+            }
+            planetMeshObjs = new List<GameObject>();
+            createdMeshes = new List<int>();
         }
     }
 
