@@ -4,7 +4,7 @@ using UnityEngine;
 public class Date
 {
     private static int Seasons = 4;
-    private static int Days = 360;
+    private static int Days = 365;
     private static int Hours = 24;
     private static int Minutes = 60;
     private static int Seconds = 60;
