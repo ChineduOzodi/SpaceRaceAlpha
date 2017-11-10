@@ -80,7 +80,7 @@ public class CraftModel : BaseModel
         if (!playerControlled)
         {
             velocity += Forces.ForceToVelocity(this, addedForce, deltaTime);
-            SystemPosition += velocity * deltaTime;
+            LocalPosition += velocity * deltaTime;
             //Rotation += LocalRotationRate;
 
             if (!closeToReference)
@@ -104,7 +104,7 @@ public class CraftModel : BaseModel
             if (State != ObjectState.Landed)
             {
                 velocity += Forces.ForceToVelocity(force, mass, deltaTime);
-                SystemPosition += velocity * deltaTime;
+                LocalPosition += velocity * deltaTime;
             }
             else
             {
@@ -124,7 +124,7 @@ public class CraftModel : BaseModel
             if (distance < closestBody && solarMod.SOI > distance)
             {
                 reference = new ModelRef<SolarBodyModel>(solarMod);
-                SystemPosition = SystemPosition; //update the new local positions and rotations
+                //SystemPosition = SystemPosition; //update the new local positions and rotations
                 velocity = velocity;
                 Rotation = Rotation;
             }

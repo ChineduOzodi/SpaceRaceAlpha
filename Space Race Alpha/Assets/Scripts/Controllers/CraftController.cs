@@ -261,12 +261,12 @@ public class CraftController : Controller<CraftModel> {
                 if (model.name == cam.targetModel.name)
                 {
                     model.velocity += Forces.ForceToVelocity(model.force, model.mass, model.sol.Model.date.deltaTime);
-                    model.SystemPosition += model.velocity * model.sol.Model.date.deltaTime;
+                    model.LocalPosition += model.velocity * model.sol.Model.date.deltaTime;
                 }
                 else
                 {
                     model.velocity = (Vector3d)(Vector2d)rgb.velocity * cam.distanceModifier + cam.targetModel.velocity;
-                    model.SystemPosition = cam.targetModel.SystemPosition + (Vector3d)transform.position * cam.distanceModifier;
+                    model.LocalPosition = cam.targetModel.LocalPosition + (Vector3d)transform.position * cam.distanceModifier;
                 }
             }
 

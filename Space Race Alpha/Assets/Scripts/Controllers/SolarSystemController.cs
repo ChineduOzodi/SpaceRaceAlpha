@@ -65,7 +65,7 @@ public class SolarSystemController : Controller<SolarSystemModel>
             Vector3d force = Forces.Force(body, true);
             body.force = force;
             body.velocity += Forces.ForceToVelocity(body, model.date.deltaTime);
-            body.SystemPosition += Forces.VelocityToPosition(body, model.date.deltaTime);
+            body.LocalPosition += Forces.VelocityToPosition(body, model.date.deltaTime);
             //body.LocalPositionKeplar(model.date.deltaTime);
 
 

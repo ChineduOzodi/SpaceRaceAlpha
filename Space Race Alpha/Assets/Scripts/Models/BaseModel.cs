@@ -64,13 +64,17 @@ public class BaseModel : Model
     public Vector3d SystemPosition
 
     {
-        get { return solarPosition; }
-        set {
-            solarPosition = value;
-
-            localPosition = solarPosition  - reference.Model.SystemPosition;
-            pol = new Polar2(localPosition);
+        get {
+            if (reference.Model == this)
+            {
+                return localPosition;
+            }
+            return reference.Model.SystemPosition + localPosition;
         }
+        //set {
+        //    localPosition = value  - reference.Model.SystemPosition;
+        //    pol = new Polar2(localPosition);
+        //}
     }
     /// <summary>
     /// Position of model relative to reference object
@@ -82,7 +86,6 @@ public class BaseModel : Model
         {
             localPosition = value;
 
-            solarPosition = reference.Model.SystemPosition + localPosition;
             pol = new Polar2(localPosition);
         }
     }
@@ -97,7 +100,6 @@ public class BaseModel : Model
             pol = value;
 
             localPosition = Polar2.PolarToCartesian(pol);
-            solarPosition = reference.Model.SystemPosition + localPosition;
         }
     }
     /// <summary>
@@ -110,7 +112,6 @@ public class BaseModel : Model
             pol = new Polar2(value.radius, reference.Model.rotation + value.angle);
 
             localPosition = Polar2.PolarToCartesian(pol);
-            solarPosition = reference.Model.SystemPosition + localPosition;
         }
     }
 
@@ -368,7 +369,6 @@ public class BaseModel : Model
     //--------------------Private fields------------------------------//
 
     private Vector3d localPosition;
-    private Vector3d solarPosition;
     private Polar2 pol;
     
     private double rotation = 0;

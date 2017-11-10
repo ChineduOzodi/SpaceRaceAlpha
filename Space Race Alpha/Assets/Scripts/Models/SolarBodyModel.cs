@@ -36,7 +36,7 @@ public class SolarBodyModel : BaseModel {
     public SolarBodyModel() { }
 
     /// <summary>
-    /// Add Solar Body to Solar System model. Reference should already be
+    /// Add Solar Body to Solar System model. Reference should already be set
     /// </summary>
     /// <param name="sol">Solar system to add model to</param>
     /// <param name="reference"> The reference solar body, usually the sun or planet solar object orbits</param>
@@ -52,7 +52,7 @@ public class SolarBodyModel : BaseModel {
         this.reference = new ModelRef<SolarBodyModel>(reference);
         this.sol = new ModelRef<SolarSystemModel>(sol);
         this.reference.Model.solarBodies.Add(this);
-        this.SystemPosition = position;                                     //set given info
+        this.LocalPosition = position;                                     //set given info
         this.mass = density * Forces.SphereVolume(radius);
         this.radius = radius;
         this.density = density;
